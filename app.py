@@ -1,7 +1,7 @@
 import os
 import json
 import requests
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash
 from dotenv import load_dotenv
 import openai
 from datetime import datetime
@@ -13,14 +13,16 @@ import statistics
 load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = "your_secret_key_here"  # Replace with your secure key
+app.secret_key = "your_secret_key_here"  # Replace with a secure key
 
 # Set API keys from environment variables
 NEWS_API_KEY = os.environ.get("NEWS_API_KEY")
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
+
 openai.api_key = OPENAI_API_KEY
 
-# --- Extraction Functions ---
+# --- Extraction Functions (unchanged) ---
 def extract_query_parameters(user_prompt):
     prompt = f"""
 You are an assistant that extracts search parameters for a news query.
@@ -126,6 +128,24 @@ def fetch_news(params):
     data = response.json()
     return data.get("articles", [])
 
+# --- Function to Query Anthropic's Claude ---
+def query_claude(json_response, user_query):
+    prompt = f"Using the following data:\n\n{json_response}\n\nPlease create a detailed analysis and dashboard for the query: {user_query}"
+    headers = {
+        "x-api-key": ANTHROPIC_API_KEY,
+        "content-type": "application/json",
+    }
+    data = {
+        "prompt": prompt,
+        "model": "claude-v1",  # Update with the appropriate model identifier per Anthropic docs.
+        "max_tokens_to_sample": 300
+    }
+    response = requests.post("https://api.anthropic.com/v1/complete", headers=headers, json=data)
+    if response.status_code != 200:
+        print("Anthropic API error:", response.text)
+        raise Exception(f"Anthropic API error: {response.text}")
+    return response.json()
+
 # --- Routes ---
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -144,29 +164,39 @@ def result():
         flash("No query provided.")
         return redirect(url_for("index"))
     
-    if ("vs" in user_query.lower()) or ("compare" in user_query.lower()):
-        query_params = extract_comparative_query_parameters(user_query)
-        query_params["dataset1"] = apply_relative_dates(query_params["dataset1"])
-        query_params["dataset2"] = apply_relative_dates(query_params["dataset2"])
-        articles1 = fetch_news(query_params["dataset1"])
-        articles2 = fetch_news(query_params["dataset2"])
-        response_data = {
-            "query_type": "comparative",
-            "query_params": query_params,
-            "articles_dataset1": articles1,
-            "articles_dataset2": articles2
-        }
-    else:
-        query_params = extract_query_parameters(user_query)
-        query_params = apply_relative_dates(query_params)
-        articles = fetch_news(query_params)
-        response_data = {
-            "query_type": "single",
-            "query_params": query_params,
-            "articles": articles
-        }
-    formatted_json = json.dumps(response_data, indent=2)
-    return render_template("simple_result.html", q=user_query, json_data=formatted_json)
+    try:
+        if ("vs" in user_query.lower()) or ("compare" in user_query.lower()):
+            query_params = extract_comparative_query_parameters(user_query)
+            query_params["dataset1"] = apply_relative_dates(query_params["dataset1"])
+            query_params["dataset2"] = apply_relative_dates(query_params["dataset2"])
+            articles1 = fetch_news(query_params["dataset1"])
+            articles2 = fetch_news(query_params["dataset2"])
+            response_data = {
+                "query_type": "comparative",
+                "query_params": query_params,
+                "articles_dataset1": articles1,
+                "articles_dataset2": articles2
+            }
+        else:
+            query_params = extract_query_parameters(user_query)
+            query_params = apply_relative_dates(query_params)
+            articles = fetch_news(query_params)
+            response_data = {
+                "query_type": "single",
+                "query_params": query_params,
+                "articles": articles
+            }
+        formatted_json = json.dumps(response_data, indent=2)
+        
+        # Now, query Claude via Anthropic API with the JSON response.
+        claude_response = query_claude(formatted_json, user_query)
+        
+        # Render the result template with both the JSON and Claude's response.
+        return render_template("simple_result.html", q=user_query, json_data=formatted_json, claude_response=claude_response)
+    except Exception as e:
+        print("Error processing query:", e)
+        flash("An error occurred while processing your request.")
+        return redirect(url_for("index"))
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -4,9 +4,7 @@
   <meta charset="UTF-8">
   <title>Query Results for "{{ q }}"</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-    }
+    body { font-family: Arial, sans-serif; }
     #button-container {
       width: 80%;
       max-width: 800px;
@@ -24,6 +22,14 @@
       border-radius: 5px;
       overflow: auto;
     }
+    .response-section {
+      width: 80%;
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 10px;
+      background-color: #eef;
+      border-radius: 5px;
+    }
   </style>
 </head>
 <body>
@@ -33,6 +39,11 @@
     <button id="open-claude-btn">Open Claude</button>
   </div>
   <pre id="json-data">{{ json_data }}</pre>
+  
+  <div class="response-section">
+    <h2>Claude Response</h2>
+    <pre id="claude-response">{{ claude_response | tojson(indent=2) }}</pre>
+  </div>
   
   <script>
     const copyBtn = document.getElementById("copy-btn");
