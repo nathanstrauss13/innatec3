@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>News Analysis</title>
+    <title>Innate C3 | Comparative News Analysis</title>
     <!-- Google Analytics Tag -->
     <script async src="https://www.googletagmanager.com/gtag/js?id={{ ga_measurement_id }}"></script>
     <script>
@@ -16,7 +16,7 @@
 </head>
 <body class="bg-gray-100 min-h-screen p-8">
     <div class="max-w-4xl mx-auto">
-        <h1 class="text-3xl font-bold mb-8 text-center">News Analysis</h1>
+        <h1 class="text-3xl font-bold mb-8 text-center">Innate C3 | Comparative News Analysis</h1>
         
         {% if analytics_data %}
         <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-8">
@@ -40,11 +40,22 @@
         
         <form method="POST" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
             <div class="mb-4">
-                <label class="block text-gray-700 text-sm font-bold mb-2" for="query">
-                    What news would you like to analyze?
-                </label>
-                <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                       id="query" name="query" type="text" placeholder="Enter your query...">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="query1">
+                            First Search Term
+                        </label>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                               id="query1" name="query1" type="text" placeholder="e.g., DoorDash">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="query2">
+                            Second Search Term
+                        </label>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                               id="query2" name="query2" type="text" placeholder="e.g., Uber Eats">
+                    </div>
+                </div>
             </div>
             
             <div class="mb-6">
@@ -107,16 +118,18 @@
                 
                 const fromDate = document.getElementById('from_date').value;
                 const toDate = document.getElementById('to_date').value;
-                const query = document.getElementById('query').value;
+                const query1 = document.getElementById('query1').value;
+                const query2 = document.getElementById('query2').value;
 
                 console.log('Form submission:', {
-                    query,
+                    query1,
+                    query2,
                     fromDate,
                     toDate
                 });
 
-                if (!query) {
-                    alert('Please enter a search query');
+                if (!query1 || !query2) {
+                    alert('Please enter both search terms');
                     return;
                 }
 

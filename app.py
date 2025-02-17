@@ -199,14 +199,15 @@ def get_analytics_data():
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
-        query = request.form.get("query", "").strip()
+        query1 = request.form.get("query1", "").strip()
+        query2 = request.form.get("query2", "").strip()
         from_date = request.form.get("from_date", "").strip()
         to_date = request.form.get("to_date", "").strip()
         
         # Validate inputs
         errors = []
-        if not query:
-            errors.append("Please enter a search query")
+        if not query1 or not query2:
+            errors.append("Please enter both search terms")
         if not from_date or not to_date:
             errors.append("Please select a date range")
             
@@ -219,28 +220,38 @@ def index():
             # Validate date range
             validate_date_range(from_date, to_date)
             
-            # Fetch news articles
-            articles = fetch_news(
-                keywords=query,
+            # Fetch news articles for both queries
+            articles1 = fetch_news(
+                keywords=query1,
                 from_date=from_date,
                 to_date=to_date
             )
             
-            # Analyze articles
-            analysis = analyze_articles(articles, query)
+            articles2 = fetch_news(
+                keywords=query2,
+                from_date=from_date,
+                to_date=to_date
+            )
             
-            # Get Claude's text analysis
-            prompt = f"""Analyze these news articles about {query} and provide key insights about major themes, trends, and developments. 
+            # Analyze articles for both queries
+            analysis1 = analyze_articles(articles1, query1)
+            analysis2 = analyze_articles(articles2, query2)
+            
+            # Get Claude's comparative analysis
+            prompt = f"""Compare and analyze news coverage between {query1} and {query2}. 
             Focus on:
-            1. Major news stories and developments
-            2. Key statistics and metrics
-            3. Notable trends or patterns
-            4. Business/industry implications
+            1. Major differences in coverage and themes
+            2. Comparative statistics and metrics
+            3. Notable trends or patterns unique to each
+            4. Business/industry implications for both
             
             Format your response with clear sections and bullet points for readability.
             
-            Articles data:
-            {json.dumps(articles, indent=2)}"""
+            Articles for {query1}:
+            {json.dumps(articles1, indent=2)}
+            
+            Articles for {query2}:
+            {json.dumps(articles2, indent=2)}"""
             
             response = anthropic.messages.create(
                 model="claude-3-opus-20240229",
@@ -253,10 +264,13 @@ def index():
             
             return render_template(
                 "result.html",
-                query=query,
+                query1=query1,
+                query2=query2,
                 textual_analysis=response.content[0].text,
-                analysis=analysis,
-                articles=articles
+                analysis1=analysis1,
+                analysis2=analysis2,
+                articles1=articles1,
+                articles2=articles2
             )
             
         except Exception as e:
