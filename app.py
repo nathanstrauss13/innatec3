@@ -104,16 +104,15 @@ def analyze_articles(articles, query):
     }
 
 def validate_date_range(from_date, to_date):
-    """Validate that the date range is within the last 30 days."""
+    """Validate that the date range is no more than 30 days."""
     try:
-        today = datetime.today()
-        thirty_days_ago = today - relativedelta(days=30)
-        
         start_date = datetime.strptime(from_date, "%Y-%m-%d")
         end_date = datetime.strptime(to_date, "%Y-%m-%d")
         
-        if start_date < thirty_days_ago or end_date > today:
-            raise ValueError("Date range must be within the last 30 days")
+        date_difference = (end_date - start_date).days
+        
+        if date_difference > 30:
+            raise ValueError("Date range cannot exceed 30 days")
         if start_date > end_date:
             raise ValueError("Start date must be before end date")
             
