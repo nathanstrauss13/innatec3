@@ -5,3 +5,4 @@ anthropic>=0.18.0
 python-dateutil==2.8.2
 gunicorn==20.1.0
 werkzeug==2.2.3
+google-analytics-data==0.16.2

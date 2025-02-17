@@ -10,15 +10,23 @@ from dotenv import load_dotenv
 from anthropic import Anthropic
 from dateutil.relativedelta import relativedelta
 from dateutil.parser import parse
+from google.analytics.data_v1beta import BetaAnalyticsDataClient
+from google.analytics.data_v1beta.types import (
+    RunReportRequest,
+    DateRange,
+    Metric,
+    Dimension
+)
 
 load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "your_secret_key_here")
 
-# API keys
+# API keys and configuration
 NEWS_API_KEY = os.environ.get("NEWS_API_KEY")
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
+GA_MEASUREMENT_ID = os.environ.get("GA_MEASUREMENT_ID")
 
 anthropic = Anthropic(api_key=ANTHROPIC_API_KEY)
 
@@ -95,19 +103,25 @@ def analyze_articles(articles, query):
         }
     }
 
-def get_date_range(time_frame):
-    """Convert time frame to date range."""
-    today = datetime.today()
-    to_date = today.strftime("%Y-%m-%d")
-    
-    if time_frame == "past_week":
-        from_date = (today - relativedelta(weeks=1)).strftime("%Y-%m-%d")
-    elif time_frame == "past_month":
-        from_date = (today - relativedelta(months=1)).strftime("%Y-%m-%d")
-    else:  # Default to past week
-        from_date = (today - relativedelta(weeks=1)).strftime("%Y-%m-%d")
-    
-    return from_date, to_date
+def validate_date_range(from_date, to_date):
+    """Validate that the date range is within the last 30 days."""
+    try:
+        today = datetime.today()
+        thirty_days_ago = today - relativedelta(days=30)
+        
+        start_date = datetime.strptime(from_date, "%Y-%m-%d")
+        end_date = datetime.strptime(to_date, "%Y-%m-%d")
+        
+        if start_date < thirty_days_ago or end_date > today:
+            raise ValueError("Date range must be within the last 30 days")
+        if start_date > end_date:
+            raise ValueError("Start date must be before end date")
+            
+        return True
+    except ValueError as e:
+        raise ValueError(str(e))
+    except Exception:
+        raise ValueError("Invalid date format")
 
 def fetch_news(keywords, from_date=None, to_date=None, language="en", domains=None):
     """Fetch news articles from News API."""
@@ -132,15 +146,79 @@ def fetch_news(keywords, from_date=None, to_date=None, language="en", domains=No
         raise Exception(f"News API error: {response.text}")
     return response.json().get("articles", [])
 
+def get_analytics_data():
+    """Fetch analytics data from GA4."""
+    try:
+        client = BetaAnalyticsDataClient()
+        property_id = f"properties/{os.environ.get('GA4_PROPERTY_ID')}"
+
+        request = RunReportRequest(
+            property=property_id,
+            date_ranges=[DateRange(start_date="30daysAgo", end_date="today")],
+            metrics=[
+                Metric(name="activeUsers"),
+                Metric(name="screenPageViews"),
+                Metric(name="averageSessionDuration")
+            ],
+            dimensions=[Dimension(name="date")]
+        )
+        
+        response = client.run_report(request)
+        
+        analytics_data = {
+            'total_users': 0,
+            'total_pageviews': 0,
+            'avg_session_duration': 0,
+            'daily_data': []
+        }
+        
+        for row in response.rows:
+            date = row.dimension_values[0].value
+            users = int(row.metric_values[0].value)
+            pageviews = int(row.metric_values[1].value)
+            duration = float(row.metric_values[2].value)
+            
+            analytics_data['total_users'] += users
+            analytics_data['total_pageviews'] += pageviews
+            analytics_data['daily_data'].append({
+                'date': date,
+                'users': users,
+                'pageviews': pageviews,
+                'duration': duration
+            })
+        
+        if response.rows:
+            analytics_data['avg_session_duration'] = sum(
+                float(row.metric_values[2].value) for row in response.rows
+            ) / len(response.rows)
+            
+        return analytics_data
+    except Exception as e:
+        print(f"Analytics error: {str(e)}")
+        return None
+
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
-        query = request.form.get("query")
-        time_frame = request.form.get("time_frame", "past_week")
+        query = request.form.get("query", "").strip()
+        from_date = request.form.get("from_date", "").strip()
+        to_date = request.form.get("to_date", "").strip()
+        
+        # Validate inputs
+        errors = []
+        if not query:
+            errors.append("Please enter a search query")
+        if not from_date or not to_date:
+            errors.append("Please select a date range")
+            
+        if errors:
+            for error in errors:
+                flash(error)
+            return redirect(url_for("index"))
         
         try:
-            # Get date range
-            from_date, to_date = get_date_range(time_frame)
+            # Validate date range
+            validate_date_range(from_date, to_date)
             
             # Fetch news articles
             articles = fetch_news(
@@ -186,7 +264,18 @@ def index():
             flash(f"Error: {str(e)}")
             return redirect(url_for("index"))
             
-    return render_template("index.html")
+    analytics_data = None
+    if request.method == "GET":
+        try:
+            analytics_data = get_analytics_data()
+        except Exception as e:
+            print(f"Failed to fetch analytics: {str(e)}")
+    
+    return render_template(
+        "index.html",
+        ga_measurement_id=GA_MEASUREMENT_ID,
+        analytics_data=analytics_data
+    )
 
 if __name__ == "__main__":
     # Get port from environment variable or default to 5001

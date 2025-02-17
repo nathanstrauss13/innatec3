@@ -2,11 +2,41 @@
 <html>
 <head>
     <title>News Analysis</title>
+    <!-- Google Analytics Tag -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ ga_measurement_id }}"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '{{ ga_measurement_id }}');
+    </script>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 </head>
 <body class="bg-gray-100 min-h-screen p-8">
-    <div class="max-w-2xl mx-auto">
+    <div class="max-w-4xl mx-auto">
         <h1 class="text-3xl font-bold mb-8 text-center">News Analysis</h1>
+        
+        {% if analytics_data %}
+        <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-8">
+            <h2 class="text-xl font-bold mb-4">Website Analytics</h2>
+            <div class="grid grid-cols-3 gap-4 mb-6">
+                <div class="bg-blue-50 p-4 rounded">
+                    <h3 class="text-sm font-semibold text-blue-800">Total Users</h3>
+                    <p class="text-2xl font-bold text-blue-600">{{ analytics_data.total_users }}</p>
+                </div>
+                <div class="bg-green-50 p-4 rounded">
+                    <h3 class="text-sm font-semibold text-green-800">Total Pageviews</h3>
+                    <p class="text-2xl font-bold text-green-600">{{ analytics_data.total_pageviews }}</p>
+                </div>
+                <div class="bg-purple-50 p-4 rounded">
+                    <h3 class="text-sm font-semibold text-purple-800">Avg. Session Duration</h3>
+                    <p class="text-2xl font-bold text-purple-600">{{ "%.2f"|format(analytics_data.avg_session_duration) }}s</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
         
         <form method="POST" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
             <div class="mb-4">
@@ -18,14 +48,14 @@
             </div>
             
             <div class="mb-6">
-                <label class="block text-gray-700 text-sm font-bold mb-2" for="time_frame">
-                    Time Frame
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="date_range">
+                    Select Date Range (Last 30 Days)
                 </label>
-                <select class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                        id="time_frame" name="time_frame">
-                    <option value="past_week">Past Week</option>
-                    <option value="past_month">Past Month</option>
-                </select>
+                <input type="text" id="date_range" name="date_range" 
+                       class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                       placeholder="Select date range...">
+                <input type="hidden" id="from_date" name="from_date">
+                <input type="hidden" id="to_date" name="to_date">
             </div>
             
             <div class="flex items-center justify-between">
@@ -46,5 +76,59 @@
             {% endif %}
         {% endwith %}
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date();
+            const thirtyDaysAgo = new Date(today);
+            thirtyDaysAgo.setDate(today.getDate() - 30);
+
+            const fp = flatpickr("#date_range", {
+                mode: "range",
+                dateFormat: "Y-m-d",
+                minDate: thirtyDaysAgo,
+                maxDate: today,
+                defaultDate: [thirtyDaysAgo, today],
+                onChange: function(selectedDates) {
+                    if (selectedDates.length === 2) {
+                        document.getElementById('from_date').value = flatpickr.formatDate(selectedDates[0], "Y-m-d");
+                        document.getElementById('to_date').value = flatpickr.formatDate(selectedDates[1], "Y-m-d");
+                    }
+                }
+            });
+
+            // Set initial values for hidden fields
+            document.getElementById('from_date').value = flatpickr.formatDate(thirtyDaysAgo, "Y-m-d");
+            document.getElementById('to_date').value = flatpickr.formatDate(today, "Y-m-d");
+
+            // Add form submit handler
+            document.querySelector('form').addEventListener('submit', function(e) {
+                e.preventDefault(); // Prevent default submission temporarily for debugging
+                
+                const fromDate = document.getElementById('from_date').value;
+                const toDate = document.getElementById('to_date').value;
+                const query = document.getElementById('query').value;
+
+                console.log('Form submission:', {
+                    query,
+                    fromDate,
+                    toDate
+                });
+
+                if (!query) {
+                    alert('Please enter a search query');
+                    return;
+                }
+
+                if (!fromDate || !toDate) {
+                    alert('Please select a date range');
+                    return;
+                }
+
+                // If validation passes, submit the form
+                this.submit();
+            });
+        });
+    </script>
 </body>
 </html>
