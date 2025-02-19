@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Innate C3 | Comparative News Analysis</title>
+    <title>Innate C3 | Media Analysis</title>
+    {% if ga_measurement_id %}
     <!-- Google Analytics Tag -->
     <script async src="https://www.googletagmanager.com/gtag/js?id={{ ga_measurement_id }}"></script>
     <script>
@@ -10,13 +11,14 @@
         gtag('js', new Date());
         gtag('config', '{{ ga_measurement_id }}');
     </script>
+    {% endif %}
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 </head>
 <body class="bg-gray-100 min-h-screen p-8">
     <div class="max-w-4xl mx-auto">
-        <h1 class="text-3xl font-bold mb-8 text-center">Innate C3 | Comparative News Analysis</h1>
+        <h1 class="text-3xl font-bold mb-8 text-center">Innate C3 | Media Analysis</h1>
         
         {% if analytics_data %}
         <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-8">
@@ -43,14 +45,14 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-gray-700 text-sm font-bold mb-2" for="query1">
-                            First Search Term
+                            Search Query
                         </label>
                         <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                                id="query1" name="query1" type="text" placeholder="e.g., DoorDash">
                     </div>
                     <div>
                         <label class="block text-gray-700 text-sm font-bold mb-2" for="query2">
-                            Second Search Term
+                            Optional Comparative Search
                         </label>
                         <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                                id="query2" name="query2" type="text" placeholder="e.g., Uber Eats">
@@ -128,8 +130,8 @@
                     toDate
                 });
 
-                if (!query1 || !query2) {
-                    alert('Please enter both search terms');
+                if (!query1) {
+                    alert('Please enter at least one search term');
                     return;
                 }
 

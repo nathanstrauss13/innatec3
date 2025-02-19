@@ -7,8 +7,6 @@ import requests
 from flask import Flask, render_template, request, redirect, url_for, flash
 from markupsafe import Markup
 from dotenv import load_dotenv
-from anthropic import Anthropic
-from dateutil.relativedelta import relativedelta
 from dateutil.parser import parse
 from google.analytics.data_v1beta import BetaAnalyticsDataClient
 from google.analytics.data_v1beta.types import (
@@ -25,10 +23,7 @@ app.secret_key = os.environ.get("FLASK_SECRET_KEY", "your_secret_key_here")
 
 # API keys and configuration
 NEWS_API_KEY = os.environ.get("NEWS_API_KEY")
-ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
 GA_MEASUREMENT_ID = os.environ.get("GA_MEASUREMENT_ID")
-
-anthropic = Anthropic(api_key=ANTHROPIC_API_KEY)
 
 def analyze_articles(articles, query):
     """Extract key metrics and patterns from articles."""
@@ -46,32 +41,12 @@ def analyze_articles(articles, query):
     
     # Extended stop words list
     stop_words = {
-        # Common English words
         'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 
         'for', 'of', 'with', 'by', 'from', 'up', 'about', 'into', 'over',
         'after', 'is', 'are', 'was', 'were', 'be', 'been', 'being',
         'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would',
         'should', 'can', 'could', 'may', 'might', 'must', 'it', 'its',
-        'this', 'that', 'these', 'those', 'he', 'she', 'they', 'we', 'you',
-        
-        # Common content words
-        'said', 'says', 'one', 'two', 'three', 'first', 'last', 'year',
-        'years', 'month', 'months', 'day', 'days', 'today', 'tomorrow',
-        'here', 'there', 'where', 'when', 'why', 'how', 'what', 'which',
-        'who', 'whom', 'whose', 'get', 'got', 'getting', 'make', 'made',
-        'making', 'take', 'took', 'taking', 'see', 'saw', 'seeing',
-        'come', 'came', 'coming', 'go', 'went', 'going', 'know', 'knew',
-        'knowing', 'think', 'thought', 'thinking', 'say', 'saying',
-        'said', 'just', 'now', 'like', 'also', 'then', 'than',
-        'more', 'most', 'some', 'all', 'any', 'many', 'much',
-        'your', 'my', 'our', 'their', 'his', 'her', 'its',
-        'during', 'while', 'before', 'after', 'under', 'over',
-        
-        # Numbers and time-related
-        '2024', '2025', 'january', 'february', 'march', 'april', 'may',
-        'june', 'july', 'august', 'september', 'october', 'november',
-        'december', 'monday', 'tuesday', 'wednesday', 'thursday',
-        'friday', 'saturday', 'sunday'
+        'during', 'while', 'before', 'after', 'under', 'over'
     }
     
     # Add search terms to stop words
@@ -91,7 +66,7 @@ def analyze_articles(articles, query):
     top_topics = [{'topic': topic, 'count': count} 
                   for topic, count in topics.most_common(30)
                   if count > 2]  # Only include topics mentioned more than twice
-    
+
     return {
         'timeline': timeline,
         'sources': top_sources,
@@ -130,7 +105,7 @@ def fetch_news(keywords, from_date=None, to_date=None, language="en", domains=No
         "language": language,
         "apiKey": NEWS_API_KEY,
         "sortBy": "relevancy",
-        "pageSize": 100  # Get more articles for better analysis
+        "pageSize": 100  # Increased page size to return more articles
     }
     
     if from_date:
@@ -206,8 +181,8 @@ def index():
         
         # Validate inputs
         errors = []
-        if not query1 or not query2:
-            errors.append("Please enter both search terms")
+        if not query1:
+            errors.append("Please enter at least one search term")
         if not from_date or not to_date:
             errors.append("Please select a date range")
             
@@ -215,64 +190,51 @@ def index():
             for error in errors:
                 flash(error)
             return redirect(url_for("index"))
+
+        # Determine if this is a comparative analysis
+        is_comparative = bool(query2 and query2.strip())
         
         try:
             # Validate date range
             validate_date_range(from_date, to_date)
             
-            # Fetch news articles for both queries
+            # Fetch and analyze articles for the first query
             articles1 = fetch_news(
                 keywords=query1,
                 from_date=from_date,
                 to_date=to_date
             )
             
-            articles2 = fetch_news(
-                keywords=query2,
-                from_date=from_date,
-                to_date=to_date
-            )
-            
-            # Analyze articles for both queries
             analysis1 = analyze_articles(articles1, query1)
-            analysis2 = analyze_articles(articles2, query2)
             
-            # Get Claude's comparative analysis
-            prompt = f"""Compare and analyze news coverage between {query1} and {query2}. 
-            Focus on:
-            1. Major differences in coverage and themes
-            2. Comparative statistics and metrics
-            3. Notable trends or patterns unique to each
-            4. Business/industry implications for both
+            # Only fetch and analyze second query if provided
+            articles2 = []
+            analysis2 = None
+            if query2:
+                articles2 = fetch_news(
+                    keywords=query2,
+                    from_date=from_date,
+                    to_date=to_date
+                )
+                analysis2 = analyze_articles(articles2, query2)
             
-            Format your response with clear sections and bullet points for readability.
-            
-            Articles for {query1}:
-            {json.dumps(articles1, indent=2)}
-            
-            Articles for {query2}:
-            {json.dumps(articles2, indent=2)}"""
-            
-            response = anthropic.messages.create(
-                model="claude-3-opus-20240229",
-                max_tokens=2000,
-                messages=[{
-                    "role": "user",
-                    "content": prompt
-                }]
-            )
-            
+            template_data = {
+                'analysis1': analysis1,
+                'query1': query1,
+                'analysis2': analysis2 if query2 else None,
+                'query2': query2 if query2 else None,
+                'isComparative': True if query2 else False
+            }
             return render_template(
                 "result.html",
                 query1=query1,
                 query2=query2,
-                textual_analysis=response.content[0].text,
                 analysis1=analysis1,
                 analysis2=analysis2,
                 articles1=articles1,
-                articles2=articles2
+                articles2=articles2,
+                template_data=template_data
             )
-            
         except Exception as e:
             flash(f"Error: {str(e)}")
             return redirect(url_for("index"))
@@ -291,6 +253,6 @@ def index():
     )
 
 if __name__ == "__main__":
-    # Get port from environment variable or default to 5001
-    port = int(os.environ.get("PORT", 5001))
-    app.run(host='0.0.0.0', port=port)
+    # Get port from environment variable or default to 5005
+    port = int(os.environ.get("PORT", 5005))
+    app.run(host='0.0.0.0', port=port, debug=True)
