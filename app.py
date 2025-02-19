@@ -9,13 +9,6 @@ from markupsafe import Markup
 from dotenv import load_dotenv
 from anthropic import Anthropic
 from dateutil.parser import parse
-from google.analytics.data_v1beta import BetaAnalyticsDataClient
-from google.analytics.data_v1beta.types import (
-    RunReportRequest,
-    DateRange,
-    Metric,
-    Dimension
-)
 
 load_dotenv()
 
@@ -41,7 +34,6 @@ scheduler.start()
 # API keys and configuration
 NEWS_API_KEY = os.environ.get("NEWS_API_KEY")
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
-GA_MEASUREMENT_ID = os.environ.get("GA_MEASUREMENT_ID")
 
 anthropic = Anthropic(api_key=ANTHROPIC_API_KEY)
 
@@ -139,57 +131,6 @@ def fetch_news(keywords, from_date=None, to_date=None, language="en", domains=No
     if response.status_code != 200:
         raise Exception(f"News API error: {response.text}")
     return response.json().get("articles", [])
-
-def get_analytics_data():
-    """Fetch analytics data from GA4."""
-    try:
-        client = BetaAnalyticsDataClient()
-        property_id = f"properties/{os.environ.get('GA4_PROPERTY_ID')}"
-
-        request = RunReportRequest(
-            property=property_id,
-            date_ranges=[DateRange(start_date="30daysAgo", end_date="today")],
-            metrics=[
-                Metric(name="activeUsers"),
-                Metric(name="screenPageViews"),
-                Metric(name="averageSessionDuration")
-            ],
-            dimensions=[Dimension(name="date")]
-        )
-        
-        response = client.run_report(request)
-        
-        analytics_data = {
-            'total_users': 0,
-            'total_pageviews': 0,
-            'avg_session_duration': 0,
-            'daily_data': []
-        }
-        
-        for row in response.rows:
-            date = row.dimension_values[0].value
-            users = int(row.metric_values[0].value)
-            pageviews = int(row.metric_values[1].value)
-            duration = float(row.metric_values[2].value)
-            
-            analytics_data['total_users'] += users
-            analytics_data['total_pageviews'] += pageviews
-            analytics_data['daily_data'].append({
-                'date': date,
-                'users': users,
-                'pageviews': pageviews,
-                'duration': duration
-            })
-        
-        if response.rows:
-            analytics_data['avg_session_duration'] = sum(
-                float(row.metric_values[2].value) for row in response.rows
-            ) / len(response.rows)
-            
-        return analytics_data
-    except Exception as e:
-        print(f"Analytics error: {str(e)}")
-        return None
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -293,18 +234,7 @@ def index():
             flash(f"Error: {str(e)}")
             return redirect(url_for("index"))
             
-    analytics_data = None
-    if request.method == "GET":
-        try:
-            analytics_data = get_analytics_data()
-        except Exception as e:
-            print(f"Failed to fetch analytics: {str(e)}")
-    
-    return render_template(
-        "index.html",
-        ga_measurement_id=GA_MEASUREMENT_ID,
-        analytics_data=analytics_data
-    )
+    return render_template("index.html")
 
 if __name__ == "__main__":
     # Get port from environment variable or default to 5005
