@@ -39,22 +39,36 @@ anthropic = Anthropic(api_key=ANTHROPIC_API_KEY)
 
 def analyze_articles(articles, query):
     """Extract key metrics and patterns from articles."""
-    # Calculate sentiment for each article
-    for article in articles:
-        text = f"{article['title']} {article['description'] or ''}"
-        response = anthropic.messages.create(
-            model="claude-3-haiku-20240307",
-            max_tokens=100,
-            messages=[{
-                "role": "user",
-                "content": f"Analyze the sentiment of this text and respond with a single number between -1 (most negative) and 1 (most positive): {text}"
-            }]
-        )
-        try:
-            sentiment = float(response.content[0].text.strip())
-            article['sentiment'] = max(-1, min(1, sentiment))  # Ensure value is between -1 and 1
-        except (ValueError, TypeError):
-            article['sentiment'] = 0  # Default to neutral if parsing fails
+    # Batch sentiment analysis for all articles
+    texts = [f"{article['title']} {article['description'] or ''}" for article in articles]
+    batch_text = "\n---\n".join(texts)
+    
+    response = anthropic.messages.create(
+        model="claude-3-haiku-20240307",
+        max_tokens=1000,
+        messages=[{
+            "role": "user",
+            "content": f"""Analyze the sentiment of each text block separated by '---' and respond with ONLY a comma-separated list of numbers between -1 (most negative) and 1 (most positive).
+            Example response format: 0.5,-0.2,0.8
+            
+            {batch_text}"""
+        }]
+    )
+    
+    try:
+        sentiments = [float(s.strip()) for s in response.content[0].text.strip().split(',')]
+        # Ensure we have the right number of sentiments
+        if len(sentiments) == len(articles):
+            for article, sentiment in zip(articles, sentiments):
+                article['sentiment'] = max(-1, min(1, sentiment))  # Ensure value is between -1 and 1
+        else:
+            # If mismatch, default to neutral
+            for article in articles:
+                article['sentiment'] = 0
+    except (ValueError, TypeError, IndexError):
+        # Default to neutral if parsing fails
+        for article in articles:
+            article['sentiment'] = 0
     
     # Publication timeline
     dates = {}
