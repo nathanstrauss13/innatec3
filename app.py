@@ -39,6 +39,23 @@ anthropic = Anthropic(api_key=ANTHROPIC_API_KEY)
 
 def analyze_articles(articles, query):
     """Extract key metrics and patterns from articles."""
+    # Calculate sentiment for each article
+    for article in articles:
+        text = f"{article['title']} {article['description'] or ''}"
+        response = anthropic.messages.create(
+            model="claude-3-haiku-20240307",
+            max_tokens=100,
+            messages=[{
+                "role": "user",
+                "content": f"Analyze the sentiment of this text and respond with a single number between -1 (most negative) and 1 (most positive): {text}"
+            }]
+        )
+        try:
+            sentiment = float(response.content[0].text.strip())
+            article['sentiment'] = max(-1, min(1, sentiment))  # Ensure value is between -1 and 1
+        except (ValueError, TypeError):
+            article['sentiment'] = 0  # Default to neutral if parsing fails
+    
     # Publication timeline
     dates = {}
     for article in articles:
@@ -79,6 +96,10 @@ def analyze_articles(articles, query):
                   for topic, count in topics.most_common(30)
                   if count > 2]  # Only include topics mentioned more than twice
 
+    # Calculate average sentiment
+    total_sentiment = sum(article['sentiment'] for article in articles)
+    avg_sentiment = total_sentiment / len(articles) if articles else 0
+
     return {
         'timeline': timeline,
         'sources': top_sources,
@@ -87,7 +108,8 @@ def analyze_articles(articles, query):
         'date_range': {
             'start': timeline[0]['date'] if timeline else None,
             'end': timeline[-1]['date'] if timeline else None
-        }
+        },
+        'avg_sentiment': avg_sentiment
     }
 
 def validate_date_range(from_date, to_date):
@@ -137,15 +159,17 @@ def index():
     if request.method == "POST":
         query1 = request.form.get("query1", "").strip()
         query2 = request.form.get("query2", "").strip()
-        from_date = request.form.get("from_date", "").strip()
-        to_date = request.form.get("to_date", "").strip()
+        from_date1 = request.form.get("from_date1", "").strip()
+        to_date1 = request.form.get("to_date1", "").strip()
+        from_date2 = request.form.get("from_date2", "").strip()
+        to_date2 = request.form.get("to_date2", "").strip()
         
         # Validate inputs
         errors = []
-        if not query1 or not query2:
-            errors.append("Please enter both search terms")
-        if not from_date or not to_date:
-            errors.append("Please select a date range")
+        if not query1:
+            errors.append("Please enter at least one search term")
+        if not from_date1 or not to_date1:
+            errors.append("Please select a date range for the first query")
             
         if errors:
             for error in errors:
@@ -153,60 +177,72 @@ def index():
             return redirect(url_for("index"))
         
         try:
-            # Validate date range
-            validate_date_range(from_date, to_date)
+            # Validate date ranges
+            validate_date_range(from_date1, to_date1)
+            if query2 and (from_date2 and to_date2):
+                validate_date_range(from_date2, to_date2)
             
-            # Fetch news articles for both queries
+            # Fetch and analyze articles for the first query
             articles1 = fetch_news(
                 keywords=query1,
-                from_date=from_date,
-                to_date=to_date
+                from_date=from_date1,
+                to_date=to_date1
             )
-            
-            articles2 = fetch_news(
-                keywords=query2,
-                from_date=from_date,
-                to_date=to_date
-            )
-            
-            # Analyze articles for both queries
             analysis1 = analyze_articles(articles1, query1)
-            analysis2 = analyze_articles(articles2, query2)
             
-            # Get Claude's comparative analysis
-            # Create summarized article data to reduce token usage
-            def summarize_articles(articles):
-                return [{
-                    'title': article['title'],
-                    'description': article['description'],
-                    'publishedAt': article['publishedAt']
-                } for article in articles]
+            # Initialize variables for second query
+            articles2 = []
+            analysis2 = None
+            analysis_text = None
+            
+            if query2:
+                # Use second date range if provided, otherwise use first date range
+                query2_from_date = from_date2 if from_date2 else from_date1
+                query2_to_date = to_date2 if to_date2 else to_date1
+                
+                # Fetch and analyze articles for the second query
+                articles2 = fetch_news(
+                    keywords=query2,
+                    from_date=query2_from_date,
+                    to_date=query2_to_date
+                )
+                analysis2 = analyze_articles(articles2, query2)
+                
+                # Get Claude's comparative analysis only if query2 is provided
+                def summarize_articles(articles):
+                    return [{
+                        'title': article['title'],
+                        'description': article['description'],
+                        'publishedAt': article['publishedAt']
+                    } for article in articles]
 
-            # Check cache
-            cache_key = f"{query1}_{query2}_{from_date}_{to_date}"
-            cached_response = app.config.get('analysis_cache', {}).get(cache_key)
-            
-            if cached_response:
-                analysis_text = cached_response
-            else:
-                summarized_articles1 = summarize_articles(articles1)
-                summarized_articles2 = summarize_articles(articles2)
+                # Check cache with both date ranges
+                cache_key = f"{query1}_{query2}_{from_date1}_{to_date1}_{from_date2}_{to_date2}"
+                cached_response = app.config.get('analysis_cache', {}).get(cache_key)
                 
-                prompt = f"""Compare news coverage between {query1} and {query2} from {from_date} to {to_date}.
-                Key points:
-                1. Major coverage differences
-                2. Key trends
-                3. Business implications
+                if cached_response:
+                    analysis_text = cached_response
+                else:
+                    summarized_articles1 = summarize_articles(articles1)
+                    summarized_articles2 = summarize_articles(articles2)
+                    
+                    # Prepare the analysis prompt
+                    analysis_prompt = f"""Compare news coverage between {query1} ({from_date1} to {to_date1}) and {query2} ({query2_from_date} to {query2_to_date}).
+                    Key points:
+                    1. Major coverage differences
+                    2. Key trends
+                    3. Business implications
+                    
+                    {query1} articles: {json.dumps(summarized_articles1)}
+                    {query2} articles: {json.dumps(summarized_articles2)}"""
                 
-                {query1} articles: {json.dumps(summarized_articles1)}
-                {query2} articles: {json.dumps(summarized_articles2)}"""
-                
+                # Get analysis from Claude
                 response = anthropic.messages.create(
                     model="claude-3-haiku-20240307",
                     max_tokens=1000,
                     messages=[{
                         "role": "user",
-                        "content": prompt
+                        "content": analysis_prompt
                     }]
                 )
                 
