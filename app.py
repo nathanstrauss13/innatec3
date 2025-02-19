@@ -170,6 +170,8 @@ def index():
             errors.append("Please enter at least one search term")
         if not from_date1 or not to_date1:
             errors.append("Please select a date range for the first query")
+        if query2 and (not from_date2 or not to_date2):
+            errors.append("Please select a date range for the second query")
             
         if errors:
             for error in errors:

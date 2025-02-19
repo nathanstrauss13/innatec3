@@ -4,6 +4,7 @@
     <title>Innate C3 | Media Analysis</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@2.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 </head>
 <body class="bg-gray-100 min-h-screen p-8">
     <div class="max-w-6xl mx-auto">
@@ -12,20 +13,28 @@
         </div>
         
         <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-            <h1 class="text-2xl font-bold mb-4">
+            <h1 class="text-2xl font-bold mb-2">
                 {% if query2 %}
                 Media Analysis: "{{ query1 }}" vs "{{ query2 }}"
                 {% else %}
                 Media Analysis: "{{ query1 }}"
                 {% endif %}
             </h1>
+            <div class="text-sm text-gray-600 mb-4">
+                {% if query2 %}
+                Comparing "{{ query1 }}" ({{ analysis1.date_range.start }} to {{ analysis1.date_range.end }})
+                with "{{ query2 }}" ({{ analysis2.date_range.start }} to {{ analysis2.date_range.end }})
+                {% else %}
+                Date range: {{ analysis1.date_range.start }} to {{ analysis1.date_range.end }}
+                {% endif %}
+            </div>
 
             <!-- Overview Stats -->
             <div class="grid {% if query2 %}grid-cols-2{% else %}grid-cols-1{% endif %} gap-4 mb-8">
                 <!-- First Query Stats -->
                 <div class="bg-blue-50 p-4 rounded-lg">
                     <h2 class="text-lg font-semibold text-blue-800 mb-4">{{ query1 }}</h2>
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-3 gap-4">
                         <div class="p-3 bg-white rounded">
                             <div class="text-2xl font-bold text-blue-600">{{ analysis1.total_articles }}</div>
                             <div class="text-sm text-gray-600">Total Articles</div>
@@ -34,13 +43,17 @@
                             <div class="text-2xl font-bold text-blue-600">{{ analysis1.sources|length }}</div>
                             <div class="text-sm text-gray-600">Unique Sources</div>
                         </div>
+                        <div class="p-3 bg-white rounded">
+                            <div class="text-2xl font-bold text-blue-600">{{ '{:.2f}'.format(analysis1.avg_sentiment) }}</div>
+                            <div class="text-sm text-gray-600">Avg Sentiment (-1 to +1)</div>
+                        </div>
                     </div>
                 </div>
                 {% if query2 %}
                 <!-- Second Query Stats -->
                 <div class="bg-green-50 p-4 rounded-lg">
                     <h2 class="text-lg font-semibold text-green-800 mb-4">{{ query2 }}</h2>
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-3 gap-4">
                         <div class="p-3 bg-white rounded">
                             <div class="text-2xl font-bold text-green-600">{{ analysis2.total_articles }}</div>
                             <div class="text-sm text-gray-600">Total Articles</div>
@@ -49,21 +62,15 @@
                             <div class="text-2xl font-bold text-green-600">{{ analysis2.sources|length }}</div>
                             <div class="text-sm text-gray-600">Unique Sources</div>
                         </div>
+                        <div class="p-3 bg-white rounded">
+                            <div class="text-2xl font-bold text-green-600">{{ '{:.2f}'.format(analysis2.avg_sentiment) }}</div>
+                            <div class="text-sm text-gray-600">Avg Sentiment (-1 to +1)</div>
+                        </div>
                     </div>
                 </div>
                 {% endif %}
             </div>
 
-            <!-- Claude's Analysis -->
-            {% if textual_analysis %}
-            <div class="bg-white p-6 rounded-lg shadow-sm mb-8">
-                <h3 class="text-lg font-semibold mb-4">Coverage Analysis</h3>
-                <div class="prose max-w-none">
-                    {{ textual_analysis | safe }}
-                </div>
-            </div>
-            {% endif %}
-            
             <!-- Visualizations -->
             <div class="grid grid-cols-1 {% if query2 %}md:grid-cols-2{% endif %} gap-8 mb-8">
                 <!-- Publication Timeline -->
@@ -82,37 +89,48 @@
                     </div>
                 </div>
                 
-                <!-- Top Topics -->
-                <div class="bg-white p-6 rounded-lg shadow-sm {% if query2 %}col-span-2{% endif %}">
-                    <h3 class="text-lg font-semibold mb-4">Most Mentioned Topics</h3>
-                    <div class="grid {% if query2 %}grid-cols-2{% else %}grid-cols-1{% endif %} gap-8">
-                        <!-- First Query Topics -->
-                        <div>
-                            <h4 class="text-md font-medium text-blue-800 mb-2">{{ query1 }}</h4>
-                            <div class="flex flex-wrap gap-2">
-                                {% for topic in analysis1.topics[:30] %}
-                                    <span class="px-3 py-1 rounded-full text-sm bg-blue-100"
-                                          style="font-size: {{ '{:.1f}'.format(12 + (topic.count / analysis1.topics[0].count * 12)) }}px">
-                                        {{ topic.topic }} ({{ topic.count }})
-                                    </span>
-                                {% endfor %}
-                            </div>
+            </div>
+
+            <!-- Claude's Analysis -->
+            {% if textual_analysis %}
+            <div class="bg-white p-6 rounded-lg shadow-sm mb-8">
+                <h3 class="text-lg font-semibold mb-4">Coverage Analysis</h3>
+                <div class="prose max-w-none">
+                    {{ textual_analysis | safe }}
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Top Topics -->
+            <div class="bg-white p-6 rounded-lg shadow-sm mb-8">
+                <h3 class="text-lg font-semibold mb-4">Most Mentioned Topics</h3>
+                <div class="grid {% if query2 %}grid-cols-2{% else %}grid-cols-1{% endif %} gap-8">
+                    <!-- First Query Topics -->
+                    <div>
+                        <h4 class="text-md font-medium text-blue-800 mb-2">{{ query1 }}</h4>
+                        <div class="flex flex-wrap gap-2">
+                            {% for topic in analysis1.topics[:30] %}
+                                <span class="px-3 py-1 rounded-full text-sm bg-blue-100"
+                                      style="font-size: {{ '{:.1f}'.format(12 + (topic.count / analysis1.topics[0].count * 12)) }}px">
+                                    {{ topic.topic }} ({{ topic.count }})
+                                </span>
+                            {% endfor %}
                         </div>
-                        {% if query2 %}
-                        <!-- Second Query Topics -->
-                        <div>
-                            <h4 class="text-md font-medium text-green-800 mb-2">{{ query2 }}</h4>
-                            <div class="flex flex-wrap gap-2">
-                                {% for topic in analysis2.topics[:30] %}
-                                    <span class="px-3 py-1 rounded-full text-sm bg-green-100"
-                                          style="font-size: {{ '{:.1f}'.format(12 + (topic.count / analysis2.topics[0].count * 12)) }}px">
-                                        {{ topic.topic }} ({{ topic.count }})
-                                    </span>
-                                {% endfor %}
-                            </div>
-                        </div>
-                        {% endif %}
                     </div>
+                    {% if query2 %}
+                    <!-- Second Query Topics -->
+                    <div>
+                        <h4 class="text-md font-medium text-green-800 mb-2">{{ query2 }}</h4>
+                        <div class="flex flex-wrap gap-2">
+                            {% for topic in analysis2.topics[:30] %}
+                                <span class="px-3 py-1 rounded-full text-sm bg-green-100"
+                                      style="font-size: {{ '{:.1f}'.format(12 + (topic.count / analysis2.topics[0].count * 12)) }}px">
+                                    {{ topic.topic }} ({{ topic.count }})
+                                </span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
             
@@ -161,49 +179,45 @@
     <script>
         window.onload = function() {
             const analysis1 = {{ analysis1 | tojson | safe }};
-            const analysis2 = {{ analysis2 | tojson | safe }};
+            const analysis2 = {{ analysis2 | tojson if analysis2 else 'null' | safe }};
             
             // Format dates for timeline
             const dates1 = analysis1.timeline.map(item => item.date);
             const counts1 = analysis1.timeline.map(item => item.count);
-            const dates2 = analysis2.timeline.map(item => item.date);
-            const counts2 = analysis2.timeline.map(item => item.count);
             
-            // Get all unique dates
-            const allDates = [...new Set([...dates1, ...dates2])].sort();
-            
-            // Create datasets with 0s for missing dates
-            const dataset1 = allDates.map(date => ({
-                date,
-                count: dates1.includes(date) ? counts1[dates1.indexOf(date)] : 0
-            }));
-            const dataset2 = allDates.map(date => ({
-                date,
-                count: dates2.includes(date) ? counts2[dates2.indexOf(date)] : 0
-            }));
+            // Timeline Chart datasets
+            const datasets = [{
+                label: '{{ query1 }}',
+                data: dates1.map(date => ({
+                    x: date,
+                    y: counts1[dates1.indexOf(date)]
+                })),
+                borderColor: 'rgb(37, 99, 235)',
+                backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                tension: 0.1,
+                fill: true
+            }];
+
+            if (analysis2) {
+                const dates2 = analysis2.timeline.map(item => item.date);
+                const counts2 = analysis2.timeline.map(item => item.count);
+                datasets.push({
+                    label: '{{ query2 }}',
+                    data: dates2.map(date => ({
+                        x: date,
+                        y: counts2[dates2.indexOf(date)]
+                    })),
+                    borderColor: 'rgb(34, 197, 94)',
+                    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                    tension: 0.1,
+                    fill: true
+                });
+            }
             
             // Timeline Chart
             new Chart(document.getElementById('timelineChart'), {
                 type: 'line',
-                data: {
-                    labels: allDates,
-                    datasets: [{
-                        label: '{{ query1 }}',
-                        data: dataset1.map(d => d.count),
-                        borderColor: 'rgb(37, 99, 235)',
-                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
-                        tension: 0.1,
-                        fill: true
-                    },
-                    {
-                        label: '{{ query2 }}',
-                        data: dataset2.map(d => d.count),
-                        borderColor: 'rgb(34, 197, 94)',
-                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
-                        tension: 0.1,
-                        fill: true
-                    }]
-                },
+                data: { datasets },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
@@ -225,6 +239,10 @@
                             }
                         },
                         x: {
+                            type: 'time',
+                            time: {
+                                unit: 'day'
+                            },
                             ticks: {
                                 maxRotation: 45,
                                 minRotation: 45
@@ -237,36 +255,30 @@
             // Sources Chart
             const sources1 = analysis1.sources.map(item => item.name);
             const sourceCounts1 = analysis1.sources.map(item => item.count);
-            const sources2 = analysis2.sources.map(item => item.name);
-            const sourceCounts2 = analysis2.sources.map(item => item.count);
             
-            // Get all unique sources
-            const allSources = [...new Set([...sources1, ...sources2])];
-            
-            // Create datasets with 0s for missing sources
-            const sourceData1 = allSources.map(source => 
-                sources1.includes(source) ? sourceCounts1[sources1.indexOf(source)] : 0
-            );
-            const sourceData2 = allSources.map(source => 
-                sources2.includes(source) ? sourceCounts2[sources2.indexOf(source)] : 0
-            );
+            const sourceDatasets = [{
+                label: '{{ query1 }}',
+                data: sourceCounts1,
+                backgroundColor: 'rgb(37, 99, 235)',
+                barThickness: 20
+            }];
+
+            if (analysis2) {
+                const sources2 = analysis2.sources.map(item => item.name);
+                const sourceCounts2 = analysis2.sources.map(item => item.count);
+                sourceDatasets.push({
+                    label: '{{ query2 }}',
+                    data: sourceCounts2,
+                    backgroundColor: 'rgb(34, 197, 94)',
+                    barThickness: 20
+                });
+            }
             
             new Chart(document.getElementById('sourcesChart'), {
                 type: 'bar',
                 data: {
-                    labels: allSources,
-                    datasets: [{
-                        label: '{{ query1 }}',
-                        data: sourceData1,
-                        backgroundColor: 'rgb(37, 99, 235)',
-                        barThickness: 20
-                    },
-                    {
-                        label: '{{ query2 }}',
-                        data: sourceData2,
-                        backgroundColor: 'rgb(34, 197, 94)',
-                        barThickness: 20
-                    }]
+                    labels: sources1,
+                    datasets: sourceDatasets
                 },
                 options: {
                     responsive: true,
