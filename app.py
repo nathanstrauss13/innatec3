@@ -22,6 +22,22 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "your_secret_key_here")
 
+# Initialize cache cleanup
+def cleanup_cache():
+    """Remove old cache entries (older than 1 hour)"""
+    if hasattr(app.config, 'analysis_cache'):
+        current_time = datetime.now()
+        app.config['cache_times'] = {k: v for k, v in app.config.get('cache_times', {}).items() 
+                                   if (current_time - v).total_seconds() < 3600}
+        app.config['analysis_cache'] = {k: v for k, v in app.config['analysis_cache'].items() 
+                                      if k in app.config['cache_times']}
+
+# Initialize APScheduler
+from apscheduler.schedulers.background import BackgroundScheduler
+scheduler = BackgroundScheduler()
+scheduler.add_job(func=cleanup_cache, trigger="interval", hours=1)
+scheduler.start()
+
 # API keys and configuration
 NEWS_API_KEY = os.environ.get("NEWS_API_KEY")
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
@@ -217,35 +233,56 @@ def index():
             analysis2 = analyze_articles(articles2, query2)
             
             # Get Claude's comparative analysis
-            prompt = f"""Compare and analyze news coverage between {query1} and {query2}. 
-            Focus on:
-            1. Major differences in coverage and themes
-            2. Comparative statistics and metrics
-            3. Notable trends or patterns unique to each
-            4. Business/industry implications for both
+            # Create summarized article data to reduce token usage
+            def summarize_articles(articles):
+                return [{
+                    'title': article['title'],
+                    'description': article['description'],
+                    'publishedAt': article['publishedAt']
+                } for article in articles]
+
+            # Check cache
+            cache_key = f"{query1}_{query2}_{from_date}_{to_date}"
+            cached_response = app.config.get('analysis_cache', {}).get(cache_key)
             
-            Format your response with clear sections and bullet points for readability.
-            
-            Articles for {query1}:
-            {json.dumps(articles1, indent=2)}
-            
-            Articles for {query2}:
-            {json.dumps(articles2, indent=2)}"""
-            
-            response = anthropic.messages.create(
-                model="claude-3-opus-20240229",
-                max_tokens=2000,
-                messages=[{
-                    "role": "user",
-                    "content": prompt
-                }]
-            )
+            if cached_response:
+                analysis_text = cached_response
+            else:
+                summarized_articles1 = summarize_articles(articles1)
+                summarized_articles2 = summarize_articles(articles2)
+                
+                prompt = f"""Compare news coverage between {query1} and {query2} from {from_date} to {to_date}.
+                Key points:
+                1. Major coverage differences
+                2. Key trends
+                3. Business implications
+                
+                {query1} articles: {json.dumps(summarized_articles1)}
+                {query2} articles: {json.dumps(summarized_articles2)}"""
+                
+                response = anthropic.messages.create(
+                    model="claude-3-haiku-20240307",
+                    max_tokens=1000,
+                    messages=[{
+                        "role": "user",
+                        "content": prompt
+                    }]
+                )
+                
+                analysis_text = response.content[0].text
+                
+                # Cache the response with timestamp
+                if not hasattr(app.config, 'analysis_cache'):
+                    app.config['analysis_cache'] = {}
+                    app.config['cache_times'] = {}
+                app.config['analysis_cache'][cache_key] = analysis_text
+                app.config['cache_times'][cache_key] = datetime.now()
             
             return render_template(
                 "result.html",
                 query1=query1,
                 query2=query2,
-                textual_analysis=response.content[0].text,
+                textual_analysis=analysis_text,
                 analysis1=analysis1,
                 analysis2=analysis2,
                 articles1=articles1,
