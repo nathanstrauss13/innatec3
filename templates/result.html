@@ -53,6 +53,16 @@
                 </div>
                 {% endif %}
             </div>
+
+            <!-- Claude's Analysis -->
+            {% if textual_analysis %}
+            <div class="bg-white p-6 rounded-lg shadow-sm mb-8">
+                <h3 class="text-lg font-semibold mb-4">Coverage Analysis</h3>
+                <div class="prose max-w-none">
+                    {{ textual_analysis | safe }}
+                </div>
+            </div>
+            {% endif %}
             
             <!-- Visualizations -->
             <div class="grid grid-cols-1 {% if query2 %}md:grid-cols-2{% endif %} gap-8 mb-8">
@@ -148,55 +158,51 @@
         </div>
     </div>
 
-    <script type="application/javascript">
-        // Initialize data from template
-        const templateData = JSON.parse('{{ template_data | tojson | safe }}');
-
+    <script>
         window.onload = function() {
-
-            // Timeline Chart Setup
-            const timelineData = {
-                dates: templateData.analysis1.timeline.map(item => item.date),
-                counts: templateData.analysis1.timeline.map(item => item.count)
-            };
-
-            const timelineDatasets = [{
-                label: templateData.query1,
-                data: timelineData.counts,
-                borderColor: 'rgb(37, 99, 235)',
-                backgroundColor: 'rgba(37, 99, 235, 0.1)',
-                tension: 0.1,
-                fill: true
-            }];
-
-            if (templateData.isComparative) {
-                const dates2 = templateData.analysis2.timeline.map(item => item.date);
-                const counts2 = templateData.analysis2.timeline.map(item => item.count);
-                timelineData.dates = [...new Set([...timelineData.dates, ...dates2])].sort();
-                
-                timelineDatasets[0].data = timelineData.dates.map(date => {
-                    const idx = templateData.analysis1.timeline.findIndex(item => item.date === date);
-                    return idx >= 0 ? templateData.analysis1.timeline[idx].count : 0;
-                });
-
-                timelineDatasets.push({
-                    label: templateData.query2,
-                    data: timelineData.dates.map(date => {
-                        const idx = templateData.analysis2.timeline.findIndex(item => item.date === date);
-                        return idx >= 0 ? templateData.analysis2.timeline[idx].count : 0;
-                    }),
-                    borderColor: 'rgb(34, 197, 94)',
-                    backgroundColor: 'rgba(34, 197, 94, 0.1)',
-                    tension: 0.1,
-                    fill: true
-                });
-            }
-
+            const analysis1 = {{ analysis1 | tojson | safe }};
+            const analysis2 = {{ analysis2 | tojson | safe }};
+            
+            // Format dates for timeline
+            const dates1 = analysis1.timeline.map(item => item.date);
+            const counts1 = analysis1.timeline.map(item => item.count);
+            const dates2 = analysis2.timeline.map(item => item.date);
+            const counts2 = analysis2.timeline.map(item => item.count);
+            
+            // Get all unique dates
+            const allDates = [...new Set([...dates1, ...dates2])].sort();
+            
+            // Create datasets with 0s for missing dates
+            const dataset1 = allDates.map(date => ({
+                date,
+                count: dates1.includes(date) ? counts1[dates1.indexOf(date)] : 0
+            }));
+            const dataset2 = allDates.map(date => ({
+                date,
+                count: dates2.includes(date) ? counts2[dates2.indexOf(date)] : 0
+            }));
+            
+            // Timeline Chart
             new Chart(document.getElementById('timelineChart'), {
                 type: 'line',
                 data: {
-                    labels: timelineData.dates,
-                    datasets: timelineDatasets
+                    labels: allDates,
+                    datasets: [{
+                        label: '{{ query1 }}',
+                        data: dataset1.map(d => d.count),
+                        borderColor: 'rgb(37, 99, 235)',
+                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                        tension: 0.1,
+                        fill: true
+                    },
+                    {
+                        label: '{{ query2 }}',
+                        data: dataset2.map(d => d.count),
+                        borderColor: 'rgb(34, 197, 94)',
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        tension: 0.1,
+                        fill: true
+                    }]
                 },
                 options: {
                     responsive: true,
@@ -228,46 +234,39 @@
                 }
             });
 
-            // Sources Chart Setup
-            const sourcesData = {
-                names: templateData.analysis1.sources.map(item => item.name),
-                counts: templateData.analysis1.sources.map(item => item.count)
-            };
-
-            const sourceDatasets = [{
-                label: templateData.query1,
-                data: sourcesData.counts,
-                backgroundColor: 'rgb(37, 99, 235)',
-                barThickness: 20
-            }];
-
-            if (templateData.isComparative) {
-                sourcesData.names = [...new Set([
-                    ...sourcesData.names,
-                    ...templateData.analysis2.sources.map(item => item.name)
-                ])];
-
-                sourceDatasets[0].data = sourcesData.names.map(name => {
-                    const source = templateData.analysis1.sources.find(item => item.name === name);
-                    return source ? source.count : 0;
-                });
-
-                sourceDatasets.push({
-                    label: templateData.query2,
-                    data: sourcesData.names.map(name => {
-                        const source = templateData.analysis2.sources.find(item => item.name === name);
-                        return source ? source.count : 0;
-                    }),
-                    backgroundColor: 'rgb(34, 197, 94)',
-                    barThickness: 20
-                });
-            }
-
+            // Sources Chart
+            const sources1 = analysis1.sources.map(item => item.name);
+            const sourceCounts1 = analysis1.sources.map(item => item.count);
+            const sources2 = analysis2.sources.map(item => item.name);
+            const sourceCounts2 = analysis2.sources.map(item => item.count);
+            
+            // Get all unique sources
+            const allSources = [...new Set([...sources1, ...sources2])];
+            
+            // Create datasets with 0s for missing sources
+            const sourceData1 = allSources.map(source => 
+                sources1.includes(source) ? sourceCounts1[sources1.indexOf(source)] : 0
+            );
+            const sourceData2 = allSources.map(source => 
+                sources2.includes(source) ? sourceCounts2[sources2.indexOf(source)] : 0
+            );
+            
             new Chart(document.getElementById('sourcesChart'), {
                 type: 'bar',
                 data: {
-                    labels: sourcesData.names,
-                    datasets: sourceDatasets
+                    labels: allSources,
+                    datasets: [{
+                        label: '{{ query1 }}',
+                        data: sourceData1,
+                        backgroundColor: 'rgb(37, 99, 235)',
+                        barThickness: 20
+                    },
+                    {
+                        label: '{{ query2 }}',
+                        data: sourceData2,
+                        backgroundColor: 'rgb(34, 197, 94)',
+                        barThickness: 20
+                    }]
                 },
                 options: {
                     responsive: true,

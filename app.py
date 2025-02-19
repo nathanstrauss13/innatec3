@@ -7,6 +7,7 @@ import requests
 from flask import Flask, render_template, request, redirect, url_for, flash
 from markupsafe import Markup
 from dotenv import load_dotenv
+from anthropic import Anthropic
 from dateutil.parser import parse
 from google.analytics.data_v1beta import BetaAnalyticsDataClient
 from google.analytics.data_v1beta.types import (
@@ -23,7 +24,10 @@ app.secret_key = os.environ.get("FLASK_SECRET_KEY", "your_secret_key_here")
 
 # API keys and configuration
 NEWS_API_KEY = os.environ.get("NEWS_API_KEY")
+ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
 GA_MEASUREMENT_ID = os.environ.get("GA_MEASUREMENT_ID")
+
+anthropic = Anthropic(api_key=ANTHROPIC_API_KEY)
 
 def analyze_articles(articles, query):
     """Extract key metrics and patterns from articles."""
@@ -105,7 +109,7 @@ def fetch_news(keywords, from_date=None, to_date=None, language="en", domains=No
         "language": language,
         "apiKey": NEWS_API_KEY,
         "sortBy": "relevancy",
-        "pageSize": 100  # Increased page size to return more articles
+        "pageSize": 30  # Reduced page size for better performance
     }
     
     if from_date:
@@ -181,8 +185,8 @@ def index():
         
         # Validate inputs
         errors = []
-        if not query1:
-            errors.append("Please enter at least one search term")
+        if not query1 or not query2:
+            errors.append("Please enter both search terms")
         if not from_date or not to_date:
             errors.append("Please select a date range")
             
@@ -190,51 +194,64 @@ def index():
             for error in errors:
                 flash(error)
             return redirect(url_for("index"))
-
-        # Determine if this is a comparative analysis
-        is_comparative = bool(query2 and query2.strip())
         
         try:
             # Validate date range
             validate_date_range(from_date, to_date)
             
-            # Fetch and analyze articles for the first query
+            # Fetch news articles for both queries
             articles1 = fetch_news(
                 keywords=query1,
                 from_date=from_date,
                 to_date=to_date
             )
             
+            articles2 = fetch_news(
+                keywords=query2,
+                from_date=from_date,
+                to_date=to_date
+            )
+            
+            # Analyze articles for both queries
             analysis1 = analyze_articles(articles1, query1)
+            analysis2 = analyze_articles(articles2, query2)
             
-            # Only fetch and analyze second query if provided
-            articles2 = []
-            analysis2 = None
-            if query2:
-                articles2 = fetch_news(
-                    keywords=query2,
-                    from_date=from_date,
-                    to_date=to_date
-                )
-                analysis2 = analyze_articles(articles2, query2)
+            # Get Claude's comparative analysis
+            prompt = f"""Compare and analyze news coverage between {query1} and {query2}. 
+            Focus on:
+            1. Major differences in coverage and themes
+            2. Comparative statistics and metrics
+            3. Notable trends or patterns unique to each
+            4. Business/industry implications for both
             
-            template_data = {
-                'analysis1': analysis1,
-                'query1': query1,
-                'analysis2': analysis2 if query2 else None,
-                'query2': query2 if query2 else None,
-                'isComparative': True if query2 else False
-            }
+            Format your response with clear sections and bullet points for readability.
+            
+            Articles for {query1}:
+            {json.dumps(articles1, indent=2)}
+            
+            Articles for {query2}:
+            {json.dumps(articles2, indent=2)}"""
+            
+            response = anthropic.messages.create(
+                model="claude-3-opus-20240229",
+                max_tokens=2000,
+                messages=[{
+                    "role": "user",
+                    "content": prompt
+                }]
+            )
+            
             return render_template(
                 "result.html",
                 query1=query1,
                 query2=query2,
+                textual_analysis=response.content[0].text,
                 analysis1=analysis1,
                 analysis2=analysis2,
                 articles1=articles1,
-                articles2=articles2,
-                template_data=template_data
+                articles2=articles2
             )
+            
         except Exception as e:
             flash(f"Error: {str(e)}")
             return redirect(url_for("index"))
