@@ -41,31 +41,50 @@ def analyze_articles(articles, query):
     """Extract key metrics and patterns from articles."""
     # Batch sentiment analysis for all articles
     texts = [f"{article['title']} {article['description'] or ''}" for article in articles]
-    batch_text = "\n---\n".join(texts)
+    
+    # Create a numbered list for Claude to reference
+    numbered_texts = "\n\n".join(f"Text {i+1}:\n{text}" for i, text in enumerate(texts))
     
     response = anthropic.messages.create(
         model="claude-3-haiku-20240307",
         max_tokens=1000,
         messages=[{
             "role": "user",
-            "content": f"""Analyze the sentiment of each text block separated by '---' and respond with ONLY a comma-separated list of numbers between -1 (most negative) and 1 (most positive).
-            Example response format: 0.5,-0.2,0.8
-            
-            {batch_text}"""
+            "content": f"""Analyze the sentiment of each numbered text and respond with a JSON array of sentiment scores between -1 (most negative) and 1 (most positive).
+
+For each text:
+- Consider the overall tone, word choice, and context
+- Score negative news/criticism closer to -1
+- Score positive news/achievements closer to +1
+- Score neutral/factual content closer to 0
+
+Example response format: [-0.8, 0.5, 0.2]
+
+Here are the texts to analyze:
+
+{numbered_texts}"""
         }]
     )
     
     try:
-        sentiments = [float(s.strip()) for s in response.content[0].text.strip().split(',')]
-        # Ensure we have the right number of sentiments
-        if len(sentiments) == len(articles):
-            for article, sentiment in zip(articles, sentiments):
-                article['sentiment'] = max(-1, min(1, sentiment))  # Ensure value is between -1 and 1
+        # Extract the array from Claude's response by finding text between [ and ]
+        sentiment_text = response.content[0].text
+        array_match = re.search(r'\[(.*?)\]', sentiment_text)
+        if array_match:
+            # Parse the comma-separated values into floats
+            sentiments = [float(s.strip()) for s in array_match.group(1).split(',')]
+            if len(sentiments) == len(articles):
+                for article, sentiment in zip(articles, sentiments):
+                    article['sentiment'] = max(-1, min(1, sentiment))
+            else:
+                # If mismatch, use neutral sentiment
+                for article in articles:
+                    article['sentiment'] = 0
         else:
-            # If mismatch, default to neutral
+            # If no array found, use neutral sentiment
             for article in articles:
                 article['sentiment'] = 0
-    except (ValueError, TypeError, IndexError):
+    except (ValueError, TypeError, IndexError, AttributeError):
         # Default to neutral if parsing fails
         for article in articles:
             article['sentiment'] = 0
