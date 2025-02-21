@@ -5,6 +5,7 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@2.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.28.0.min.js"></script>
 </head>
 <body class="bg-gray-100 min-h-screen p-8">
     <div class="max-w-6xl mx-auto">
@@ -69,6 +70,12 @@
                     </div>
                 </div>
                 {% endif %}
+            </div>
+
+            <!-- Sentiment Scatter Plot -->
+            <div class="bg-white p-6 rounded-lg shadow-sm mb-8">
+                <h3 class="text-lg font-semibold mb-4">Sentiment Analysis Over Time</h3>
+                <div id="sentimentScatter" class="h-96"></div>
             </div>
 
             <!-- Visualizations -->
@@ -177,20 +184,89 @@
     </div>
 
     <script>
-        window.onload = function() {
-            const analysis1 = {{ analysis1 | tojson | safe }};
-            const analysis2 = {{ analysis2 | tojson if analysis2 else 'null' | safe }};
+        // Initialize charts when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get data from template
+            var articles1 = {{ articles1 | tojson | safe }};
+            var articles2 = {{ articles2 | tojson if articles2 else 'null' | safe }};
+            var analysis1 = {{ analysis1 | tojson | safe }};
+            var analysis2 = {{ analysis2 | tojson if analysis2 else 'null' | safe }};
+            var query1 = "{{ query1 }}";
+            var query2 = "{{ query2 if query2 else '' }}";
             
-            // Format dates for timeline
-            const dates1 = analysis1.timeline.map(item => item.date);
-            const counts1 = analysis1.timeline.map(item => item.count);
-            
-            // Timeline Chart datasets
-            const datasets = [{
-                label: '{{ query1 }}',
-                data: dates1.map(date => ({
-                    x: date,
-                    y: counts1[dates1.indexOf(date)]
+            // Create sentiment scatter plot
+            var trace1 = {
+                x: articles1.map(a => a.publishedAt),
+                y: articles1.map(a => a.sentiment),
+                text: articles1.map(a => `${a.title}<br>Source: ${a.source.name}`),
+                mode: 'markers',
+                type: 'scatter',
+                name: query1,
+                marker: {
+                    size: 10,
+                    color: 'rgb(37, 99, 235)',
+                    opacity: 0.7
+                },
+                hovertemplate: 
+                    '<b>%{text}</b><br>' +
+                    'Date: %{x}<br>' +
+                    'Sentiment: %{y:.2f}<br>' +
+                    '<extra></extra>'
+            };
+
+            var traces = [trace1];
+
+            if (articles2) {
+                var trace2 = {
+                    x: articles2.map(a => a.publishedAt),
+                    y: articles2.map(a => a.sentiment),
+                    text: articles2.map(a => `${a.title}<br>Source: ${a.source.name}`),
+                    mode: 'markers',
+                    type: 'scatter',
+                    name: query2,
+                    marker: {
+                        size: 10,
+                        color: 'rgb(34, 197, 94)',
+                        opacity: 0.7
+                    },
+                    hovertemplate: 
+                        '<b>%{text}</b><br>' +
+                        'Date: %{x}<br>' +
+                        'Sentiment: %{y:.2f}<br>' +
+                        '<extra></extra>'
+                };
+                traces.push(trace2);
+            }
+
+            var layout = {
+                showlegend: true,
+                hovermode: 'closest',
+                xaxis: {
+                    title: 'Publication Date',
+                    tickformat: '%Y-%m-%d'
+                },
+                yaxis: {
+                    title: 'Sentiment Score',
+                    range: [-1.1, 1.1]
+                },
+                margin: {
+                    l: 50,
+                    r: 50,
+                    b: 50,
+                    t: 20,
+                    pad: 4
+                }
+            };
+
+            // Create scatter plot
+            Plotly.newPlot('sentimentScatter', traces, layout, {responsive: true});
+
+            // Create timeline chart
+            var timelineDatasets = [{
+                label: query1,
+                data: analysis1.timeline.map(item => ({
+                    x: item.date,
+                    y: item.count
                 })),
                 borderColor: 'rgb(37, 99, 235)',
                 backgroundColor: 'rgba(37, 99, 235, 0.1)',
@@ -199,13 +275,11 @@
             }];
 
             if (analysis2) {
-                const dates2 = analysis2.timeline.map(item => item.date);
-                const counts2 = analysis2.timeline.map(item => item.count);
-                datasets.push({
-                    label: '{{ query2 }}',
-                    data: dates2.map(date => ({
-                        x: date,
-                        y: counts2[dates2.indexOf(date)]
+                timelineDatasets.push({
+                    label: query2,
+                    data: analysis2.timeline.map(item => ({
+                        x: item.date,
+                        y: item.count
                     })),
                     borderColor: 'rgb(34, 197, 94)',
                     backgroundColor: 'rgba(34, 197, 94, 0.1)',
@@ -214,10 +288,10 @@
                 });
             }
             
-            // Timeline Chart
+            // Create timeline chart
             new Chart(document.getElementById('timelineChart'), {
                 type: 'line',
-                data: { datasets },
+                data: { datasets: timelineDatasets },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
@@ -252,33 +326,29 @@
                 }
             });
 
-            // Sources Chart
-            const sources1 = analysis1.sources.map(item => item.name);
-            const sourceCounts1 = analysis1.sources.map(item => item.count);
-            
-            const sourceDatasets = [{
-                label: '{{ query1 }}',
-                data: sourceCounts1,
+            // Create sources chart
+            var sourcesDatasets = [{
+                label: query1,
+                data: analysis1.sources.map(item => item.count),
                 backgroundColor: 'rgb(37, 99, 235)',
                 barThickness: 20
             }];
 
             if (analysis2) {
-                const sources2 = analysis2.sources.map(item => item.name);
-                const sourceCounts2 = analysis2.sources.map(item => item.count);
-                sourceDatasets.push({
-                    label: '{{ query2 }}',
-                    data: sourceCounts2,
+                sourcesDatasets.push({
+                    label: query2,
+                    data: analysis2.sources.map(item => item.count),
                     backgroundColor: 'rgb(34, 197, 94)',
                     barThickness: 20
                 });
             }
             
+            // Create sources chart
             new Chart(document.getElementById('sourcesChart'), {
                 type: 'bar',
                 data: {
-                    labels: sources1,
-                    datasets: sourceDatasets
+                    labels: analysis1.sources.map(item => item.name),
+                    datasets: sourcesDatasets
                 },
                 options: {
                     responsive: true,
@@ -308,7 +378,7 @@
                     }
                 }
             });
-        };
+        });
     </script>
 </body>
 </html>
