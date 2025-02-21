@@ -69,22 +69,36 @@ Here are the texts to analyze:
     try:
         # Extract the array from Claude's response by finding text between [ and ]
         sentiment_text = response.content[0].text
-        array_match = re.search(r'\[(.*?)\]', sentiment_text)
+        print("Anthropic API Response:", sentiment_text)  # Log the response for debugging
+        array_match = re.search(r'\[(.*?)\]', sentiment_text, re.DOTALL)
         if array_match:
             # Parse the comma-separated values into floats
-            sentiments = [float(s.strip()) for s in array_match.group(1).split(',')]
-            if len(sentiments) == len(articles):
-                for article, sentiment in zip(articles, sentiments):
-                    article['sentiment'] = max(-1, min(1, sentiment))
-            else:
-                # If mismatch, use neutral sentiment
-                for article in articles:
+            # Extract numbers using regex
+            sentiment_values = re.findall(r'-?\d+\.?\d*', array_match.group(1))
+            sentiments = []
+            for value in sentiment_values:
+                try:
+                    parsed_value = float(value)
+                    print(f"Successfully parsed value: {parsed_value}")  # Debug log
+                    sentiments.append(parsed_value)
+                except ValueError as e:
+                    print(f"Failed to parse value: '{value}'")  # Debug log
+            print(f"Found {len(sentiments)} sentiments for {len(articles)} articles")
+            # Use available sentiments, pad with 0 if needed
+            for i, article in enumerate(articles):
+                if i < len(sentiments):
+                    sentiment = max(-1, min(1, sentiments[i]))
+                    article['sentiment'] = sentiment
+                    print(f"Assigned sentiment {sentiment} to article: {article['title'][:50]}...")
+                else:
                     article['sentiment'] = 0
+                    print(f"Using neutral sentiment for article: {article['title'][:50]}...")
         else:
             # If no array found, use neutral sentiment
             for article in articles:
                 article['sentiment'] = 0
-    except (ValueError, TypeError, IndexError, AttributeError):
+    except (ValueError, TypeError, IndexError, AttributeError) as e:
+        print("Error parsing sentiment response:", e)  # Log parsing errors
         # Default to neutral if parsing fails
         for article in articles:
             article['sentiment'] = 0
@@ -130,8 +144,12 @@ Here are the texts to analyze:
                   if count > 2]  # Only include topics mentioned more than twice
 
     # Calculate average sentiment
-    total_sentiment = sum(article['sentiment'] for article in articles)
+    sentiments = [article['sentiment'] for article in articles]
+    print(f"All sentiment values: {sentiments}")
+    total_sentiment = sum(sentiments)
+    print(f"Total sentiment: {total_sentiment}")
     avg_sentiment = total_sentiment / len(articles) if articles else 0
+    print(f"Average sentiment: {avg_sentiment}")
 
     return {
         'timeline': timeline,
@@ -309,5 +327,5 @@ def index():
 
 if __name__ == "__main__":
     # Get port from environment variable or default to 5005
-    port = int(os.environ.get("PORT", 5005))
+    port = int(os.environ.get("PORT", 5006))
     app.run(host='0.0.0.0', port=port, debug=True)
