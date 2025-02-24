@@ -95,7 +95,6 @@
                         <canvas id="sourcesChart"></canvas>
                     </div>
                 </div>
-                
             </div>
 
             <!-- Claude's Analysis -->
@@ -198,7 +197,7 @@
             var trace1 = {
                 x: articles1.map(a => a.publishedAt),
                 y: articles1.map(a => a.sentiment),
-                text: articles1.map(a => `${a.title}<br>Source: ${a.source.name}`),
+                text: articles1.map(a => `<b>${a.title}</b><br>Source: ${a.source.name}<br><a href="${a.url}" target="_blank" style="color: blue;">Read article →</a>`),
                 mode: 'markers',
                 type: 'scatter',
                 name: query1,
@@ -208,7 +207,7 @@
                     opacity: 0.7
                 },
                 hovertemplate: 
-                    '<b>%{text}</b><br>' +
+                    '%{text}<br>' +
                     'Date: %{x}<br>' +
                     'Sentiment: %{y:.2f}<br>' +
                     '<extra></extra>'
@@ -220,7 +219,7 @@
                 var trace2 = {
                     x: articles2.map(a => a.publishedAt),
                     y: articles2.map(a => a.sentiment),
-                    text: articles2.map(a => `${a.title}<br>Source: ${a.source.name}`),
+                    text: articles2.map(a => `<b>${a.title}</b><br>Source: ${a.source.name}<br><a href="${a.url}" target="_blank" style="color: blue;">Read article →</a>`),
                     mode: 'markers',
                     type: 'scatter',
                     name: query2,
@@ -230,7 +229,7 @@
                         opacity: 0.7
                     },
                     hovertemplate: 
-                        '<b>%{text}</b><br>' +
+                        '%{text}<br>' +
                         'Date: %{x}<br>' +
                         'Sentiment: %{y:.2f}<br>' +
                         '<extra></extra>'
@@ -258,15 +257,24 @@
                 }
             };
 
-            // Create scatter plot
-            Plotly.newPlot('sentimentScatter', traces, layout, {responsive: true});
+            // Create scatter plot with clickable points
+            var scatterPlot = document.getElementById('sentimentScatter');
+            Plotly.newPlot(scatterPlot, traces, layout, {responsive: true});
+
+            // Add click event to open article URL
+            scatterPlot.on('plotly_click', function(data) {
+                var point = data.points[0];
+                var articleUrl = point.data.text[point.pointIndex].match(/href="([^"]+)"/)[1];
+                window.open(articleUrl, '_blank');
+            });
 
             // Create timeline chart
             var timelineDatasets = [{
                 label: query1,
                 data: analysis1.timeline.map(item => ({
                     x: item.date,
-                    y: item.count
+                    y: item.count,
+                    article: item.peak_article
                 })),
                 borderColor: 'rgb(37, 99, 235)',
                 backgroundColor: 'rgba(37, 99, 235, 0.1)',
@@ -279,7 +287,8 @@
                     label: query2,
                     data: analysis2.timeline.map(item => ({
                         x: item.date,
-                        y: item.count
+                        y: item.count,
+                        article: item.peak_article
                     })),
                     borderColor: 'rgb(34, 197, 94)',
                     backgroundColor: 'rgba(34, 197, 94, 0.1)',
@@ -289,7 +298,7 @@
             }
             
             // Create timeline chart
-            new Chart(document.getElementById('timelineChart'), {
+            var timelineChart = new Chart(document.getElementById('timelineChart'), {
                 type: 'line',
                 data: { datasets: timelineDatasets },
                 options: {
@@ -302,7 +311,32 @@
                         },
                         tooltip: {
                             mode: 'index',
-                            intersect: false
+                            intersect: false,
+                            callbacks: {
+                                afterBody: function(context) {
+                                    const dataPoint = context[0];
+                                    const article = dataPoint.raw.article;
+                                    if (article) {
+                                        return [
+                                            '\nPeak Article:',
+                                            article.title,
+                                            `Source: ${article.source}`,
+                                            `Sentiment: ${article.sentiment.toFixed(2)}`,
+                                            '\nClick to read more:',
+                                            article.url
+                                        ];
+                                    }
+                                    return '';
+                                }
+                            }
+                        }
+                    },
+                    onClick: function(event, elements) {
+                        if (elements.length > 0) {
+                            const article = elements[0].element.$context.raw.article;
+                            if (article && article.url) {
+                                window.open(article.url, '_blank');
+                            }
                         }
                     },
                     scales: {

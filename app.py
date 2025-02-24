@@ -2,7 +2,7 @@ import os
 import json
 import re
 from collections import Counter
-from datetime import datetime
+from datetime import datetime, timedelta
 import requests
 from flask import Flask, render_template, request, redirect, url_for, flash
 from markupsafe import Markup
@@ -103,12 +103,35 @@ Here are the texts to analyze:
         for article in articles:
             article['sentiment'] = 0
     
-    # Publication timeline
+    # Publication timeline with articles
     dates = {}
+    articles_by_date = {}
     for article in articles:
         date = parse(article['publishedAt']).strftime('%Y-%m-%d')
         dates[date] = dates.get(date, 0) + 1
-    timeline = [{'date': k, 'count': v} for k, v in sorted(dates.items())]
+        
+        # Store articles for each date
+        if date not in articles_by_date:
+            articles_by_date[date] = []
+        articles_by_date[date].append({
+            'title': article['title'],
+            'source': article['source']['name'],
+            'url': article['url'],
+            'sentiment': article['sentiment']
+        })
+    
+    # Create timeline with articles
+    timeline = []
+    for date, count in sorted(dates.items()):
+        # Get the article with the highest absolute sentiment score for this date
+        date_articles = articles_by_date[date]
+        peak_article = max(date_articles, key=lambda x: abs(x['sentiment']))
+        
+        timeline.append({
+            'date': date,
+            'count': count,
+            'peak_article': peak_article
+        })
     
     # News source distribution
     sources = Counter(article['source']['name'] for article in articles)
@@ -176,34 +199,126 @@ def validate_date_range(from_date, to_date):
         if start_date > end_date:
             raise ValueError("Start date must be before end date")
             
-        return True
+        return True, start_date, end_date
     except ValueError as e:
         raise ValueError(str(e))
     except Exception:
         raise ValueError("Invalid date format")
 
-def fetch_news(keywords, from_date=None, to_date=None, language="en", domains=None):
-    """Fetch news articles from News API."""
-    base_url = "https://newsapi.org/v2/everything"
-    query_params = {
+# List of major news sources and their variations
+MAJOR_NEWS_SOURCES = {
+    # Top-tier business sources
+    'bloomberg', 'bloomberg.com',
+    'reuters', 'reuters.com',
+    'wsj', 'wall street journal', 'wsj.com',
+    'financial times', 'ft.com', 'ft',
+    'cnbc', 'cnbc.com',
+    'marketwatch', 'marketwatch.com',
+    'seeking alpha', 'seekingalpha.com',
+    'barron', 'barrons',
+    'economist',
+    
+    # Major news organizations
+    'nytimes', 'new york times', 'ny times',
+    'washington post', 'washingtonpost',
+    'bbc', 'bbc news',
+    'associated press', 'ap news', 'ap',
+    'cnn', 'cnn business',
+    
+    # Business-focused outlets
+    'business insider', 'businessinsider',
+    'forbes', 'forbes.com',
+    'fortune', 'fortune.com',
+    'yahoo finance', 'yahoo',
+    'benzinga',
+    'investing.com',
+    'motley fool',
+    
+    # Tech business coverage
+    'techcrunch',
+    'venturebeat',
+    'wired',
+    'zdnet'
+}
+
+def fetch_news(keywords, from_date=None, to_date=None, language="en"):
+    """Fetch news articles combining top business headlines and relevant articles."""
+    articles = []
+    
+    # First, get top business headlines from major sources
+    headlines_url = "https://newsapi.org/v2/top-headlines"
+    headlines_params = {
         "q": keywords,
         "language": language,
+        "category": "business",
         "apiKey": NEWS_API_KEY,
-        "sortBy": "relevancy",
-        "pageSize": 30  # Reduced page size for better performance
+        "pageSize": 30,  # Reduced to ensure we get articles from both endpoints
+        "domains": "wsj.com,reuters.com,bloomberg.com,ft.com,cnbc.com,forbes.com"  # Top business domains
     }
     
+    try:
+        headlines_response = requests.get(headlines_url, params=headlines_params)
+        if headlines_response.status_code == 200:
+            articles.extend(headlines_response.json().get("articles", []))
+    except Exception as e:
+        print(f"Error fetching headlines: {e}")
+    
+    # Then, get additional relevant articles from business sections and other quality sources
+    everything_url = "https://newsapi.org/v2/everything"
+    everything_params = {
+        "q": f"{keywords} AND (business OR earnings OR market OR industry OR company OR revenue)",
+        "language": language,
+        "sortBy": "relevancy",
+        "apiKey": NEWS_API_KEY,
+        "pageSize": 30,  # Reduced to ensure we get a balanced mix
+        "domains": "nytimes.com,washingtonpost.com,bbc.com,economist.com,businessinsider.com,marketwatch.com"  # Additional quality sources
+    }
+    
+    # Add date parameters if provided
     if from_date:
-        query_params["from"] = from_date
+        everything_params["from"] = from_date
     if to_date:
-        query_params["to"] = to_date
-    if domains:
-        query_params["domains"] = domains
+        # Add one day to include the end date in results
+        end_date = datetime.strptime(to_date, "%Y-%m-%d") + timedelta(days=1)
+        everything_params["to"] = end_date.strftime("%Y-%m-%d")
+    
+    try:
+        everything_response = requests.get(everything_url, params=everything_params)
+        if everything_response.status_code == 200:
+            articles.extend(everything_response.json().get("articles", []))
+    except Exception as e:
+        print(f"Error fetching articles: {e}")
 
-    response = requests.get(base_url, params=query_params)
-    if response.status_code != 200:
-        raise Exception(f"News API error: {response.text}")
-    return response.json().get("articles", [])
+    # Remove duplicates based on URL
+    seen_urls = set()
+    unique_articles = []
+    for article in articles:
+        if article['url'] not in seen_urls:
+            seen_urls.add(article['url'])
+            unique_articles.append(article)
+    
+    # Filter articles by source and sort by publishedAt
+    filtered_articles = []
+    for article in unique_articles:
+        source_name = article['source'].get('name', '').lower()
+        source_domain = article.get('url', '').lower().split('/')[2] if article.get('url') else ''
+        
+        # Check if source name contains any major source variation
+        # or if the article URL domain matches a major source
+        is_major_source = any(source.lower() in source_name or source.lower() in source_domain 
+                            for source in MAJOR_NEWS_SOURCES)
+        
+        # Also include if it's from a business section
+        is_business_section = 'business' in source_name.lower() or '/business/' in article.get('url', '').lower()
+        
+        if is_major_source or is_business_section:
+            filtered_articles.append(article)
+    
+    # Sort by published date, newest first
+    filtered_articles.sort(key=lambda x: x['publishedAt'], reverse=True)
+    
+    # Return top 100 articles
+    return filtered_articles[:100]
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -249,15 +364,11 @@ def index():
             analysis_text = None
             
             if query2:
-                # Use second date range if provided, otherwise use first date range
-                query2_from_date = from_date2 if from_date2 else from_date1
-                query2_to_date = to_date2 if to_date2 else to_date1
-                
                 # Fetch and analyze articles for the second query
                 articles2 = fetch_news(
                     keywords=query2,
-                    from_date=query2_from_date,
-                    to_date=query2_to_date
+                    from_date=from_date2 if from_date2 else from_date1,
+                    to_date=to_date2 if to_date2 else to_date1
                 )
                 analysis2 = analyze_articles(articles2, query2)
                 
@@ -280,7 +391,7 @@ def index():
                     summarized_articles2 = summarize_articles(articles2)
                     
                     # Prepare the analysis prompt
-                    analysis_prompt = f"""Compare news coverage between {query1} ({from_date1} to {to_date1}) and {query2} ({query2_from_date} to {query2_to_date}).
+                    analysis_prompt = f"""Compare news coverage between {query1} ({from_date1} to {to_date1}) and {query2} ({from_date2 if from_date2 else from_date1} to {to_date2 if to_date2 else to_date1}).
                     Key points:
                     1. Major coverage differences
                     2. Key trends
@@ -326,6 +437,6 @@ def index():
     return render_template("index.html")
 
 if __name__ == "__main__":
-    # Get port from environment variable or default to 5005
-    port = int(os.environ.get("PORT", 5006))
+    # Get port from environment variable or default to 5007
+    port = int(os.environ.get("PORT", 5007))
     app.run(host='0.0.0.0', port=port, debug=True)
