@@ -62,24 +62,38 @@
             
             <div class="grid grid-cols-2 gap-4 mb-6">
                 <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="date_range1">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">
                         Date Range for First Query
                     </label>
-                    <input type="text" id="date_range1" name="date_range1" 
-                           class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                           placeholder="Select date range...">
-                    <input type="hidden" id="from_date1" name="from_date1">
-                    <input type="hidden" id="to_date1" name="to_date1">
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-gray-600 text-xs mb-1" for="from_date1">From</label>
+                            <input type="date" id="from_date1" name="from_date1" 
+                                   class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        </div>
+                        <div>
+                            <label class="block text-gray-600 text-xs mb-1" for="to_date1">To</label>
+                            <input type="date" id="to_date1" name="to_date1" 
+                                   class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        </div>
+                    </div>
                 </div>
                 <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="date_range2">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">
                         Date Range for Second Query
                     </label>
-                    <input type="text" id="date_range2" name="date_range2" 
-                           class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                           placeholder="Select date range...">
-                    <input type="hidden" id="from_date2" name="from_date2">
-                    <input type="hidden" id="to_date2" name="to_date2">
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-gray-600 text-xs mb-1" for="from_date2">From</label>
+                            <input type="date" id="from_date2" name="from_date2" 
+                                   class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        </div>
+                        <div>
+                            <label class="block text-gray-600 text-xs mb-1" for="to_date2">To</label>
+                            <input type="date" id="to_date2" name="to_date2" 
+                                   class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        </div>
+                    </div>
                 </div>
             </div>
             
@@ -104,75 +118,40 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Set default dates (last 28 days to ensure we're within API limits)
             const today = new Date();
-            const thirtyDaysAgo = new Date(today);
-            thirtyDaysAgo.setDate(today.getDate() - 30);
+            const twentyEightDaysAgo = new Date(today);
+            twentyEightDaysAgo.setDate(today.getDate() - 28);
+            
+            // Format dates for input fields
+            const formatDate = date => date.toISOString().split('T')[0];
+            
+            // Set default values
+            document.getElementById('from_date1').value = formatDate(twentyEightDaysAgo);
+            document.getElementById('to_date1').value = formatDate(today);
+            document.getElementById('from_date2').value = formatDate(twentyEightDaysAgo);
+            document.getElementById('to_date2').value = formatDate(today);
 
-            // Initialize date pickers
-            const fp1 = flatpickr("#date_range1", {
-                mode: "range",
-                dateFormat: "Y-m-d",
-                minDate: thirtyDaysAgo,
-                maxDate: today,
-                defaultDate: [thirtyDaysAgo, today],
-                onChange: function(selectedDates) {
-                    if (selectedDates.length === 2) {
-                        const days = Math.round((selectedDates[1] - selectedDates[0]) / (1000 * 60 * 60 * 24));
-                        document.getElementById('from_date1').value = flatpickr.formatDate(selectedDates[0], "Y-m-d");
-                        document.getElementById('to_date1').value = flatpickr.formatDate(selectedDates[1], "Y-m-d");
-                        
-                        // Update second date range to match number of days
-                        const fp2Dates = fp2.selectedDates;
-                        if (fp2Dates.length === 2) {
-                            const endDate = fp2Dates[1];
-                            const newStartDate = new Date(endDate);
-                            newStartDate.setDate(endDate.getDate() - days);
-                            fp2.setDate([newStartDate, endDate]);
-                        }
-                    }
-                }
+            // Set min/max dates for the date inputs
+            const maxDate = formatDate(today);
+            const minDate = formatDate(new Date(today.setDate(today.getDate() - 28)));
+            
+            // Apply min/max constraints to date inputs
+            ['from_date1', 'to_date1', 'from_date2', 'to_date2'].forEach(id => {
+                const input = document.getElementById(id);
+                input.min = minDate;
+                input.max = maxDate;
             });
-
-            const fp2 = flatpickr("#date_range2", {
-                mode: "range",
-                dateFormat: "Y-m-d",
-                minDate: thirtyDaysAgo,
-                maxDate: today,
-                defaultDate: [thirtyDaysAgo, today],
-                onChange: function(selectedDates) {
-                    if (selectedDates.length === 2) {
-                        const days = Math.round((selectedDates[1] - selectedDates[0]) / (1000 * 60 * 60 * 24));
-                        document.getElementById('from_date2').value = flatpickr.formatDate(selectedDates[0], "Y-m-d");
-                        document.getElementById('to_date2').value = flatpickr.formatDate(selectedDates[1], "Y-m-d");
-                        
-                        // Update first date range to match number of days
-                        const fp1Dates = fp1.selectedDates;
-                        if (fp1Dates.length === 2) {
-                            const endDate = fp1Dates[1];
-                            const newStartDate = new Date(endDate);
-                            newStartDate.setDate(endDate.getDate() - days);
-                            fp1.setDate([newStartDate, endDate]);
-                        }
-                    }
-                }
-            });
-
-            // Set initial values for hidden fields
-            document.getElementById('from_date1').value = flatpickr.formatDate(thirtyDaysAgo, "Y-m-d");
-            document.getElementById('to_date1').value = flatpickr.formatDate(today, "Y-m-d");
-            document.getElementById('from_date2').value = flatpickr.formatDate(thirtyDaysAgo, "Y-m-d");
-            document.getElementById('to_date2').value = flatpickr.formatDate(today, "Y-m-d");
-
-            // Add form submit handler
+            
+            // Add form validation
             document.querySelector('form').addEventListener('submit', function(e) {
+                const query1 = document.getElementById('query1').value.trim();
                 const fromDate1 = document.getElementById('from_date1').value;
                 const toDate1 = document.getElementById('to_date1').value;
+                const query2 = document.getElementById('query2').value.trim();
                 const fromDate2 = document.getElementById('from_date2').value;
                 const toDate2 = document.getElementById('to_date2').value;
-                const query1 = document.getElementById('query1').value;
-                const query2 = document.getElementById('query2').value;
 
-                // Only validate required fields
                 if (!query1) {
                     e.preventDefault();
                     alert('Please enter at least one search term');
@@ -185,7 +164,6 @@
                     return;
                 }
 
-                // For second query, only validate dates if query2 is provided
                 if (query2 && (!fromDate2 || !toDate2)) {
                     e.preventDefault();
                     alert('Please select a date range for the second query');

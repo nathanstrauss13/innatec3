@@ -187,15 +187,11 @@ Here are the texts to analyze:
     }
 
 def validate_date_range(from_date, to_date):
-    """Validate that the date range is no more than 30 days."""
+    """Validate the date range."""
     try:
         start_date = datetime.strptime(from_date, "%Y-%m-%d")
         end_date = datetime.strptime(to_date, "%Y-%m-%d")
         
-        date_difference = (end_date - start_date).days
-        
-        if date_difference > 30:
-            raise ValueError("Date range cannot exceed 30 days")
         if start_date > end_date:
             raise ValueError("Start date must be before end date")
             
@@ -245,33 +241,14 @@ def fetch_news(keywords, from_date=None, to_date=None, language="en"):
     """Fetch news articles combining top business headlines and relevant articles."""
     articles = []
     
-    # First, get top business headlines from major sources
-    headlines_url = "https://newsapi.org/v2/top-headlines"
-    headlines_params = {
-        "q": keywords,
-        "language": language,
-        "category": "business",
-        "apiKey": NEWS_API_KEY,
-        "pageSize": 30,  # Reduced to ensure we get articles from both endpoints
-        "domains": "wsj.com,reuters.com,bloomberg.com,ft.com,cnbc.com,forbes.com"  # Top business domains
-    }
-    
-    try:
-        headlines_response = requests.get(headlines_url, params=headlines_params)
-        if headlines_response.status_code == 200:
-            articles.extend(headlines_response.json().get("articles", []))
-    except Exception as e:
-        print(f"Error fetching headlines: {e}")
-    
-    # Then, get additional relevant articles from business sections and other quality sources
+    # Get all relevant articles
     everything_url = "https://newsapi.org/v2/everything"
     everything_params = {
-        "q": f"{keywords} AND (business OR earnings OR market OR industry OR company OR revenue)",
+        "q": keywords,
         "language": language,
         "sortBy": "relevancy",
         "apiKey": NEWS_API_KEY,
-        "pageSize": 30,  # Reduced to ensure we get a balanced mix
-        "domains": "nytimes.com,washingtonpost.com,bbc.com,economist.com,businessinsider.com,marketwatch.com"  # Additional quality sources
+        "pageSize": 100  # Maximum allowed by the API
     }
     
     # Add date parameters if provided
@@ -283,9 +260,16 @@ def fetch_news(keywords, from_date=None, to_date=None, language="en"):
         everything_params["to"] = end_date.strftime("%Y-%m-%d")
     
     try:
+        print(f"Fetching everything with params: {everything_params}")  # Debug log
         everything_response = requests.get(everything_url, params=everything_params)
+        print(f"Everything API response status: {everything_response.status_code}")  # Debug log
+        response_data = everything_response.json() if everything_response.status_code == 200 else {"status": "error", "message": everything_response.text}
+        print(f"Everything API response: {response_data}")  # Debug log
+        
         if everything_response.status_code == 200:
-            articles.extend(everything_response.json().get("articles", []))
+            articles.extend(response_data.get("articles", []))
+        else:
+            print(f"Error from everything API: {response_data.get('message', 'Unknown error')}")
     except Exception as e:
         print(f"Error fetching articles: {e}")
 
@@ -297,38 +281,23 @@ def fetch_news(keywords, from_date=None, to_date=None, language="en"):
             seen_urls.add(article['url'])
             unique_articles.append(article)
     
-    # Filter articles by source and sort by publishedAt
-    filtered_articles = []
-    for article in unique_articles:
-        source_name = article['source'].get('name', '').lower()
-        source_domain = article.get('url', '').lower().split('/')[2] if article.get('url') else ''
-        
-        # Check if source name contains any major source variation
-        # or if the article URL domain matches a major source
-        is_major_source = any(source.lower() in source_name or source.lower() in source_domain 
-                            for source in MAJOR_NEWS_SOURCES)
-        
-        # Also include if it's from a business section
-        is_business_section = 'business' in source_name.lower() or '/business/' in article.get('url', '').lower()
-        
-        if is_major_source or is_business_section:
-            filtered_articles.append(article)
-    
-    # Sort by published date, newest first
-    filtered_articles.sort(key=lambda x: x['publishedAt'], reverse=True)
-    
-    # Return top 100 articles
-    return filtered_articles[:100]
+    return unique_articles
 
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
-        query1 = request.form.get("query1", "").strip()
-        query2 = request.form.get("query2", "").strip()
-        from_date1 = request.form.get("from_date1", "").strip()
-        to_date1 = request.form.get("to_date1", "").strip()
-        from_date2 = request.form.get("from_date2", "").strip()
-        to_date2 = request.form.get("to_date2", "").strip()
+        # Get and log form data
+        form_data = request.form.to_dict()
+        print("Received form data:", form_data)
+        
+        query1 = form_data.get("query1", "").strip()
+        query2 = form_data.get("query2", "").strip()
+        from_date1 = form_data.get("from_date1", "").strip()
+        to_date1 = form_data.get("to_date1", "").strip()
+        from_date2 = form_data.get("from_date2", "").strip()
+        to_date2 = form_data.get("to_date2", "").strip()
+        
+        print(f"Parsed form values: query1={query1}, from_date1={from_date1}, to_date1={to_date1}")
         
         # Validate inputs
         errors = []
