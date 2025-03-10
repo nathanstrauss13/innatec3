@@ -237,14 +237,89 @@ MAJOR_NEWS_SOURCES = {
     'zdnet'
 }
 
-def fetch_news(keywords, from_date=None, to_date=None, language="en"):
-    """Fetch news articles combining top business headlines and relevant articles."""
+def enhance_query_with_ai(query):
+    """Use Claude to enhance the search query by identifying entities and adding context."""
+    # Default enhancement data with original query
+    default_enhancement = {
+        "enhanced_query": query,
+        "entity_type": "",
+        "reasoning": "No enhancement needed"
+    }
+    
+    if not query:
+        return default_enhancement
+    
+    try:
+        response = anthropic.messages.create(
+            model="claude-3-haiku-20240307",
+            max_tokens=300,
+            messages=[{
+                "role": "user",
+                "content": f"""Analyze this search query: "{query}"
+                
+                1. Identify if this query refers to a specific entity (company, brand, person, product, etc.)
+                2. If it's a brand or company that could be confused with other topics, add clarifying terms
+                3. Return a JSON object with:
+                   - "enhanced_query": the improved search query with additional context terms
+                   - "entity_type": the type of entity identified (if any)
+                   - "reasoning": brief explanation of your enhancement
+                
+                For example:
+                - "Blue Nile" → {{"enhanced_query": "Blue Nile jewelry retailer", "entity_type": "jewelry brand", "reasoning": "Added 'jewelry retailer' to distinguish from the river"}}
+                - "Kay Jewelers" → {{"enhanced_query": "Kay Jewelers jewelry store", "entity_type": "jewelry brand", "reasoning": "Added 'jewelry store' for clarity"}}
+                - "Apple" → {{"enhanced_query": "Apple technology company", "entity_type": "technology company", "reasoning": "Distinguished from the fruit"}}
+                
+                Only add clarifying terms if needed to avoid ambiguity. If the query is already specific, keep it as is.
+                """
+            }]
+        )
+        
+        # Extract JSON from Claude's response
+        response_text = response.content[0].text
+        print(f"Claude query enhancement response: {response_text}")
+        
+        # Find JSON in the response
+        import json
+        import re
+        
+        json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
+        if json_match:
+            try:
+                enhancement_data = json.loads(json_match.group(0))
+                print(f"Enhanced query: {enhancement_data.get('enhanced_query', query)}")
+                
+                # Ensure all required fields are present
+                if 'enhanced_query' not in enhancement_data:
+                    enhancement_data['enhanced_query'] = query
+                if 'entity_type' not in enhancement_data:
+                    enhancement_data['entity_type'] = ""
+                if 'reasoning' not in enhancement_data:
+                    enhancement_data['reasoning'] = "No explanation provided"
+                    
+                return enhancement_data
+            except json.JSONDecodeError:
+                print("Failed to parse JSON from Claude's response")
+        
+        return default_enhancement  # Return default if parsing fails
+    except Exception as e:
+        print(f"Error enhancing query with AI: {e}")
+        return default_enhancement  # Return default if any error occurs
+
+def fetch_news(keywords, from_date=None, to_date=None, language="en", source=None):
+    """Fetch news articles based on search parameters."""
     articles = []
     
-    # Get all relevant articles
-    everything_url = "https://newsapi.org/v2/everything"
-    everything_params = {
-        "q": keywords,
+    # Enhance the query with AI to improve relevance
+    enhancement_data = enhance_query_with_ai(keywords)
+    enhanced_keywords = enhancement_data["enhanced_query"]
+    print(f"Original query: '{keywords}' → Enhanced query: '{enhanced_keywords}'")
+    print(f"Entity type: {enhancement_data.get('entity_type', 'None')}")
+    print(f"Reasoning: {enhancement_data.get('reasoning', 'None')}")
+    
+    # Use the everything endpoint
+    url = "https://newsapi.org/v2/everything"
+    params = {
+        "q": enhanced_keywords,
         "language": language,
         "sortBy": "relevancy",
         "apiKey": NEWS_API_KEY,
@@ -253,23 +328,27 @@ def fetch_news(keywords, from_date=None, to_date=None, language="en"):
     
     # Add date parameters if provided
     if from_date:
-        everything_params["from"] = from_date
+        params["from"] = from_date
     if to_date:
         # Add one day to include the end date in results
         end_date = datetime.strptime(to_date, "%Y-%m-%d") + timedelta(days=1)
-        everything_params["to"] = end_date.strftime("%Y-%m-%d")
+        params["to"] = end_date.strftime("%Y-%m-%d")
+    
+    # Add source parameter if provided
+    if source:
+        params["sources"] = source
     
     try:
-        print(f"Fetching everything with params: {everything_params}")  # Debug log
-        everything_response = requests.get(everything_url, params=everything_params)
-        print(f"Everything API response status: {everything_response.status_code}")  # Debug log
-        response_data = everything_response.json() if everything_response.status_code == 200 else {"status": "error", "message": everything_response.text}
-        print(f"Everything API response: {response_data}")  # Debug log
+        print(f"Fetching news with params: {params}")  # Debug log
+        response = requests.get(url, params=params)
+        print(f"API response status: {response.status_code}")  # Debug log
+        response_data = response.json() if response.status_code == 200 else {"status": "error", "message": response.text}
+        print(f"API response: {response_data}")  # Debug log
         
-        if everything_response.status_code == 200:
+        if response.status_code == 200:
             articles.extend(response_data.get("articles", []))
         else:
-            print(f"Error from everything API: {response_data.get('message', 'Unknown error')}")
+            print(f"Error from API: {response_data.get('message', 'Unknown error')}")
     except Exception as e:
         print(f"Error fetching articles: {e}")
 
@@ -290,6 +369,7 @@ def index():
         form_data = request.form.to_dict()
         print("Received form data:", form_data)
         
+        # Extract basic search parameters
         query1 = form_data.get("query1", "").strip()
         query2 = form_data.get("query2", "").strip()
         from_date1 = form_data.get("from_date1", "").strip()
@@ -297,7 +377,18 @@ def index():
         from_date2 = form_data.get("from_date2", "").strip()
         to_date2 = form_data.get("to_date2", "").strip()
         
+        # Extract advanced filter parameters for first query
+        language1 = form_data.get("language1", "en")
+        source1 = form_data.get("source1", "").strip()
+        
+        # Extract advanced filter parameters for second query
+        language2 = form_data.get("language2", "en")
+        source2 = form_data.get("source2", "").strip()
+        
         print(f"Parsed form values: query1={query1}, from_date1={from_date1}, to_date1={to_date1}")
+        print(f"Advanced filters 1: language={language1}, source={source1}")
+        if query2:
+            print(f"Advanced filters 2: language={language2}, source={source2}")
         
         # Validate inputs
         errors = []
@@ -319,11 +410,17 @@ def index():
             if query2 and (from_date2 and to_date2):
                 validate_date_range(from_date2, to_date2)
             
+            # Enhance queries with AI
+            enhanced_query1 = enhance_query_with_ai(query1)
+            enhanced_query2 = enhance_query_with_ai(query2) if query2 else None
+            
             # Fetch and analyze articles for the first query
             articles1 = fetch_news(
                 keywords=query1,
                 from_date=from_date1,
-                to_date=to_date1
+                to_date=to_date1,
+                language=language1,
+                source=source1
             )
             analysis1 = analyze_articles(articles1, query1)
             
@@ -337,7 +434,9 @@ def index():
                 articles2 = fetch_news(
                     keywords=query2,
                     from_date=from_date2 if from_date2 else from_date1,
-                    to_date=to_date2 if to_date2 else to_date1
+                    to_date=to_date2 if to_date2 else to_date1,
+                    language=language2,
+                    source=source2
                 )
                 analysis2 = analyze_articles(articles2, query2)
                 
@@ -349,37 +448,39 @@ def index():
                         'publishedAt': article['publishedAt']
                     } for article in articles]
 
-                # Check cache with both date ranges
-                cache_key = f"{query1}_{query2}_{from_date1}_{to_date1}_{from_date2}_{to_date2}"
+                # Check cache with all parameters
+                cache_key = f"{query1}_{query2}_{from_date1}_{to_date1}_{from_date2}_{to_date2}_{language1}_{source1}_{language2}_{source2}"
                 cached_response = app.config.get('analysis_cache', {}).get(cache_key)
+                
+                # Prepare summarized articles
+                summarized_articles1 = summarize_articles(articles1)
+                summarized_articles2 = summarize_articles(articles2)
+                
+                # Prepare the analysis prompt
+                analysis_prompt = f"""Compare news coverage between {query1} ({from_date1} to {to_date1}) and {query2} ({from_date2 if from_date2 else from_date1} to {to_date2 if to_date2 else to_date1}).
+                Key points:
+                1. Major coverage differences
+                2. Key trends
+                3. Business implications
+                
+                {query1} articles: {json.dumps(summarized_articles1)}
+                {query2} articles: {json.dumps(summarized_articles2)}"""
                 
                 if cached_response:
                     analysis_text = cached_response
                 else:
-                    summarized_articles1 = summarize_articles(articles1)
-                    summarized_articles2 = summarize_articles(articles2)
+                    # Get analysis from Claude
+                    response = anthropic.messages.create(
+                        model="claude-3-haiku-20240307",
+                        max_tokens=1000,
+                        messages=[{
+                            "role": "user",
+                            "content": analysis_prompt
+                        }]
+                    )
                     
-                    # Prepare the analysis prompt
-                    analysis_prompt = f"""Compare news coverage between {query1} ({from_date1} to {to_date1}) and {query2} ({from_date2 if from_date2 else from_date1} to {to_date2 if to_date2 else to_date1}).
-                    Key points:
-                    1. Major coverage differences
-                    2. Key trends
-                    3. Business implications
-                    
-                    {query1} articles: {json.dumps(summarized_articles1)}
-                    {query2} articles: {json.dumps(summarized_articles2)}"""
+                    analysis_text = response.content[0].text
                 
-                # Get analysis from Claude
-                response = anthropic.messages.create(
-                    model="claude-3-haiku-20240307",
-                    max_tokens=1000,
-                    messages=[{
-                        "role": "user",
-                        "content": analysis_prompt
-                    }]
-                )
-                
-                analysis_text = response.content[0].text
                 
                 # Cache the response with timestamp
                 if not hasattr(app.config, 'analysis_cache'):
@@ -392,6 +493,8 @@ def index():
                 "result.html",
                 query1=query1,
                 query2=query2,
+                enhanced_query1=enhanced_query1,
+                enhanced_query2=enhanced_query2,
                 textual_analysis=analysis_text,
                 analysis1=analysis1,
                 analysis2=analysis2,
