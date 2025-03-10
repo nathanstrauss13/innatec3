@@ -35,6 +35,10 @@ scheduler.start()
 NEWS_API_KEY = os.environ.get("NEWS_API_KEY")
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
 
+# Debug logging for API keys
+print(f"NEWS_API_KEY is {'set' if NEWS_API_KEY else 'NOT SET'}")
+print(f"ANTHROPIC_API_KEY is {'set' if ANTHROPIC_API_KEY else 'NOT SET'}")
+
 anthropic = Anthropic(api_key=ANTHROPIC_API_KEY)
 
 def analyze_articles(articles, query):
@@ -247,16 +251,21 @@ Here are the texts to analyze:
 def validate_date_range(from_date, to_date):
     """Validate the date range."""
     try:
+        print(f"Validating date range: from_date={from_date}, to_date={to_date}")
         start_date = datetime.strptime(from_date, "%Y-%m-%d")
         end_date = datetime.strptime(to_date, "%Y-%m-%d")
+        
+        print(f"Parsed dates: start_date={start_date}, end_date={end_date}")
         
         if start_date > end_date:
             raise ValueError("Start date must be before end date")
             
         return True, start_date, end_date
     except ValueError as e:
+        print(f"Date validation error: {str(e)}")
         raise ValueError(str(e))
-    except Exception:
+    except Exception as e:
+        print(f"Unexpected date validation error: {str(e)}")
         raise ValueError("Invalid date format")
 
 # List of major news sources and their variations
@@ -411,11 +420,20 @@ def fetch_news(keywords, from_date=None, to_date=None, language="en", source=Non
     
     # Add date parameters if provided
     if from_date:
+        print(f"Adding from_date parameter: {from_date}")
         params["from"] = from_date
     if to_date:
         # Add one day to include the end date in results
-        end_date = datetime.strptime(to_date, "%Y-%m-%d") + timedelta(days=1)
-        params["to"] = end_date.strftime("%Y-%m-%d")
+        try:
+            print(f"Processing to_date parameter: {to_date}")
+            end_date = datetime.strptime(to_date, "%Y-%m-%d") + timedelta(days=1)
+            params["to"] = end_date.strftime("%Y-%m-%d")
+            print(f"Added to_date parameter: {params['to']}")
+        except Exception as e:
+            print(f"Error processing to_date: {str(e)}")
+            # Use the original to_date if there's an error
+            params["to"] = to_date
+            print(f"Using original to_date: {to_date}")
     
     # Add source parameter if provided
     if source:
@@ -425,13 +443,21 @@ def fetch_news(keywords, from_date=None, to_date=None, language="en", source=Non
         print(f"Fetching news with params: {params}")  # Debug log
         response = requests.get(url, params=params)
         print(f"API response status: {response.status_code}")  # Debug log
-        response_data = response.json() if response.status_code == 200 else {"status": "error", "message": response.text}
-        print(f"API response: {response_data}")  # Debug log
         
         if response.status_code == 200:
+            response_data = response.json()
+            print(f"API response status: {response_data.get('status')}")
+            print(f"Total results: {response_data.get('totalResults')}")
             articles.extend(response_data.get("articles", []))
+            print(f"Retrieved {len(articles)} articles")
         else:
-            print(f"Error from API: {response_data.get('message', 'Unknown error')}")
+            response_text = response.text
+            print(f"Error response: {response_text}")
+            try:
+                response_data = response.json()
+                print(f"Error from API: {response_data.get('message', 'Unknown error')}")
+            except:
+                print(f"Could not parse error response as JSON: {response_text}")
     except Exception as e:
         print(f"Error fetching articles: {e}")
 
@@ -443,6 +469,7 @@ def fetch_news(keywords, from_date=None, to_date=None, language="en", source=Non
             seen_urls.add(article['url'])
             unique_articles.append(article)
     
+    print(f"Returning {len(unique_articles)} unique articles")
     return unique_articles
 
 @app.route("/", methods=["GET", "POST"])
