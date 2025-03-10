@@ -88,14 +88,11 @@
                     <p class="font-medium" style="color: var(--primary-color);">Search Parameters: {{ query1 }}</p>
                     
                     <div class="mt-2 grid grid-cols-2 gap-2">
-                        <div>
+                        <div class="col-span-2">
                             <p class="text-xs text-gray-600">Language: <span class="font-medium">{{ request.form.get('language1', 'English') }}</span></p>
                             {% if request.form.get('source1') %}
                             <p class="text-xs text-gray-600">Sources: <span class="font-medium">{{ request.form.get('source1') }}</span></p>
                             {% endif %}
-                        </div>
-                        <div>
-                            <p class="text-xs text-gray-600">Query: <span class="font-medium" style="color: var(--primary-color);">{{ enhanced_query1.enhanced_query }}</span></p>
                         </div>
                     </div>
                 </div>
@@ -106,14 +103,11 @@
                     <p class="font-medium" style="color: var(--accent-color);">Search Parameters: {{ query2 }}</p>
                     
                     <div class="mt-2 grid grid-cols-2 gap-2">
-                        <div>
+                        <div class="col-span-2">
                             <p class="text-xs text-gray-600">Language: <span class="font-medium">{{ request.form.get('language2', 'English') }}</span></p>
                             {% if request.form.get('source2') %}
                             <p class="text-xs text-gray-600">Sources: <span class="font-medium">{{ request.form.get('source2') }}</span></p>
                             {% endif %}
-                        </div>
-                        <div>
-                            <p class="text-xs text-gray-600">Query: <span class="font-medium" style="color: var(--accent-color);">{{ enhanced_query2.enhanced_query }}</span></p>
                         </div>
                     </div>
                 </div>
@@ -243,7 +237,7 @@
                                     {{ article.title }}
                                 </a>
                             </h3>
-                            <p class="text-sm text-gray-600 mt-1">{{ article.source.name }} - {{ article.publishedAt }}</p>
+                            <p class="text-sm text-gray-600 mt-1">{{ article.source.name }} - {{ article.publishedAt.split('T')[0] }}</p>
                             <p class="mt-2 text-gray-700">{{ article.description }}</p>
                         </div>
                         {% endfor %}
@@ -261,7 +255,7 @@
                                     {{ article.title }}
                                 </a>
                             </h3>
-                            <p class="text-sm text-gray-600 mt-1">{{ article.source.name }} - {{ article.publishedAt }}</p>
+                            <p class="text-sm text-gray-600 mt-1">{{ article.source.name }} - {{ article.publishedAt.split('T')[0] }}</p>
                             <p class="mt-2 text-gray-700">{{ article.description }}</p>
                         </div>
                         {% endfor %}

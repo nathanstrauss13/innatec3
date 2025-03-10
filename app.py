@@ -145,7 +145,65 @@ Here are the texts to analyze:
         'after', 'is', 'are', 'was', 'were', 'be', 'been', 'being',
         'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would',
         'should', 'can', 'could', 'may', 'might', 'must', 'it', 'its',
-        'during', 'while', 'before', 'after', 'under', 'over'
+        'during', 'while', 'before', 'after', 'under', 'over',
+        # Additional common words that should be filtered out
+        'this', 'that', 'these', 'those', 'they', 'them', 'their', 'theirs',
+        'he', 'him', 'his', 'she', 'her', 'hers', 'we', 'us', 'our', 'ours',
+        'you', 'your', 'yours', 'i', 'me', 'my', 'mine', 'who', 'whom', 'whose',
+        'which', 'what', 'where', 'when', 'why', 'how', 'all', 'any', 'both',
+        'each', 'few', 'more', 'most', 'some', 'such', 'no', 'nor', 'not',
+        'only', 'own', 'same', 'so', 'than', 'too', 'very', 'just', 'one',
+        'even', 'here', 'there', 'now', 'then', 'also', 'get', 'got', 'gets',
+        'say', 'says', 'said', 'see', 'sees', 'seen', 'like', 'well', 'back',
+        'much', 'many', 'make', 'makes', 'made', 'take', 'takes', 'took', 'taken',
+        # Additional prepositions, adverbs, and common verbs
+        'off', 'out', 'down', 'away', 'through', 'across', 'between', 'among',
+        'around', 'along', 'behind', 'beyond', 'near', 'within', 'without',
+        'above', 'below', 'beside', 'against', 'despite', 'except', 'until',
+        'upon', 'via', 'toward', 'towards', 'onto', 'inside', 'outside',
+        'ago', 'yet', 'still', 'ever', 'never', 'always', 'often', 'sometimes',
+        'rarely', 'usually', 'already', 'soon', 'later', 'early', 'late',
+        'again', 'once', 'twice', 'thrice', 'further', 'rather', 'quite',
+        'almost', 'nearly', 'hardly', 'scarcely', 'barely', 'merely',
+        'else', 'otherwise', 'instead', 'anyway', 'anyhow', 'however',
+        'thus', 'therefore', 'hence', 'consequently', 'accordingly',
+        'meanwhile', 'moreover', 'furthermore', 'additionally', 'besides',
+        'come', 'comes', 'coming', 'came', 'go', 'goes', 'going', 'went', 'gone',
+        'give', 'gives', 'giving', 'gave', 'given', 'put', 'puts', 'putting',
+        'set', 'sets', 'setting', 'let', 'lets', 'letting', 'run', 'runs', 'running',
+        'ran', 'use', 'uses', 'using', 'used', 'try', 'tries', 'trying', 'tried',
+        'seem', 'seems', 'seeming', 'seemed', 'appear', 'appears', 'appearing',
+        'appeared', 'look', 'looks', 'looking', 'looked', 'think', 'thinks',
+        'thinking', 'thought', 'know', 'knows', 'knowing', 'knew', 'known',
+        'want', 'wants', 'wanting', 'wanted', 'need', 'needs', 'needing', 'needed',
+        'find', 'finds', 'finding', 'found', 'show', 'shows', 'showing', 'showed',
+        'shown', 'tell', 'tells', 'telling', 'told', 'ask', 'asks', 'asking', 'asked',
+        'work', 'works', 'working', 'worked', 'call', 'calls', 'calling', 'called',
+        'turn', 'turns', 'turning', 'turned', 'help', 'helps', 'helping', 'helped',
+        'talk', 'talks', 'talking', 'talked', 'move', 'moves', 'moving', 'moved',
+        'live', 'lives', 'living', 'lived', 'play', 'plays', 'playing', 'played',
+        'feel', 'feels', 'feeling', 'felt', 'become', 'becomes', 'becoming', 'became',
+        'leave', 'leaves', 'leaving', 'left', 'stay', 'stays', 'staying', 'stayed',
+        'start', 'starts', 'starting', 'started', 'end', 'ends', 'ending', 'ended',
+        'keep', 'keeps', 'keeping', 'kept', 'hold', 'holds', 'holding', 'held',
+        'bring', 'brings', 'bringing', 'brought', 'carry', 'carries', 'carrying',
+        'carried', 'continue', 'continues', 'continuing', 'continued',
+        'change', 'changes', 'changing', 'changed', 'lead', 'leads', 'leading', 'led',
+        'stand', 'stands', 'standing', 'stood', 'follow', 'follows', 'following',
+        'followed', 'stop', 'stops', 'stopping', 'stopped', 'create', 'creates',
+        'creating', 'created', 'speak', 'speaks', 'speaking', 'spoke', 'spoken',
+        'read', 'reads', 'reading', 'wrote', 'written', 'write', 'writes', 'writing',
+        'lose', 'loses', 'losing', 'lost', 'pay', 'pays', 'paying', 'paid',
+        'hear', 'hears', 'hearing', 'heard', 'meet', 'meets', 'meeting', 'met',
+        'include', 'includes', 'including', 'included', 'allow', 'allows', 'allowing',
+        'allowed', 'add', 'adds', 'adding', 'added', 'spend', 'spends', 'spending',
+        'spent', 'grow', 'grows', 'growing', 'grew', 'grown', 'open', 'opens',
+        'opening', 'opened', 'walk', 'walks', 'walking', 'walked', 'win', 'wins',
+        'winning', 'won', 'offer', 'offers', 'offering', 'offered', 'remember',
+        'remembers', 'remembering', 'remembered', 'consider', 'considers',
+        'considering', 'considered', 'expect', 'expects', 'expecting', 'expected',
+        'suggest', 'suggests', 'suggesting', 'suggested', 'report', 'reports',
+        'reporting', 'reported'
     }
     
     # Add search terms to stop words
@@ -505,7 +563,28 @@ def index():
                     )
                     
                     analysis_text = response.content[0].text
-                
+                    
+                    # Format the analysis text for better readability
+                    # Make section headers bold and in separate paragraphs
+                    # Italicize subheads
+                    # Put numbered items on their own lines
+                    formatted_text = analysis_text
+                    
+                    # Process section headers (lines that end with a colon)
+                    formatted_text = re.sub(r'^([^:\n]+:)$', r'<p><strong>\1</strong></p>', formatted_text, flags=re.MULTILINE)
+                    
+                    # Process subheads (lines that have a colon in the middle)
+                    formatted_text = re.sub(r'^([^:\n]+:[^:\n]*)$', r'<em>\1</em>', formatted_text, flags=re.MULTILINE)
+                    
+                    # Process numbered items (e.g., "1. Some text") to ensure they're on separate lines
+                    # This regex matches numbered items that might span multiple sentences
+                    formatted_text = re.sub(r'(\d+\.\s*[^0-9\n]+?)(?=\s*\d+\.\s*|\s*$)', r'<p>\1</p>', formatted_text)
+                    
+                    # Also handle bullet points with dashes or asterisks
+                    formatted_text = re.sub(r'([-*•]\s*[^-*•\n]+?)(?=\s*[-*•]\s*|\s*$)', r'<p>\1</p>', formatted_text)
+                    
+                    # Convert the formatted text to Markup to ensure HTML is rendered
+                    analysis_text = Markup(formatted_text)
                 
                 # Cache the response with timestamp
                 if not hasattr(app.config, 'analysis_cache'):
