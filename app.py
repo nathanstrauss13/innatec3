@@ -305,21 +305,46 @@ def enhance_query_with_ai(query):
         print(f"Error enhancing query with AI: {e}")
         return default_enhancement  # Return default if any error occurs
 
+def parse_boolean_query(query):
+    """
+    Parse a boolean search query with support for:
+    - Quoted phrases for exact matches
+    - AND/OR operators (default is AND)
+    - Minus sign for exclusion
+    
+    Returns a processed query string compatible with the News API
+    """
+    # Default to the original query if it's empty
+    if not query.strip():
+        return query
+    
+    # Process the query
+    processed_query = query
+    
+    # The News API already supports:
+    # - Quotes for exact phrases: "exact phrase"
+    # - AND operator: term1 AND term2
+    # - OR operator: term1 OR term2
+    # - Exclusion with minus: -excluded
+    
+    # We don't need to modify the query as the News API already supports
+    # the boolean search features we want
+    
+    print(f"Boolean search query: '{processed_query}'")
+    return processed_query
+
 def fetch_news(keywords, from_date=None, to_date=None, language="en", source=None):
     """Fetch news articles based on search parameters."""
     articles = []
     
-    # Enhance the query with AI to improve relevance
-    enhancement_data = enhance_query_with_ai(keywords)
-    enhanced_keywords = enhancement_data["enhanced_query"]
-    print(f"Original query: '{keywords}' → Enhanced query: '{enhanced_keywords}'")
-    print(f"Entity type: {enhancement_data.get('entity_type', 'None')}")
-    print(f"Reasoning: {enhancement_data.get('reasoning', 'None')}")
+    # Parse the boolean query instead of enhancing with AI
+    processed_query = parse_boolean_query(keywords)
+    print(f"Original query: '{keywords}' → Processed query: '{processed_query}'")
     
     # Use the everything endpoint
     url = "https://newsapi.org/v2/everything"
     params = {
-        "q": enhanced_keywords,
+        "q": processed_query,
         "language": language,
         "sortBy": "relevancy",
         "apiKey": NEWS_API_KEY,
@@ -410,9 +435,9 @@ def index():
             if query2 and (from_date2 and to_date2):
                 validate_date_range(from_date2, to_date2)
             
-            # Enhance queries with AI
-            enhanced_query1 = enhance_query_with_ai(query1)
-            enhanced_query2 = enhance_query_with_ai(query2) if query2 else None
+            # Process boolean queries
+            processed_query1 = {"enhanced_query": parse_boolean_query(query1), "entity_type": "", "reasoning": "Boolean search query"}
+            processed_query2 = {"enhanced_query": parse_boolean_query(query2), "entity_type": "", "reasoning": "Boolean search query"} if query2 else None
             
             # Fetch and analyze articles for the first query
             articles1 = fetch_news(
@@ -493,8 +518,8 @@ def index():
                 "result.html",
                 query1=query1,
                 query2=query2,
-                enhanced_query1=enhanced_query1,
-                enhanced_query2=enhanced_query2,
+                enhanced_query1=processed_query1,
+                enhanced_query2=processed_query2,
                 textual_analysis=analysis_text,
                 analysis1=analysis1,
                 analysis2=analysis2,

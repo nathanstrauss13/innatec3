@@ -95,11 +95,7 @@
                             {% endif %}
                         </div>
                         <div>
-                            <p class="text-xs text-gray-600">Original query: <span class="font-medium">{{ query1 }}</span></p>
-                            <p class="text-xs text-gray-600">Enhanced to: <span class="font-medium" style="color: var(--primary-color);">{{ enhanced_query1.enhanced_query }}</span></p>
-                            {% if enhanced_query1.entity_type %}
-                            <p class="text-xs text-gray-600">Entity type: <span class="italic">{{ enhanced_query1.entity_type }}</span></p>
-                            {% endif %}
+                            <p class="text-xs text-gray-600">Query: <span class="font-medium" style="color: var(--primary-color);">{{ enhanced_query1.enhanced_query }}</span></p>
                         </div>
                     </div>
                 </div>
@@ -117,11 +113,7 @@
                             {% endif %}
                         </div>
                         <div>
-                            <p class="text-xs text-gray-600">Original query: <span class="font-medium">{{ query2 }}</span></p>
-                            <p class="text-xs text-gray-600">Enhanced to: <span class="font-medium" style="color: var(--accent-color);">{{ enhanced_query2.enhanced_query }}</span></p>
-                            {% if enhanced_query2.entity_type %}
-                            <p class="text-xs text-gray-600">Entity type: <span class="italic">{{ enhanced_query2.entity_type }}</span></p>
-                            {% endif %}
+                            <p class="text-xs text-gray-600">Query: <span class="font-medium" style="color: var(--accent-color);">{{ enhanced_query2.enhanced_query }}</span></p>
                         </div>
                     </div>
                 </div>
