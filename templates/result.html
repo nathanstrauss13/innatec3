@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Innate C3 | Media Analysis</title>
+    <title>Innate c3 | media analysis</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
@@ -57,7 +57,12 @@
 <body class="min-h-screen p-8">
     <div class="max-w-6xl mx-auto">
         <div class="divider"></div>
-        <h1 class="text-3xl font-bold mb-4 mt-4">innate c3 media analysis</h1>
+        <div class="flex justify-between items-center">
+            <h1 class="text-3xl font-bold mb-4 mt-4">Innate c3 | media analysis</h1>
+            <a href="{{ url_for('premium_waitlist') }}" class="btn-primary font-bold py-2 px-4 rounded">
+                Premium
+            </a>
+        </div>
         <div class="divider"></div>
         
         <div class="mb-4">
@@ -158,15 +163,15 @@
 
             <!-- Sentiment Scatter Plot -->
             <div class="card p-6 mb-8">
-                <h3 class="text-lg font-semibold mb-4">Sentiment Analysis Over Time</h3>
+                <h3 class="text-lg font-semibold mb-4">Sentiment Analysis</h3>
                 <div id="sentimentScatter" class="h-96"></div>
             </div>
 
             <!-- Visualizations -->
             <div class="grid grid-cols-1 {% if query2 %}md:grid-cols-2{% endif %} gap-8 mb-8">
-                <!-- Publication Timeline -->
+                <!-- Coverage Volume -->
                 <div class="card p-6">
-                    <h3 class="text-lg font-semibold mb-4">Article Publication Timeline</h3>
+                    <h3 class="text-lg font-semibold mb-4">Coverage Volume</h3>
                     <div class="h-64">
                         <canvas id="timelineChart"></canvas>
                     </div>
@@ -182,14 +187,148 @@
             </div>
 
             <!-- Claude's Analysis -->
-            {% if textual_analysis %}
             <div class="card p-6 mb-8">
                 <h3 class="text-lg font-semibold mb-4">Coverage Analysis</h3>
                 <div class="prose max-w-none">
+                    {% if textual_analysis %}
                     {{ textual_analysis | safe }}
+                    {% else %}
+                    <p><strong>Analysis of {{ query1 }} coverage:</strong></p>
+                    
+                    <p><strong>Major Coverage Differences:</strong></p>
+                    <p>1. <strong>Sentiment and Tone:</strong> The coverage of {{ query1 }} shows an overall sentiment of {{ '{:.2f}'.format(analysis1.avg_sentiment) }} 
+                    (on a scale from -1 to +1), indicating a {% if analysis1.avg_sentiment > 0.2 %}positive media narrative that emphasizes achievements, growth, and opportunities{% elif analysis1.avg_sentiment < -0.2 %}negative media narrative focused on challenges, criticisms, and potential issues{% else %}balanced media narrative that presents factual information without strong bias{% endif %}.</p>
+                    
+                    <p>2. <strong>Media Source Influence:</strong> Coverage is primarily driven by {{ analysis1.sources[:3]|map(attribute='name')|join(', ') }}, 
+                    which collectively shape the narrative around {{ query1 }}. {% if analysis1.sources|length > 5 %}The diversity of sources ({{ analysis1.sources|length }} unique outlets) suggests broad media interest across different platforms and audiences.{% else %}The limited number of sources ({{ analysis1.sources|length }} unique outlets) indicates a more concentrated media focus.{% endif %}</p>
+                    
+                    <p>3. <strong>Thematic Focus:</strong> The coverage centers around key themes including {{ analysis1.topics[:5]|map(attribute='topic')|join(', ') }}. 
+                    {% if analysis1.topics|length > 10 %}The wide range of topics suggests multifaceted coverage addressing various aspects of {{ query1 }}.{% else %}The relatively narrow range of topics indicates focused coverage on specific aspects of {{ query1 }}.{% endif %}</p>
+                    
+                    <p><strong>Key Trends:</strong></p>
+                    <p>1. <strong>Coverage Volume Patterns:</strong> 
+                    {% if analysis1.timeline %}
+                    {% set max_count = 0 %}
+                    {% set max_date_item = None %}
+                    {% for item in analysis1.timeline %}
+                        {% if item.count > max_count %}
+                            {% set max_count = item.count %}
+                            {% set max_date_item = item %}
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if max_date_item %}
+                    The coverage spans from {{ analysis1.date_range.start }} to {{ analysis1.date_range.end }}, with peak coverage on {{ max_date_item.date }} ({{ max_date_item.count }} articles).
+                    
+                    {% if analysis1.timeline|length > 1 %}
+                    {% if max_count > (analysis1.total_articles / analysis1.timeline|length) * 2 %}
+                    The significant spike in coverage suggests a major event or announcement that triggered heightened media interest.
+                    {% else %}
+                    The relatively consistent distribution of articles indicates sustained media attention throughout the period rather than event-driven coverage.
+                    {% endif %}
+                    {% endif %}
+                    {% endif %}
+                    {% endif %}</p>
+                    
+                    <p>2. <strong>Sentiment Evolution:</strong> 
+                    {% set positive_articles = 0 %}
+                    {% set negative_articles = 0 %}
+                    {% set neutral_articles = 0 %}
+                    {% for article in articles1 %}
+                        {% if article.sentiment > 0.2 %}
+                            {% set positive_articles = positive_articles + 1 %}
+                        {% elif article.sentiment < -0.2 %}
+                            {% set negative_articles = negative_articles + 1 %}
+                        {% else %}
+                            {% set neutral_articles = neutral_articles + 1 %}
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% set dominant_sentiment = "neutral" %}
+                    {% set dominant_count = neutral_articles %}
+                    {% if positive_articles > negative_articles and positive_articles > neutral_articles %}
+                        {% set dominant_sentiment = "positive" %}
+                        {% set dominant_count = positive_articles %}
+                    {% elif negative_articles > positive_articles and negative_articles > neutral_articles %}
+                        {% set dominant_sentiment = "negative" %}
+                        {% set dominant_count = negative_articles %}
+                    {% endif %}
+                    
+                    {% set pos_percent = (positive_articles / articles1|length * 100)|round|int %}
+                    {% set neg_percent = (negative_articles / articles1|length * 100)|round|int %}
+                    {% set neu_percent = (neutral_articles / articles1|length * 100)|round|int %}
+                    
+                    The coverage shows a mix of sentiments with {{ pos_percent }}% positive, {{ neg_percent }}% negative, and {{ neu_percent }}% neutral articles. The predominant tone is {{ dominant_sentiment }} ({{ dominant_count }} out of {{ articles1|length }} articles), 
+                    {% if dominant_sentiment == "positive" %}
+                    suggesting a favorable media environment that could enhance {{ query1 }}'s reputation and public perception.
+                    {% elif dominant_sentiment == "negative" %}
+                    indicating potential reputation challenges that might require strategic communication efforts.
+                    {% else %}
+                    reflecting balanced reporting that presents facts without strong emotional framing.
+                    {% endif %}</p>
+                    
+                    <p>3. <strong>Source Diversity and Reach:</strong> 
+                    {% if analysis1.sources|length > 10 %}
+                    The wide range of media sources ({{ analysis1.sources|length }} unique outlets) covering {{ query1 }} indicates broad interest across different media segments and potential audience reach.
+                    {% elif analysis1.sources|length > 5 %}
+                    The moderate diversity of sources ({{ analysis1.sources|length }} outlets) suggests solid media presence across several key publications.
+                    {% else %}
+                    The limited number of sources ({{ analysis1.sources|length }} outlets) indicates a concentrated media presence that may limit broader audience reach.
+                    {% endif %}
+                    The most influential sources by volume are {{ analysis1.sources[:3]|map(attribute='name')|join(', ') }}.</p>
+                    
+                    <p><strong>Business Implications:</strong></p>
+                    <p>1. <strong>Market Perception:</strong> 
+                    {% if analysis1.avg_sentiment > 0.3 %}
+                    The strongly positive media sentiment suggests favorable market perception that could translate to business advantages such as increased customer trust, stronger partnerships, and potential investment interest.
+                    {% elif analysis1.avg_sentiment > 0 %}
+                    The moderately positive media sentiment indicates generally favorable market perception, though with some balanced coverage that acknowledges challenges alongside opportunities.
+                    {% elif analysis1.avg_sentiment > -0.3 %}
+                    The neutral to slightly negative media sentiment suggests a mixed market perception that may require targeted communication strategies to address specific concerns.
+                    {% else %}
+                    The negative media sentiment indicates potential reputation challenges that could impact business relationships, customer perception, and market positioning if not addressed.
+                    {% endif %}</p>
+                    
+                    <p>2. <strong>Competitive Positioning:</strong> 
+                    The media narrative around {{ query1 }} focuses primarily on {{ analysis1.topics[:3]|map(attribute='topic')|join(', ') }}, 
+                    {% if "innovation" in analysis1.topics|map(attribute='topic')|join(' ') or "technology" in analysis1.topics|map(attribute='topic')|join(' ') or "new" in analysis1.topics|map(attribute='topic')|join(' ') %}
+                    with an emphasis on innovation and development that could strengthen competitive positioning in the market.
+                    {% elif "problem" in analysis1.topics|map(attribute='topic')|join(' ') or "issue" in analysis1.topics|map(attribute='topic')|join(' ') or "challenge" in analysis1.topics|map(attribute='topic')|join(' ') %}
+                    with attention to challenges and issues that competitors might leverage if not addressed effectively.
+                    {% else %}
+                    creating a narrative that shapes how {{ query1 }} is perceived relative to competitors in the same space.
+                    {% endif %}</p>
+                    
+                    <p>3. <strong>Strategic Opportunities:</strong> 
+                    Based on the media coverage analysis, potential strategic opportunities include:
+                    <ul>
+                        {% if analysis1.avg_sentiment > 0 %}
+                        <li>Leveraging positive sentiment to strengthen brand positioning and market presence</li>
+                        <li>Amplifying key positive themes in marketing and communication materials</li>
+                        {% else %}
+                        <li>Developing targeted communication strategies to address specific concerns in media coverage</li>
+                        <li>Creating content that reframes the narrative around challenging topics</li>
+                        {% endif %}
+                        <li>Engaging with key media outlets ({{ analysis1.sources[:2]|map(attribute='name')|join(', ') }}) to shape future coverage</li>
+                        <li>Focusing on high-visibility topics ({{ analysis1.topics[:3]|map(attribute='topic')|join(', ') }}) in external communications</li>
+                        {% if analysis1.timeline|length > 1 %}
+                        {% set max_count = 0 %}
+                        {% set max_date_item = None %}
+                        {% for item in analysis1.timeline %}
+                            {% if item.count > max_count %}
+                                {% set max_count = item.count %}
+                                {% set max_date_item = item %}
+                            {% endif %}
+                        {% endfor %}
+                        {% if max_date_item %}
+                        <li>Understanding and potentially leveraging the factors that drove peak coverage on {{ max_date_item.date }}</li>
+                        {% endif %}
+                        {% endif %}
+                    </ul>
+                    </p>
+                    {% endif %}
                 </div>
             </div>
-            {% endif %}
             
             <!-- Top Topics -->
             <div class="card p-6 mb-8">
@@ -237,7 +376,12 @@
                                     {{ article.title }}
                                 </a>
                             </h3>
-                            <p class="text-sm text-gray-600 mt-1">{{ article.source.name }} - {{ article.publishedAt.split('T')[0] }}</p>
+                            <p class="text-sm text-gray-600 mt-1">
+                                {{ article.source.name }} - {{ article.publishedAt.split('T')[0] }}
+                                {% if article.api_source %}
+                                <span class="ml-2 px-2 py-0.5 text-xs rounded-full" style="background-color: rgba(0, 94, 48, 0.1);">{{ article.api_source }}</span>
+                                {% endif %}
+                            </p>
                             <p class="mt-2 text-gray-700">{{ article.description }}</p>
                         </div>
                         {% endfor %}
@@ -255,7 +399,12 @@
                                     {{ article.title }}
                                 </a>
                             </h3>
-                            <p class="text-sm text-gray-600 mt-1">{{ article.source.name }} - {{ article.publishedAt.split('T')[0] }}</p>
+                            <p class="text-sm text-gray-600 mt-1">
+                                {{ article.source.name }} - {{ article.publishedAt.split('T')[0] }}
+                                {% if article.api_source %}
+                                <span class="ml-2 px-2 py-0.5 text-xs rounded-full" style="background-color: rgba(0, 166, 81, 0.1);">{{ article.api_source }}</span>
+                                {% endif %}
+                            </p>
                             <p class="mt-2 text-gray-700">{{ article.description }}</p>
                         </div>
                         {% endfor %}
@@ -311,7 +460,6 @@
                 },
                 hovertemplate: 
                     '%{text}<br>' +
-                    'Date: %{x}<br>' +
                     'Sentiment: %{y:.2f}<br>' +
                     '<extra></extra>'
             };
@@ -333,7 +481,6 @@
                     },
                     hovertemplate: 
                         '%{text}<br>' +
-                        'Date: %{x}<br>' +
                         'Sentiment: %{y:.2f}<br>' +
                         '<extra></extra>'
                 };
@@ -429,30 +576,16 @@
                             position: 'top'
                         },
                         tooltip: {
-                            mode: 'index',
-                            intersect: false,
-                            callbacks: {
-                                afterBody: function(context) {
-                                    const dataPoint = context[0];
-                                    const article = dataPoint.raw.article;
-                                    if (article) {
-                                        return [
-                                            '\nPeak Article:',
-                                            article.title,
-                                            `Source: ${article.source}`,
-                                            `Sentiment: ${article.sentiment.toFixed(2)}`,
-                                            '\nClick to read more:',
-                                            article.url
-                                        ];
-                                    }
-                                    return '';
-                                }
-                            }
+                            enabled: false
                         }
                     },
                     onClick: function(event, elements) {
                         if (elements.length > 0) {
-                            const article = elements[0].element.$context.raw.article;
+                            const index = elements[0].index;
+                            const datasetIndex = elements[0].datasetIndex;
+                            const dataset = this.data.datasets[datasetIndex];
+                            const article = dataset.data[index].article;
+                            
                             if (article && article.url) {
                                 window.open(article.url, '_blank');
                             }
@@ -581,5 +714,25 @@
             });
         });
     </script>
+    
+    <!-- Include Premium Modal -->
+    {% include 'premium_modal.html' %}
+    
+    <!-- Premium Services Banner -->
+    <div class="card p-6 mb-8 bg-green-50">
+        <h3 class="text-lg font-semibold mb-4">Need More Insights?</h3>
+        <p class="mb-4">Our premium services offer bespoke analysis, historical data beyond 30 days, and access to additional sources.</p>
+        <a href="{{ url_for('premium_waitlist') }}" class="btn-primary font-bold py-2 px-4 rounded inline-block">
+            Contact Us
+        </a>
+    </div>
+    
+    <!-- Footer -->
+    <div class="max-w-6xl mx-auto mt-12 mb-4 text-center">
+        <div class="divider"></div>
+        <p class="text-sm text-gray-600">
+            For more information about Innate c3, visit <a href="https://tinyurl.com/innatec3" target="_blank" class="text-primary-600 hover:underline" style="color: var(--primary-color);">tinyurl.com/innatec3</a>
+        </p>
+    </div>
 </body>
 </html>
