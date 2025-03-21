@@ -204,6 +204,29 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- Sentiment by Outlet -->
+            <div class="card p-6 mb-8">
+                <h3 class="text-lg font-semibold mb-4">Sentiment by News Outlet</h3>
+                <div class="grid {% if query2 %}grid-cols-2{% else %}grid-cols-1{% endif %} gap-8">
+                    <!-- First Query Sentiment by Outlet -->
+                    <div>
+                        <h4 class="text-md font-medium mb-2" style="color: var(--primary-color);">{{ query1 }}</h4>
+                        <div class="h-64">
+                            <canvas id="sentimentByOutletChart1"></canvas>
+                        </div>
+                    </div>
+                    {% if query2 %}
+                    <!-- Second Query Sentiment by Outlet -->
+                    <div>
+                        <h4 class="text-md font-medium mb-2" style="color: var(--accent-color);">{{ query2 }}</h4>
+                        <div class="h-64">
+                            <canvas id="sentimentByOutletChart2"></canvas>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
 
             <!-- Claude's Analysis -->
             <div class="card p-6 mb-8">
@@ -665,6 +688,193 @@
                     }
                 }
             });
+            
+            // Calculate sentiment by outlet for query1
+            function calculateSentimentByOutlet(articles) {
+                const outletSentiments = {};
+                const outletCounts = {};
+                
+                // Calculate total sentiment and count for each outlet
+                articles.forEach(article => {
+                    const outlet = article.source.name;
+                    if (!outletSentiments[outlet]) {
+                        outletSentiments[outlet] = 0;
+                        outletCounts[outlet] = 0;
+                    }
+                    outletSentiments[outlet] += article.sentiment;
+                    outletCounts[outlet]++;
+                });
+                
+                // Calculate average sentiment for each outlet
+                const results = [];
+                for (const outlet in outletSentiments) {
+                    // Only include outlets with at least 2 articles for more meaningful results
+                    if (outletCounts[outlet] >= 1) {
+                        results.push({
+                            outlet: outlet,
+                            avgSentiment: outletSentiments[outlet] / outletCounts[outlet],
+                            count: outletCounts[outlet]
+                        });
+                    }
+                }
+                
+                // Sort by sentiment from most negative to most positive
+                results.sort((a, b) => a.avgSentiment - b.avgSentiment);
+                
+                return results;
+            }
+            
+            // Create sentiment by outlet chart for query1
+            const sentimentByOutlet1 = calculateSentimentByOutlet(articles1);
+            
+            // Limit to top 15 outlets for readability
+            const topOutlets1 = sentimentByOutlet1.slice(0, 15);
+            
+            // Create color gradient based on sentiment
+            function getSentimentColor(sentiment) {
+                // Red for negative, yellow for neutral, green for positive
+                if (sentiment < -0.33) {
+                    // Negative: red
+                    return 'rgba(220, 53, 69, 0.8)';
+                } else if (sentiment < 0.33) {
+                    // Neutral: yellow
+                    return 'rgba(255, 193, 7, 0.8)';
+                } else {
+                    // Positive: green
+                    return 'rgba(40, 167, 69, 0.8)';
+                }
+            }
+            
+            // Create sentiment by outlet chart for query1
+            new Chart(document.getElementById('sentimentByOutletChart1'), {
+                type: 'bar',
+                data: {
+                    labels: topOutlets1.map(item => `${item.outlet} (${item.count})`),
+                    datasets: [{
+                        label: 'Average Sentiment',
+                        data: topOutlets1.map(item => item.avgSentiment),
+                        backgroundColor: topOutlets1.map(item => getSentimentColor(item.avgSentiment)),
+                        borderColor: 'rgba(0, 0, 0, 0.1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const sentiment = context.raw;
+                                    let label = `Sentiment: ${sentiment.toFixed(2)}`;
+                                    if (sentiment < -0.33) {
+                                        label += ' (Negative)';
+                                    } else if (sentiment < 0.33) {
+                                        label += ' (Neutral)';
+                                    } else {
+                                        label += ' (Positive)';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: {
+                                autoSkip: false,
+                                maxRotation: 0,
+                                padding: 10
+                            }
+                        },
+                        x: {
+                            beginAtZero: false,
+                            min: -1,
+                            max: 1,
+                            ticks: {
+                                callback: function(value) {
+                                    if (value === -1) return 'Negative';
+                                    if (value === 0) return 'Neutral';
+                                    if (value === 1) return 'Positive';
+                                    return '';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Create sentiment by outlet chart for query2 if it exists
+            if (articles2) {
+                const sentimentByOutlet2 = calculateSentimentByOutlet(articles2);
+                const topOutlets2 = sentimentByOutlet2.slice(0, 15);
+                
+                new Chart(document.getElementById('sentimentByOutletChart2'), {
+                    type: 'bar',
+                    data: {
+                        labels: topOutlets2.map(item => `${item.outlet} (${item.count})`),
+                        datasets: [{
+                            label: 'Average Sentiment',
+                            data: topOutlets2.map(item => item.avgSentiment),
+                            backgroundColor: topOutlets2.map(item => getSentimentColor(item.avgSentiment)),
+                            borderColor: 'rgba(0, 0, 0, 0.1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        indexAxis: 'y',
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const sentiment = context.raw;
+                                        let label = `Sentiment: ${sentiment.toFixed(2)}`;
+                                        if (sentiment < -0.33) {
+                                            label += ' (Negative)';
+                                        } else if (sentiment < 0.33) {
+                                            label += ' (Neutral)';
+                                        } else {
+                                            label += ' (Positive)';
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                ticks: {
+                                    autoSkip: false,
+                                    maxRotation: 0,
+                                    padding: 10
+                                }
+                            },
+                            x: {
+                                beginAtZero: false,
+                                min: -1,
+                                max: 1,
+                                ticks: {
+                                    callback: function(value) {
+                                        if (value === -1) return 'Negative';
+                                        if (value === 0) return 'Neutral';
+                                        if (value === 1) return 'Positive';
+                                        return '';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
         });
     </script>
     
