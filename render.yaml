@@ -13,5 +13,9 @@ services:
         sync: false
       - key: PYTHON_VERSION
         value: 3.11
+    routes:
+      - type: rewrite
+        source: /media-analysis
+        destination: /media-analysis
     domains:
       - innatec3.com
