@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Innate c3 | media analysis</title>
+    <title>innate c3 | media analysis</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
@@ -58,9 +58,9 @@
     <div class="max-w-6xl mx-auto">
         <div class="divider"></div>
         <div class="flex justify-between items-center">
-            <h1 class="text-3xl font-bold mb-4 mt-4">Innate c3 | media analysis</h1>
-            <a href="{{ url_for('premium_waitlist') }}" class="btn-primary font-bold py-2 px-4 rounded">
-                Premium
+            <h1 class="text-3xl font-bold mb-4 mt-4">innate c3 | media analysis</h1>
+            <a href="https://www.innatec3.com/#contact" class="btn-primary font-bold py-2 px-4 rounded">
+                Bespoke Analysis
             </a>
         </div>
         <div class="divider"></div>
@@ -86,37 +86,56 @@
                 {% endif %}
             </div>
             
-            <!-- Search Parameters Info -->
-            <div class="grid {% if query2 %}grid-cols-2{% else %}grid-cols-1{% endif %} gap-4 mb-4">
-                <!-- First Query Parameters -->
-                <div style="background-color: rgba(0, 94, 48, 0.1);" class="p-3 rounded-lg text-sm">
-                    <p class="font-medium" style="color: var(--primary-color);">Search Parameters: {{ query1 }}</p>
-                    
-                    <div class="mt-2 grid grid-cols-2 gap-2">
-                        <div class="col-span-2">
-                            <p class="text-xs text-gray-600">Language: <span class="font-medium">{{ request.form.get('language1', 'English') }}</span></p>
-                            {% if request.form.get('source1') %}
-                            <p class="text-xs text-gray-600">Sources: <span class="font-medium">{{ request.form.get('source1') }}</span></p>
-                            {% endif %}
+            <!-- Search Parameters Info with Copy to Claude Button -->
+            <div class="flex flex-col md:flex-row gap-4 mb-4 items-start">
+                <div class="flex-grow grid {% if query2 %}grid-cols-2{% else %}grid-cols-1{% endif %} gap-4">
+                    <!-- First Query Parameters -->
+                    <div style="background-color: rgba(0, 94, 48, 0.1);" class="p-3 rounded-lg text-sm">
+                        <p class="font-medium" style="color: var(--primary-color);">Search Parameters: {{ query1 }}</p>
+                        
+                        <div class="mt-2 grid grid-cols-2 gap-2">
+                            <div class="col-span-2">
+                                <p class="text-xs text-gray-600">Language: <span class="font-medium">{{ request.form.get('language1', 'English') }}</span></p>
+                                {% if request.form.get('source1') %}
+                                <p class="text-xs text-gray-600">Sources: <span class="font-medium">{{ request.form.get('source1') }}</span></p>
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
+                    
+                    {% if query2 %}
+                    <!-- Second Query Parameters -->
+                    <div style="background-color: rgba(0, 166, 81, 0.1);" class="p-3 rounded-lg text-sm">
+                        <p class="font-medium" style="color: var(--accent-color);">Search Parameters: {{ query2 }}</p>
+                        
+                        <div class="mt-2 grid grid-cols-2 gap-2">
+                            <div class="col-span-2">
+                                <p class="text-xs text-gray-600">Language: <span class="font-medium">{{ request.form.get('language2', 'English') }}</span></p>
+                                {% if request.form.get('source2') %}
+                                <p class="text-xs text-gray-600">Sources: <span class="font-medium">{{ request.form.get('source2') }}</span></p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
                 
-                {% if query2 %}
-                <!-- Second Query Parameters -->
-                <div style="background-color: rgba(0, 166, 81, 0.1);" class="p-3 rounded-lg text-sm">
-                    <p class="font-medium" style="color: var(--accent-color);">Search Parameters: {{ query2 }}</p>
-                    
-                    <div class="mt-2 grid grid-cols-2 gap-2">
-                        <div class="col-span-2">
-                            <p class="text-xs text-gray-600">Language: <span class="font-medium">{{ request.form.get('language2', 'English') }}</span></p>
-                            {% if request.form.get('source2') %}
-                            <p class="text-xs text-gray-600">Sources: <span class="font-medium">{{ request.form.get('source2') }}</span></p>
-                            {% endif %}
+                <!-- Copy to Claude Button -->
+                <div class="relative inline-block group self-start md:self-center">
+                    <button id="copyToClaudeBtn" class="btn-primary font-bold py-2 px-4 rounded shadow-md transition-colors flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                            <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
+                        </svg>
+                        Copy Results to Claude
+                    </button>
+                    <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 absolute bottom-full right-0 mb-2 w-72 bg-gray-800 text-white text-sm rounded-lg p-3 shadow-lg z-10">
+                        <div class="relative">
+                            <div class="absolute -bottom-2 right-4 transform w-4 h-4 bg-gray-800 rotate-45"></div>
+                            <p>Paste contents into Claude and try a prompt such as, "analyze this press coverage and visualize its data"</p>
                         </div>
                     </div>
                 </div>
-                {% endif %}
             </div>
 
             <!-- Overview Stats -->
@@ -413,24 +432,6 @@
                 {% endif %}
             </div>
             
-            <!-- Copy to Claude Button -->
-            <div class="mt-8 text-center">
-                <div class="relative inline-block group">
-                    <button id="copyToClaudeBtn" class="btn-primary font-bold py-3 px-6 rounded-lg shadow-md transition-colors flex items-center mx-auto">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                            <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
-                            <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
-                        </svg>
-                        Copy Results to Claude
-                    </button>
-                    <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-72 bg-gray-800 text-white text-sm rounded-lg p-3 shadow-lg z-10">
-                        <div class="relative">
-                            <div class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-gray-800 rotate-45"></div>
-                            <p>Paste contents into Claude and try a prompt such as, "analyze this press coverage and visualize its data"</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -718,12 +719,12 @@
     <!-- Include Premium Modal -->
     {% include 'premium_modal.html' %}
     
-    <!-- Premium Services Banner -->
+    <!-- Bespoke Analysis Banner -->
     <div class="card p-6 mb-8 bg-green-50">
         <h3 class="text-lg font-semibold mb-4">Need More Insights?</h3>
-        <p class="mb-4">Our premium services offer bespoke analysis, historical data beyond 30 days, and access to additional sources.</p>
-        <a href="{{ url_for('premium_waitlist') }}" class="btn-primary font-bold py-2 px-4 rounded inline-block">
-            Contact Us
+        <p class="mb-4">Our bespoke analysis services offer tailored analysis, historical data beyond 30 days, and access to additional sources.</p>
+        <a href="https://www.innatec3.com/#contact" class="btn-primary font-bold py-2 px-4 rounded inline-block">
+            Bespoke Analysis
         </a>
     </div>
     
@@ -731,7 +732,7 @@
     <div class="max-w-6xl mx-auto mt-12 mb-4 text-center">
         <div class="divider"></div>
         <p class="text-sm text-gray-600">
-            For more information about Innate c3, visit <a href="https://tinyurl.com/innatec3" target="_blank" class="text-primary-600 hover:underline" style="color: var(--primary-color);">tinyurl.com/innatec3</a>
+            for more information about innate c3, visit <a href="https://innatec3.com" target="_blank" class="text-primary-600 hover:underline" style="color: var(--primary-color);">innatec3.com</a>
         </p>
     </div>
 </body>
