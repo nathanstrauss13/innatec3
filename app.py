@@ -703,6 +703,10 @@ def premium_waitlist():
     
     return render_template("premium.html")
 
+@app.route("/media-analysis")
+def media_analysis():
+    return app.send_static_file('media-analysis.html')
+
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
