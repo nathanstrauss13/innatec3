@@ -691,24 +691,25 @@
             
             // Calculate sentiment by outlet for query1
             function calculateSentimentByOutlet(articles) {
-                const outletSentiments = {};
-                const outletCounts = {};
+                var outletSentiments = {};
+                var outletCounts = {};
                 
                 // Calculate total sentiment and count for each outlet
-                articles.forEach(article => {
-                    const outlet = article.source.name;
+                for (var i = 0; i < articles.length; i++) {
+                    var article = articles[i];
+                    var outlet = article.source.name;
                     if (!outletSentiments[outlet]) {
                         outletSentiments[outlet] = 0;
                         outletCounts[outlet] = 0;
                     }
                     outletSentiments[outlet] += article.sentiment;
                     outletCounts[outlet]++;
-                });
+                }
                 
                 // Calculate average sentiment for each outlet
-                const results = [];
-                for (const outlet in outletSentiments) {
-                    // Only include outlets with at least 2 articles for more meaningful results
+                var results = [];
+                for (var outlet in outletSentiments) {
+                    // Only include outlets with at least 1 article
                     if (outletCounts[outlet] >= 1) {
                         results.push({
                             outlet: outlet,
@@ -719,16 +720,18 @@
                 }
                 
                 // Sort by sentiment from most negative to most positive
-                results.sort((a, b) => a.avgSentiment - b.avgSentiment);
+                results.sort(function(a, b) {
+                    return a.avgSentiment - b.avgSentiment;
+                });
                 
                 return results;
             }
             
             // Create sentiment by outlet chart for query1
-            const sentimentByOutlet1 = calculateSentimentByOutlet(articles1);
+            var sentimentByOutlet1 = calculateSentimentByOutlet(articles1);
             
             // Limit to top 15 outlets for readability
-            const topOutlets1 = sentimentByOutlet1.slice(0, 15);
+            var topOutlets1 = sentimentByOutlet1.slice(0, 15);
             
             // Create color gradient based on sentiment
             function getSentimentColor(sentiment) {
@@ -810,8 +813,8 @@
             
             // Create sentiment by outlet chart for query2 if it exists
             if (articles2) {
-                const sentimentByOutlet2 = calculateSentimentByOutlet(articles2);
-                const topOutlets2 = sentimentByOutlet2.slice(0, 15);
+                var sentimentByOutlet2 = calculateSentimentByOutlet(articles2);
+                var topOutlets2 = sentimentByOutlet2.slice(0, 15);
                 
                 new Chart(document.getElementById('sentimentByOutletChart2'), {
                     type: 'bar',
