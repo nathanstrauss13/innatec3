@@ -86,7 +86,7 @@
                 {% endif %}
             </div>
             
-            <!-- Search Parameters Info with Copy to Claude Button -->
+            <!-- Search Parameters Info with Copy to Claude Button and Share Button -->
             <div class="flex flex-col md:flex-row gap-4 mb-4 items-start">
                 <div class="flex-grow grid {% if query2 %}grid-cols-2{% else %}grid-cols-1{% endif %} gap-4">
                     <!-- First Query Parameters -->
@@ -120,64 +120,153 @@
                     {% endif %}
                 </div>
                 
-                <!-- Copy to Claude Button -->
-                <div class="relative inline-block group self-start md:self-center">
-                    <button id="copyToClaudeBtn" class="btn-primary font-bold py-2 px-4 rounded shadow-md transition-colors flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                            <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
-                            <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
-                        </svg>
-                        Copy Results to Claude
-                    </button>
-                    <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 absolute bottom-full right-0 mb-2 w-72 bg-gray-800 text-white text-sm rounded-lg p-3 shadow-lg z-10">
-                        <div class="relative">
-                            <div class="absolute -bottom-2 right-4 transform w-4 h-4 bg-gray-800 rotate-45"></div>
-                            <p>Paste contents into Claude and try a prompt such as, "analyze this press coverage and visualize its data"</p>
+                <!-- Action Buttons -->
+                <div class="flex flex-col md:flex-row gap-2 self-start md:self-center">
+                    <!-- Share Button -->
+                    <div class="relative inline-block group">
+                        <button id="shareBtn" class="btn-primary font-bold py-2 px-4 rounded shadow-md transition-colors flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" />
+                            </svg>
+                            Share Results
+                        </button>
+                        <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 absolute bottom-full right-0 mb-2 w-72 bg-gray-800 text-white text-sm rounded-lg p-3 shadow-lg z-10">
+                            <div class="relative">
+                                <div class="absolute -bottom-2 right-4 transform w-4 h-4 bg-gray-800 rotate-45"></div>
+                                <p>Copy a permanent link to these results to share with others</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Copy to Claude Button -->
+                    <div class="relative inline-block group">
+                        <button id="copyToClaudeBtn" class="btn-primary font-bold py-2 px-4 rounded shadow-md transition-colors flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                                <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
+                            </svg>
+                            Copy Results to Claude
+                        </button>
+                        <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 absolute bottom-full right-0 mb-2 w-72 bg-gray-800 text-white text-sm rounded-lg p-3 shadow-lg z-10">
+                            <div class="relative">
+                                <div class="absolute -bottom-2 right-4 transform w-4 h-4 bg-gray-800 rotate-45"></div>
+                                <p>Paste contents into Claude and try a prompt such as, "analyze this press coverage and visualize its data"</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Overview Stats -->
-            <div class="grid {% if query2 %}grid-cols-2{% else %}grid-cols-1{% endif %} gap-4 mb-8">
-                <!-- First Query Stats -->
-                <div style="background-color: rgba(0, 94, 48, 0.1);" class="p-4 rounded-lg">
-                    <h2 class="text-lg font-semibold mb-4" style="color: var(--primary-color);">{{ query1 }}</h2>
-                    <div class="grid grid-cols-3 gap-4">
-                        <div class="p-3 bg-white rounded">
-                            <div class="text-2xl font-bold" style="color: var(--primary-color);">{{ analysis1.total_articles }}</div>
-                            <div class="text-sm text-gray-600">Total Articles</div>
-                        </div>
-                        <div class="p-3 bg-white rounded">
-                            <div class="text-2xl font-bold" style="color: var(--primary-color);">{{ analysis1.sources|length }}</div>
-                            <div class="text-sm text-gray-600">Unique Sources</div>
-                        </div>
-                        <div class="p-3 bg-white rounded">
-                            <div class="text-2xl font-bold" style="color: var(--primary-color);">{{ '{:.2f}'.format(analysis1.avg_sentiment) }}</div>
-                            <div class="text-sm text-gray-600">Avg Sentiment (-1 to +1)</div>
-                        </div>
+            <!-- Coverage Metrics -->
+            <div class="card p-6 mb-8">
+                <h3 class="text-lg font-semibold mb-4">Coverage Metrics</h3>
+                <div class="grid {% if query2 %}grid-cols-4{% else %}grid-cols-2{% endif %} gap-8 text-center">
+                    <!-- First Query Stats -->
+                    <div>
+                        <div class="text-3xl font-bold" style="color: var(--primary-color);">{{ analysis1.total_articles }}</div>
+                        <div class="text-sm text-gray-600">{{ query1 }} Articles</div>
                     </div>
-                </div>
-                {% if query2 %}
-                <!-- Second Query Stats -->
-                <div style="background-color: rgba(0, 166, 81, 0.1);" class="p-4 rounded-lg">
-                    <h2 class="text-lg font-semibold mb-4" style="color: var(--accent-color);">{{ query2 }}</h2>
-                    <div class="grid grid-cols-3 gap-4">
-                        <div class="p-3 bg-white rounded">
-                            <div class="text-2xl font-bold" style="color: var(--accent-color);">{{ analysis2.total_articles }}</div>
-                            <div class="text-sm text-gray-600">Total Articles</div>
-                        </div>
-                        <div class="p-3 bg-white rounded">
-                            <div class="text-2xl font-bold" style="color: var(--accent-color);">{{ analysis2.sources|length }}</div>
-                            <div class="text-sm text-gray-600">Unique Sources</div>
-                        </div>
-                        <div class="p-3 bg-white rounded">
-                            <div class="text-2xl font-bold" style="color: var(--accent-color);">{{ '{:.2f}'.format(analysis2.avg_sentiment) }}</div>
-                            <div class="text-sm text-gray-600">Avg Sentiment (-1 to +1)</div>
-                        </div>
+                    <div>
+                        <div class="text-3xl font-bold" style="color: var(--primary-color);">{{ '{:.2f}'.format(analysis1.avg_sentiment) }}</div>
+                        <div class="text-sm text-gray-600">{{ query1 }} Sentiment</div>
                     </div>
+                    {% if query2 %}
+                    <!-- Second Query Stats -->
+                    <div>
+                        <div class="text-3xl font-bold" style="color: var(--accent-color);">{{ analysis2.total_articles }}</div>
+                        <div class="text-sm text-gray-600">{{ query2 }} Articles</div>
+                    </div>
+                    <div>
+                        <div class="text-3xl font-bold" style="color: var(--accent-color);">{{ '{:.2f}'.format(analysis2.avg_sentiment) }}</div>
+                        <div class="text-sm text-gray-600">{{ query2 }} Sentiment</div>
+                    </div>
+                    {% endif %}
                 </div>
-                {% endif %}
+            </div>
+            
+            <!-- Key Insights -->
+            <div class="card p-6 mb-8">
+                <h3 class="text-lg font-semibold mb-4">Key Insights</h3>
+                <ul class="list-disc pl-5 space-y-2">
+                    <!-- Total Coverage and Sentiment -->
+                    <li><strong>Total coverage:</strong> {{ analysis1.total_articles }} articles with an average sentiment score of {{ '{:.2f}'.format(analysis1.avg_sentiment) }} ({{ 'positive' if analysis1.avg_sentiment > 0.2 else ('negative' if analysis1.avg_sentiment < -0.2 else 'neutral') }})</li>
+                    
+                    <!-- Highest Volume Day -->
+                    {% set max_count1 = 0 %}
+                    {% set max_date1 = None %}
+                    {% set peak_article = None %}
+                    {% for item in analysis1.timeline %}
+                        {% if item.count > max_count1 %}
+                            {% set max_count1 = item.count %}
+                            {% set max_date1 = item.date %}
+                            {% set peak_article = item.peak_article if item.peak_article is defined else None %}
+                        {% endif %}
+                    {% endfor %}
+                    
+                    <li><strong>Highest volume day:</strong> {{ max_date1 }} with {{ max_count1 }} articles{% if peak_article %}, primarily focused on {{ peak_article.title.split(' ')[:5]|join(' ') }}...{% endif %}</li>
+                    
+                    <!-- Top Sources -->
+                    <li><strong>Top sources:</strong> {% for source in analysis1.sources[:5] %}{{ source.name }} ({{ source.count }}){% if not loop.last %}, {% endif %}{% endfor %}</li>
+                    
+                    <!-- Top Topics -->
+                    <li><strong>{{ analysis1.topics[:3]|map(attribute='topic')|join(', ')|capitalize }}</strong> dominated with {% for topic in analysis1.topics[:3] %}{{ topic.count }}{% if not loop.last %}, {% endif %}{% endfor %} mentions{% if analysis1.topics|length > 3 %}, followed by {{ analysis1.topics[3:5]|map(attribute='topic')|join(', ') }} ({{ analysis1.topics[3:5]|map(attribute='count')|join(', ') }}){% endif %}</li>
+                    
+                    <!-- Sentiment Analysis -->
+                    {% set positive_articles = articles1|selectattr('sentiment', '>', 0.2)|list|length %}
+                    {% set negative_articles = articles1|selectattr('sentiment', '<', -0.2)|list|length %}
+                    {% set neutral_articles = articles1|length - positive_articles - negative_articles %}
+                    
+                    {% set pos_percent = (positive_articles / articles1|length * 100)|round|int %}
+                    {% set neg_percent = (negative_articles / articles1|length * 100)|round|int %}
+                    {% set neu_percent = (neutral_articles / articles1|length * 100)|round|int %}
+                    
+                    <li><strong>Sentiment analysis</strong> shows a mix of {{ 'positive' if pos_percent > neg_percent and pos_percent > neu_percent else ('negative' if neg_percent > pos_percent and neg_percent > neu_percent else 'neutral') }} ({{ pos_percent }}%) and {{ 'positive' if pos_percent > neg_percent and pos_percent < neu_percent else ('negative' if neg_percent > pos_percent and neg_percent < neu_percent else 'neutral') }} ({{ neg_percent if neg_percent > pos_percent and neg_percent < neu_percent else pos_percent }}%) content, with {{ 'limited' if neu_percent < 30 else 'substantial' }} neutral coverage ({{ neu_percent }}%)</li>
+                    
+                    <!-- Content Categories -->
+                    {% set categories = {
+                        'music': ['music', 'song', 'artist', 'album', 'band', 'singer', 'concert'],
+                        'technology': ['technology', 'tech', 'digital', 'online', 'platform', 'streaming', 'video'],
+                        'business': ['business', 'company', 'market', 'industry', 'revenue', 'growth'],
+                        'awards': ['award', 'nomination', 'winner', 'ceremony', 'prize'],
+                        'entertainment': ['entertainment', 'media', 'film', 'movie', 'tv', 'television']
+                    } %}
+                    
+                    {% set category_counts = {} %}
+                    {% for topic in analysis1.topics %}
+                        {% for category, keywords in categories.items() %}
+                            {% if topic.topic in keywords %}
+                                {% if category in category_counts %}
+                                    {% set _ = category_counts.update({category: category_counts[category] + topic.count}) %}
+                                {% else %}
+                                    {% set _ = category_counts.update({category: topic.count}) %}
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    {% endfor %}
+                    
+                    {% set sorted_categories = category_counts.items()|sort(attribute='1', reverse=True) %}
+                    {% if sorted_categories|length > 0 %}
+                    <li><strong>Content was primarily about</strong> {% for category, count in sorted_categories[:3] %}{{ category }} ({{ (count / analysis1.total_articles * 100)|round|int }}%){% if not loop.last %}, {% endif %}{% endfor %}</li>
+                    {% endif %}
+                    
+                    {% if query2 %}
+                    <!-- Comparative Insights -->
+                    <li>{{ query1 }} received {{ 'more' if analysis1.avg_sentiment > analysis2.avg_sentiment else 'less' }} positive coverage than {{ query2 }} (avg. sentiment {{ '{:.2f}'.format(analysis1.avg_sentiment) }} vs {{ '{:.2f}'.format(analysis2.avg_sentiment) }})</li>
+                    <li>{{ 'Both entities had similar article volumes' if 0.8 < (analysis1.total_articles / analysis2.total_articles) < 1.2 else (query1 if analysis1.total_articles > analysis2.total_articles else query2) + ' had significantly more coverage' }} ({{ analysis1.total_articles }} vs {{ analysis2.total_articles }} articles)</li>
+                    
+                    {% set max_count2 = 0 %}
+                    {% set max_date2 = None %}
+                    {% for item in analysis2.timeline %}
+                        {% if item.count > max_count2 %}
+                            {% set max_count2 = item.count %}
+                            {% set max_date2 = item.date %}
+                        {% endif %}
+                    {% endfor %}
+                    
+                    <li>{{ query2 }}'s peak coverage: {{ max_date2 }} with {{ max_count2 }} articles</li>
+                    <li>{{ query2 }} coverage heavily influenced by {{ analysis2.topics[:3]|map(attribute='topic')|join(', ') }}</li>
+                    {% endif %}
+                </ul>
             </div>
 
             <!-- Sentiment Scatter Plot -->
@@ -186,21 +275,42 @@
                 <div id="sentimentScatter" class="h-96"></div>
             </div>
 
+            <!-- Coverage Timeline -->
+            <div class="card p-6 mb-8">
+                <h3 class="text-lg font-semibold mb-4">Daily Coverage Timeline</h3>
+                <div class="h-64">
+                    <canvas id="timelineChart"></canvas>
+                </div>
+            </div>
+            
             <!-- Visualizations -->
             <div class="grid grid-cols-1 {% if query2 %}md:grid-cols-2{% endif %} gap-8 mb-8">
-                <!-- Coverage Volume -->
-                <div class="card p-6">
-                    <h3 class="text-lg font-semibold mb-4">Coverage Volume</h3>
-                    <div class="h-64">
-                        <canvas id="timelineChart"></canvas>
-                    </div>
-                </div>
-                
                 <!-- Top Sources -->
                 <div class="card p-6">
                     <h3 class="text-lg font-semibold mb-4">Top News Sources</h3>
                     <div class="h-64">
                         <canvas id="sourcesChart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Sentiment Distribution -->
+                <div class="card p-6">
+                    <h3 class="text-lg font-semibold mb-4">Sentiment Distribution</h3>
+                    <div class="grid {% if query2 %}grid-cols-2{% else %}grid-cols-1{% endif %} gap-4">
+                        <div>
+                            <h4 class="text-md font-medium mb-2 text-center" style="color: var(--primary-color);">{{ query1 }}</h4>
+                            <div class="h-48">
+                                <canvas id="sentimentPieChart1"></canvas>
+                            </div>
+                        </div>
+                        {% if query2 %}
+                        <div>
+                            <h4 class="text-md font-medium mb-2 text-center" style="color: var(--accent-color);">{{ query2 }}</h4>
+                            <div class="h-48">
+                                <canvas id="sentimentPieChart2"></canvas>
+                            </div>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -248,29 +358,7 @@
                     {% if analysis1.topics|length > 10 %}The wide range of topics suggests multifaceted coverage addressing various aspects of {{ query1 }}.{% else %}The relatively narrow range of topics indicates focused coverage on specific aspects of {{ query1 }}.{% endif %}</p>
                     
                     <p><strong>Key Trends:</strong></p>
-                    <p>1. <strong>Coverage Volume Patterns:</strong> 
-                    {% if analysis1.timeline %}
-                    {% set max_count = 0 %}
-                    {% set max_date_item = None %}
-                    {% for item in analysis1.timeline %}
-                        {% if item.count > max_count %}
-                            {% set max_count = item.count %}
-                            {% set max_date_item = item %}
-                        {% endif %}
-                    {% endfor %}
-                    
-                    {% if max_date_item %}
-                    The coverage spans from {{ analysis1.date_range.start }} to {{ analysis1.date_range.end }}, with peak coverage on {{ max_date_item.date }} ({{ max_date_item.count }} articles).
-                    
-                    {% if analysis1.timeline|length > 1 %}
-                    {% if max_count > (analysis1.total_articles / analysis1.timeline|length) * 2 %}
-                    The significant spike in coverage suggests a major event or announcement that triggered heightened media interest.
-                    {% else %}
-                    The relatively consistent distribution of articles indicates sustained media attention throughout the period rather than event-driven coverage.
-                    {% endif %}
-                    {% endif %}
-                    {% endif %}
-                    {% endif %}</p>
+                    <p>1. <strong>Coverage Volume Patterns:</strong> {% if analysis1.timeline %}{% set max_count = 0 %}{% set max_date_item = None %}{% for item in analysis1.timeline %}{% if item.count > max_count %}{% set max_count = item.count %}{% set max_date_item = item %}{% endif %}{% endfor %}{% if max_date_item %}The coverage spans from {{ analysis1.date_range.start }} to {{ analysis1.date_range.end }}, with peak coverage on {{ max_date_item.date }} ({{ max_date_item.count }} articles). {% if analysis1.timeline|length > 1 %}{% if max_count > (analysis1.total_articles / analysis1.timeline|length) * 2 %}The significant spike in coverage suggests a major event or announcement that triggered heightened media interest.{% else %}The relatively consistent distribution of articles indicates sustained media attention throughout the period rather than event-driven coverage.{% endif %}{% endif %}{% endif %}{% endif %}</p>
                     
                     <p>2. <strong>Sentiment Evolution:</strong> 
                     {% set positive_articles = 0 %}
@@ -458,495 +546,15 @@
         </div>
     </div>
 
+    <!-- Pass data from template to JavaScript -->
     <script>
-        // Initialize charts when DOM is ready
-        document.addEventListener('DOMContentLoaded', function() {
-            // Get data from template
-            var articles1 = {{ articles1 | tojson | safe }};
-            var articles2 = {{ articles2 | tojson if articles2 else 'null' | safe }};
-            var analysis1 = {{ analysis1 | tojson | safe }};
-            var analysis2 = {{ analysis2 | tojson if analysis2 else 'null' | safe }};
-            var query1 = "{{ query1 }}";
-            var query2 = "{{ query2 if query2 else '' }}";
-            
-            // Create sentiment scatter plot
-            var trace1 = {
-                x: articles1.map(a => a.publishedAt),
-                y: articles1.map(a => a.sentiment),
-                text: articles1.map(a => `<b>${a.title}</b><br>Source: ${a.source.name}<br><a href="${a.url}" target="_blank" style="color: #005e30;">Read article →</a>`),
-                mode: 'markers',
-                type: 'scatter',
-                name: query1,
-                marker: {
-                    size: 10,
-                    color: '#005e30',
-                    opacity: 0.7
-                },
-                hovertemplate: 
-                    '%{text}<br>' +
-                    'Sentiment: %{y:.2f}<br>' +
-                    '<extra></extra>'
-            };
-
-            var traces = [trace1];
-
-            if (articles2) {
-                var trace2 = {
-                    x: articles2.map(a => a.publishedAt),
-                    y: articles2.map(a => a.sentiment),
-                    text: articles2.map(a => `<b>${a.title}</b><br>Source: ${a.source.name}<br><a href="${a.url}" target="_blank" style="color: #00a651;">Read article →</a>`),
-                    mode: 'markers',
-                    type: 'scatter',
-                    name: query2,
-                    marker: {
-                        size: 10,
-                        color: '#00a651',
-                        opacity: 0.7
-                    },
-                    hovertemplate: 
-                        '%{text}<br>' +
-                        'Sentiment: %{y:.2f}<br>' +
-                        '<extra></extra>'
-                };
-                traces.push(trace2);
-            }
-
-            var layout = {
-                showlegend: true,
-                hovermode: 'closest',
-                hoverlabel: {
-                    namelength: -1,  // Shows the full label text
-                    bgcolor: 'white',
-                    bordercolor: '#ccc',
-                    font: {size: 14},
-                    align: 'left'
-                },
-                clickmode: 'event',
-                xaxis: {
-                    title: 'Publication Date',
-                    tickformat: '%Y-%m-%d'
-                },
-                yaxis: {
-                    title: 'Sentiment Score',
-                    range: [-1.1, 1.1]
-                },
-                margin: {
-                    l: 50,
-                    r: 50,
-                    b: 50,
-                    t: 20,
-                    pad: 4
-                }
-            };
-
-            // Create scatter plot with clickable points
-            var scatterPlot = document.getElementById('sentimentScatter');
-            var config = {
-                responsive: true,
-                modeBarButtonsToRemove: ['toImage', 'zoom2d', 'pan2d', 'select2d', 'lasso2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d', 'resetScale2d'],
-                displayModeBar: false,  // Hide the mode bar for cleaner interface
-                doubleClick: false  // Disable double click to zoom
-            };
-
-            Plotly.newPlot(scatterPlot, traces, layout, config);
-
-
-            // Add click event to open article URL
-            scatterPlot.on('plotly_click', function(data) {
-                var point = data.points[0];
-                var articleUrl = point.data.text[point.pointIndex].match(/href="([^"]+)"/)[1];
-                window.open(articleUrl, '_blank');
-            });
-
-            // Create timeline chart
-            var timelineDatasets = [{
-                label: query1,
-                data: analysis1.timeline.map(item => ({
-                    x: item.date,
-                    y: item.count,
-                    article: item.peak_article
-                })),
-                borderColor: '#005e30',
-                backgroundColor: 'rgba(0, 94, 48, 0.1)',
-                tension: 0.1,
-                fill: true
-            }];
-
-            if (analysis2) {
-                timelineDatasets.push({
-                    label: query2,
-                    data: analysis2.timeline.map(item => ({
-                        x: item.date,
-                        y: item.count,
-                        article: item.peak_article
-                    })),
-                    borderColor: '#00a651',
-                    backgroundColor: 'rgba(0, 166, 81, 0.1)',
-                    tension: 0.1,
-                    fill: true
-                });
-            }
-            
-            // Create timeline chart
-            var timelineChart = new Chart(document.getElementById('timelineChart'), {
-                type: 'line',
-                data: { datasets: timelineDatasets },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top'
-                        },
-                        tooltip: {
-                            enabled: false
-                        }
-                    },
-                    onClick: function(event, elements) {
-                        if (elements.length > 0) {
-                            const index = elements[0].index;
-                            const datasetIndex = elements[0].datasetIndex;
-                            const dataset = this.data.datasets[datasetIndex];
-                            const article = dataset.data[index].article;
-                            
-                            if (article && article.url) {
-                                window.open(article.url, '_blank');
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                stepSize: 1
-                            }
-                        },
-                        x: {
-                            type: 'time',
-                            time: {
-                                unit: 'day'
-                            },
-                            ticks: {
-                                maxRotation: 45,
-                                minRotation: 45
-                            }
-                        }
-                    }
-                }
-            });
-
-            // Create sources chart
-            var sourcesDatasets = [{
-                label: query1,
-                data: analysis1.sources.map(item => item.count),
-                backgroundColor: '#005e30',
-                barThickness: 20
-            }];
-
-            if (analysis2) {
-                sourcesDatasets.push({
-                    label: query2,
-                    data: analysis2.sources.map(item => item.count),
-                    backgroundColor: '#00a651',
-                    barThickness: 20
-                });
-            }
-            
-            // Create sources chart
-            new Chart(document.getElementById('sourcesChart'), {
-                type: 'bar',
-                data: {
-                    labels: analysis1.sources.map(item => item.name),
-                    datasets: sourcesDatasets
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    indexAxis: 'y',
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top'
-                        }
-                    },
-                    scales: {
-                        y: {
-                            ticks: {
-                                autoSkip: false,
-                                maxRotation: 0,
-                                padding: 10
-                            }
-                        },
-                        x: {
-                            beginAtZero: true,
-                            ticks: {
-                                stepSize: 1
-                            },
-                            stacked: false
-                        }
-                    }
-                }
-            });
-            
-            // Calculate sentiment by outlet for query1
-            function calculateSentimentByOutlet(articles) {
-                var outletSentiments = {};
-                var outletCounts = {};
-                
-                // Calculate total sentiment and count for each outlet
-                for (var i = 0; i < articles.length; i++) {
-                    var article = articles[i];
-                    var outlet = article.source.name;
-                    if (!outletSentiments[outlet]) {
-                        outletSentiments[outlet] = 0;
-                        outletCounts[outlet] = 0;
-                    }
-                    outletSentiments[outlet] += article.sentiment;
-                    outletCounts[outlet]++;
-                }
-                
-                // Calculate average sentiment for each outlet
-                var results = [];
-                for (var outlet in outletSentiments) {
-                    // Only include outlets with at least 1 article
-                    if (outletCounts[outlet] >= 1) {
-                        results.push({
-                            outlet: outlet,
-                            avgSentiment: outletSentiments[outlet] / outletCounts[outlet],
-                            count: outletCounts[outlet]
-                        });
-                    }
-                }
-                
-                // Sort by sentiment from most negative to most positive
-                results.sort(function(a, b) {
-                    return a.avgSentiment - b.avgSentiment;
-                });
-                
-                return results;
-            }
-            
-            // Create sentiment by outlet chart for query1
-            var sentimentByOutlet1 = calculateSentimentByOutlet(articles1);
-            
-            // Limit to top 15 outlets for readability
-            var topOutlets1 = sentimentByOutlet1.slice(0, 15);
-            
-            // Create color gradient based on sentiment
-            function getSentimentColor(sentiment) {
-                // Red for negative, yellow for neutral, green for positive
-                if (sentiment < -0.33) {
-                    // Negative: red
-                    return 'rgba(220, 53, 69, 0.8)';
-                } else if (sentiment < 0.33) {
-                    // Neutral: yellow
-                    return 'rgba(255, 193, 7, 0.8)';
-                } else {
-                    // Positive: green
-                    return 'rgba(40, 167, 69, 0.8)';
-                }
-            }
-            
-            // Create sentiment by outlet chart for query1
-            new Chart(document.getElementById('sentimentByOutletChart1'), {
-                type: 'bar',
-                data: {
-                    labels: topOutlets1.map(item => `${item.outlet} (${item.count})`),
-                    datasets: [{
-                        label: 'Average Sentiment',
-                        data: topOutlets1.map(item => item.avgSentiment),
-                        backgroundColor: topOutlets1.map(item => getSentimentColor(item.avgSentiment)),
-                        borderColor: 'rgba(0, 0, 0, 0.1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    indexAxis: 'y',
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const sentiment = context.raw;
-                                    let label = `Sentiment: ${sentiment.toFixed(2)}`;
-                                    if (sentiment < -0.33) {
-                                        label += ' (Negative)';
-                                    } else if (sentiment < 0.33) {
-                                        label += ' (Neutral)';
-                                    } else {
-                                        label += ' (Positive)';
-                                    }
-                                    return label;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            ticks: {
-                                autoSkip: false,
-                                maxRotation: 0,
-                                padding: 10
-                            }
-                        },
-                        x: {
-                            beginAtZero: false,
-                            min: -1,
-                            max: 1,
-                            ticks: {
-                                callback: function(value) {
-                                    if (value === -1) return 'Negative';
-                                    if (value === 0) return 'Neutral';
-                                    if (value === 1) return 'Positive';
-                                    return '';
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-            
-            // Create sentiment by outlet chart for query2 if it exists
-            if (articles2) {
-                var sentimentByOutlet2 = calculateSentimentByOutlet(articles2);
-                var topOutlets2 = sentimentByOutlet2.slice(0, 15);
-                
-                new Chart(document.getElementById('sentimentByOutletChart2'), {
-                    type: 'bar',
-                    data: {
-                        labels: topOutlets2.map(item => `${item.outlet} (${item.count})`),
-                        datasets: [{
-                            label: 'Average Sentiment',
-                            data: topOutlets2.map(item => item.avgSentiment),
-                            backgroundColor: topOutlets2.map(item => getSentimentColor(item.avgSentiment)),
-                            borderColor: 'rgba(0, 0, 0, 0.1)',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        indexAxis: 'y',
-                        plugins: {
-                            legend: {
-                                display: false
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        const sentiment = context.raw;
-                                        let label = `Sentiment: ${sentiment.toFixed(2)}`;
-                                        if (sentiment < -0.33) {
-                                            label += ' (Negative)';
-                                        } else if (sentiment < 0.33) {
-                                            label += ' (Neutral)';
-                                        } else {
-                                            label += ' (Positive)';
-                                        }
-                                        return label;
-                                    }
-                                }
-                            }
-                        },
-                        scales: {
-                            y: {
-                                ticks: {
-                                    autoSkip: false,
-                                    maxRotation: 0,
-                                    padding: 10
-                                }
-                            },
-                            x: {
-                                beginAtZero: false,
-                                min: -1,
-                                max: 1,
-                                ticks: {
-                                    callback: function(value) {
-                                        if (value === -1) return 'Negative';
-                                        if (value === 0) return 'Neutral';
-                                        if (value === 1) return 'Positive';
-                                        return '';
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-        });
+        window.articles1 = {{ articles1 | tojson | safe }};
+        window.articles2 = {{ articles2 | tojson if articles2 else 'null' | safe }};
+        window.analysis1 = {{ analysis1 | tojson | safe }};
+        window.analysis2 = {{ analysis2 | tojson if analysis2 else 'null' | safe }};
+        window.query1 = "{{ query1 }}";
+        window.query2 = "{{ query2 if query2 else '' }}";
     </script>
-    
-    <!-- Copy to Claude functionality -->
-    <script>
-        document.getElementById('copyToClaudeBtn').addEventListener('click', function() {
-            // Get the data
-            var articles1 = {{ articles1 | tojson | safe }};
-            var articles2 = {{ articles2 | tojson if articles2 else 'null' | safe }};
-            var analysis1 = {{ analysis1 | tojson | safe }};
-            var analysis2 = {{ analysis2 | tojson if analysis2 else 'null' | safe }};
-            var query1 = "{{ query1 }}";
-            var query2 = "{{ query2 if query2 else '' }}";
-            
-            // Create a JSON object with all the data
-            var resultsData = {
-                query1: query1,
-                query2: query2,
-                analysis1: analysis1,
-                analysis2: analysis2,
-                articles1: articles1,
-                articles2: articles2
-            };
-            
-            // Convert to JSON string
-            var jsonString = JSON.stringify(resultsData, null, 2);
-            
-            // Copy to clipboard
-            navigator.clipboard.writeText(jsonString).then(function() {
-                // Change button text temporarily to indicate success
-                var btn = document.getElementById('copyToClaudeBtn');
-                var originalText = btn.innerHTML;
-                btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>Copied! Opening Claude...';
-                // Apply success styling
-                btn.style.backgroundColor = '#00a651';
-                
-                // Open Claude in a new tab
-                window.open('https://claude.ai', '_blank');
-                
-                // Reset button after 3 seconds
-                setTimeout(function() {
-                    btn.innerHTML = originalText;
-                    btn.style.backgroundColor = '#005e30';
-                }, 3000);
-            }).catch(function(err) {
-                console.error('Could not copy text: ', err);
-                alert('Failed to copy to clipboard. Please try again.');
-            });
-        });
-    </script>
-    
-    <!-- Include Premium Modal -->
-    {% include 'premium_modal.html' %}
-    
-    <!-- Bespoke Analysis Banner -->
-    <div class="card p-6 mb-8 bg-green-50">
-        <h3 class="text-lg font-semibold mb-4">Need More Insights?</h3>
-        <p class="mb-4">Our bespoke analysis services offer tailored analysis, historical data beyond 30 days, and access to additional sources.</p>
-        <a href="https://www.innatec3.com/#contact" class="btn-primary font-bold py-2 px-4 rounded inline-block">
-            Bespoke Analysis
-        </a>
-    </div>
-    
-    <!-- Footer -->
-    <div class="max-w-6xl mx-auto mt-12 mb-4 text-center">
-        <div class="divider"></div>
-        <p class="text-sm text-gray-600">
-            for more information about innate c3, visit <a href="https://innatec3.com" target="_blank" class="text-primary-600 hover:underline" style="color: var(--primary-color);">innatec3.com</a>
-        </p>
-    </div>
+    <script src="{{ url_for('static', filename='js/result-charts.js') }}"></script>
 </body>
 </html>
