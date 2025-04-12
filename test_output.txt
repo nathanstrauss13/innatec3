@@ -1,0 +1,6 @@
+MEDIASTACK_API_KEY is set
+MEDIASTACK_API_KEY value: 5853afacd353567cda4eccde0beee937
+Fetching news from MediaStack API with params: {'access_key': '5853afacd353567cda4eccde0beee937', 'keywords': 'technology', 'languages': 'en', 'limit': 10}
+MediaStack API response status: 401
+MediaStack API Error response: {"error":{"code":"invalid_access_key","message":"You have not supplied a valid API Access Key. [Technical Support: support@apilayer.com]"}}
+Error from MediaStack API: You have not supplied a valid API Access Key. [Technical Support: support@apilayer.com]

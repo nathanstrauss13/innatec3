@@ -406,6 +406,7 @@ def parse_boolean_query(query):
     - Quoted phrases for exact matches
     - AND/OR operators (default is AND)
     - Minus sign for exclusion
+    - Multiple keywords (Google News style)
     
     Returns a processed query string compatible with the News API
     """
@@ -413,19 +414,26 @@ def parse_boolean_query(query):
     if not query.strip():
         return query
     
-    # Process the query
-    processed_query = query
+    # Check if the query already contains boolean operators
+    if " AND " in query.upper() or " OR " in query.upper() or '"' in query or "-" in query:
+        # If it already has boolean operators, don't modify it
+        processed_query = query
+    else:
+        # Split the query into individual keywords
+        keywords = query.strip().split()
+        
+        if len(keywords) > 1:
+            # For multiple keywords, create a query that finds articles containing ANY of the keywords
+            # This is more like Google News behavior
+            processed_query = " OR ".join(keywords)
+            
+            # Also add the original phrase as an exact match option for higher relevance
+            processed_query = f'"{query}" OR ({processed_query})'
+        else:
+            # For single keywords, use as-is
+            processed_query = query
     
-    # The News API already supports:
-    # - Quotes for exact phrases: "exact phrase"
-    # - AND operator: term1 AND term2
-    # - OR operator: term1 OR term2
-    # - Exclusion with minus: -excluded
-    
-    # We don't need to modify the query as the News API already supports
-    # the boolean search features we want
-    
-    print(f"Boolean search query: '{processed_query}'")
+    print(f"Boolean search query: Original='{query}' → Processed='{processed_query}'")
     return processed_query
 
 
@@ -749,181 +757,235 @@ def index():
                 flash(error)
             return redirect(url_for("index"))
         
-        try:
-            # Validate date ranges
-            valid, start_date1, end_date1 = validate_date_range(from_date1, to_date1)
+        # Redirect to results page with query parameters
+        params = {
+            "query1": query1,
+            "from_date1": from_date1,
+            "to_date1": to_date1,
+            "language1": language1,
+            "source1": source1
+        }
+        
+        if query2:
+            params.update({
+                "query2": query2,
+                "from_date2": from_date2 if from_date2 else from_date1,
+                "to_date2": to_date2 if to_date2 else to_date1,
+                "language2": language2,
+                "source2": source2
+            })
             
-            # Check if date range is more than 30 days (free tier limit)
-            delta1 = end_date1 - start_date1
-            if delta1.days > 30:
-                flash("Free tier is limited to 30 days of historical data. Please join our premium waiting list for extended access.")
-                return redirect(url_for("premium_waitlist"))
-            
-            if query2 and (from_date2 and to_date2):
-                valid, start_date2, end_date2 = validate_date_range(from_date2, to_date2)
-                
-                # Check if date range is more than 30 days (free tier limit)
-                delta2 = end_date2 - start_date2
-                if delta2.days > 30:
-                    flash("Free tier is limited to 30 days of historical data. Please join our premium waiting list for extended access.")
-                    return redirect(url_for("premium_waitlist"))
-            
-            # Process boolean queries
-            processed_query1 = {"enhanced_query": parse_boolean_query(query1), "entity_type": "", "reasoning": "Boolean search query"}
-            processed_query2 = {"enhanced_query": parse_boolean_query(query2), "entity_type": "", "reasoning": "Boolean search query"} if query2 else None
-            
-            # Fetch and analyze articles for the first query
-            articles1 = fetch_news(
-                keywords=query1,
-                from_date=from_date1,
-                to_date=to_date1,
-                language=language1,
-                source=source1
-            )
-            analysis1 = analyze_articles(articles1, query1)
-            
-            # Helper function to summarize articles for Claude
-            def summarize_articles(articles):
-                return [{
-                    'title': article['title'],
-                    'description': article['description'],
-                    'publishedAt': article['publishedAt']
-                } for article in articles]
-            
-            # Helper function to format Claude's response
-            def format_claude_response(text):
-                formatted_text = text
-                
-                # Process section headers (lines that end with a colon)
-                formatted_text = re.sub(r'^([^:\n]+:)$', r'<p><strong>\1</strong></p>', formatted_text, flags=re.MULTILINE)
-                
-                # Process subheads (lines that have a colon in the middle)
-                formatted_text = re.sub(r'^([^:\n]+:[^:\n]*)$', r'<em>\1</em>', formatted_text, flags=re.MULTILINE)
-                
-                # Process numbered items (e.g., "1. Some text") to ensure they're on separate lines
-                # This regex matches numbered items that might span multiple sentences
-                formatted_text = re.sub(r'(\d+\.\s*[^0-9\n]+?)(?=\s*\d+\.\s*|\s*$)', r'<p>\1</p>', formatted_text)
-                
-                # Also handle bullet points with dashes or asterisks
-                formatted_text = re.sub(r'([-*•]\s*[^-*•\n]+?)(?=\s*[-*•]\s*|\s*$)', r'<p>\1</p>', formatted_text)
-                
-                # Convert the formatted text to Markup to ensure HTML is rendered
-                return Markup(formatted_text)
-            
-            # Initialize variables for second query
-            articles2 = []
-            analysis2 = None
-            analysis_text = None
-            
-            # Prepare summarized articles for the first query
-            summarized_articles1 = summarize_articles(articles1)
-            
-            # Generate analysis for single search term
-            if not query2:
-                # Check cache with all parameters for single search
-                cache_key = f"single_{query1}_{from_date1}_{to_date1}_{language1}_{source1}"
-                cached_response = app.config.get('analysis_cache', {}).get(cache_key)
-                
-                if cached_response:
-                    analysis_text = cached_response
-                else:
-                    # Prepare the analysis prompt for single search term
-                    analysis_prompt = f"""Analyze news coverage for {query1} ({from_date1} to {to_date1}).
-                    Key points to address:
-                    1. Major Coverage Differences: Identify the main themes, tones, and focus areas in the coverage
-                    2. Key Trends: Analyze patterns in coverage volume, sentiment evolution, and source diversity
-                    3. Business Implications: Discuss market perception, competitive positioning, and strategic opportunities
-                    
-                    Articles: {json.dumps(summarized_articles1)}"""
-                    
-                    # Get analysis from Claude
-                    response = anthropic.messages.create(
-                        model="claude-3-haiku-20240307",
-                        max_tokens=1000,
-                        messages=[{
-                            "role": "user",
-                            "content": analysis_prompt
-                        }]
-                    )
-                    
-                    # Format the response
-                    analysis_text = format_claude_response(response.content[0].text)
-                    
-                    # Cache the response with timestamp
-                    if not hasattr(app.config, 'analysis_cache'):
-                        app.config['analysis_cache'] = {}
-                        app.config['cache_times'] = {}
-                    app.config['analysis_cache'][cache_key] = analysis_text
-                    app.config['cache_times'][cache_key] = datetime.now()
-            else:
-                # Fetch and analyze articles for the second query
-                articles2 = fetch_news(
-                    keywords=query2,
-                    from_date=from_date2 if from_date2 else from_date1,
-                    to_date=to_date2 if to_date2 else to_date1,
-                    language=language2,
-                    source=source2
-                )
-                analysis2 = analyze_articles(articles2, query2)
-                
-                # Prepare summarized articles for the second query
-                summarized_articles2 = summarize_articles(articles2)
-                
-                # Check cache with all parameters for comparative search
-                cache_key = f"comparative_{query1}_{query2}_{from_date1}_{to_date1}_{from_date2}_{to_date2}_{language1}_{source1}_{language2}_{source2}"
-                cached_response = app.config.get('analysis_cache', {}).get(cache_key)
-                
-                if cached_response:
-                    analysis_text = cached_response
-                else:
-                    # Prepare the analysis prompt for comparative search
-                    analysis_prompt = f"""Compare news coverage between {query1} ({from_date1} to {to_date1}) and {query2} ({from_date2 if from_date2 else from_date1} to {to_date2 if to_date2 else to_date1}).
-                    Key points:
-                    1. Major Coverage Differences
-                    2. Key Trends
-                    3. Business Implications
-                    
-                    {query1} articles: {json.dumps(summarized_articles1)}
-                    {query2} articles: {json.dumps(summarized_articles2)}"""
-                    
-                    # Get analysis from Claude
-                    response = anthropic.messages.create(
-                        model="claude-3-haiku-20240307",
-                        max_tokens=1000,
-                        messages=[{
-                            "role": "user",
-                            "content": analysis_prompt
-                        }]
-                    )
-                    
-                    # Format the response
-                    analysis_text = format_claude_response(response.content[0].text)
-                    
-                    # Cache the response with timestamp
-                    if not hasattr(app.config, 'analysis_cache'):
-                        app.config['analysis_cache'] = {}
-                        app.config['cache_times'] = {}
-                    app.config['analysis_cache'][cache_key] = analysis_text
-                    app.config['cache_times'][cache_key] = datetime.now()
-            
-            return render_template(
-                "result.html",
-                query1=query1,
-                query2=query2,
-                enhanced_query1=processed_query1,
-                enhanced_query2=processed_query2,
-                textual_analysis=analysis_text,
-                analysis1=analysis1,
-                analysis2=analysis2,
-                articles1=articles1,
-                articles2=articles2
-            )
-            
-        except Exception as e:
-            flash(f"Error: {str(e)}")
-            return redirect(url_for("index"))
+        return redirect(url_for("results", **params))
             
     return render_template("index.html")
+
+@app.route("/results", methods=["GET"])
+def results():
+    # Get parameters from URL
+    query1 = request.args.get("query1", "").strip()
+    query2 = request.args.get("query2", "").strip()
+    from_date1 = request.args.get("from_date1", "").strip()
+    to_date1 = request.args.get("to_date1", "").strip()
+    from_date2 = request.args.get("from_date2", "").strip()
+    to_date2 = request.args.get("to_date2", "").strip()
+    language1 = request.args.get("language1", "en")
+    source1 = request.args.get("source1", "").strip()
+    language2 = request.args.get("language2", "en")
+    source2 = request.args.get("source2", "").strip()
+    
+    # Validate inputs
+    errors = []
+    if not query1:
+        errors.append("Please enter at least one search term")
+    if not from_date1 or not to_date1:
+        errors.append("Please select a date range for the first query")
+    if query2 and (not from_date2 or not to_date2):
+        errors.append("Please select a date range for the second query")
+        
+    if errors:
+        for error in errors:
+            flash(error)
+        return redirect(url_for("index"))
+    
+    try:
+        # Validate date ranges
+        valid, start_date1, end_date1 = validate_date_range(from_date1, to_date1)
+        
+        # Check if date range is more than 30 days (free tier limit)
+        delta1 = end_date1 - start_date1
+        if delta1.days > 30:
+            flash("Free tier is limited to 30 days of historical data. Please join our premium waiting list for extended access.")
+            return redirect(url_for("premium_waitlist"))
+        
+        if query2 and (from_date2 and to_date2):
+            valid, start_date2, end_date2 = validate_date_range(from_date2, to_date2)
+            
+            # Check if date range is more than 30 days (free tier limit)
+            delta2 = end_date2 - start_date2
+            if delta2.days > 30:
+                flash("Free tier is limited to 30 days of historical data. Please join our premium waiting list for extended access.")
+                return redirect(url_for("premium_waitlist"))
+        
+        # Process boolean queries
+        processed_query1 = {"enhanced_query": parse_boolean_query(query1), "entity_type": "", "reasoning": "Boolean search query"}
+        processed_query2 = {"enhanced_query": parse_boolean_query(query2), "entity_type": "", "reasoning": "Boolean search query"} if query2 else None
+        
+        # Fetch and analyze articles for the first query
+        articles1 = fetch_news(
+            keywords=query1,
+            from_date=from_date1,
+            to_date=to_date1,
+            language=language1,
+            source=source1
+        )
+        analysis1 = analyze_articles(articles1, query1)
+        
+        # Helper function to summarize articles for Claude
+        def summarize_articles(articles):
+            return [{
+                'title': article['title'],
+                'description': article['description'],
+                'publishedAt': article['publishedAt']
+            } for article in articles]
+        
+        # Helper function to format Claude's response
+        def format_claude_response(text):
+            formatted_text = text
+            
+            # Process section headers (lines that end with a colon)
+            formatted_text = re.sub(r'^([^:\n]+:)$', r'<p><strong>\1</strong></p>', formatted_text, flags=re.MULTILINE)
+            
+            # Process subheads (lines that have a colon in the middle)
+            formatted_text = re.sub(r'^([^:\n]+:[^:\n]*)$', r'<em>\1</em>', formatted_text, flags=re.MULTILINE)
+            
+            # Process numbered items (e.g., "1. Some text") to ensure they're on separate lines
+            # This regex matches numbered items that might span multiple sentences
+            formatted_text = re.sub(r'(\d+\.\s*[^0-9\n]+?)(?=\s*\d+\.\s*|\s*$)', r'<p>\1</p>', formatted_text)
+            
+            # Also handle bullet points with dashes or asterisks
+            formatted_text = re.sub(r'([-*•]\s*[^-*•\n]+?)(?=\s*[-*•]\s*|\s*$)', r'<p>\1</p>', formatted_text)
+            
+            # Convert the formatted text to Markup to ensure HTML is rendered
+            return Markup(formatted_text)
+        
+        # Initialize variables for second query
+        articles2 = []
+        analysis2 = None
+        analysis_text = None
+        
+        # Prepare summarized articles for the first query
+        summarized_articles1 = summarize_articles(articles1)
+        
+        # Generate analysis for single search term
+        if not query2:
+            # Check cache with all parameters for single search
+            cache_key = f"single_{query1}_{from_date1}_{to_date1}_{language1}_{source1}"
+            cached_response = app.config.get('analysis_cache', {}).get(cache_key)
+            
+            if cached_response:
+                analysis_text = cached_response
+            else:
+                # Prepare the analysis prompt for single search term
+                analysis_prompt = f"""Analyze news coverage for {query1} ({from_date1} to {to_date1}).
+                Key points to address:
+                1. Major Coverage Differences: Identify the main themes, tones, and focus areas in the coverage
+                2. Key Trends: Analyze patterns in coverage volume, sentiment evolution, and source diversity
+                3. Business Implications: Discuss market perception, competitive positioning, and strategic opportunities
+                
+                Articles: {json.dumps(summarized_articles1)}"""
+                
+                # Get analysis from Claude
+                response = anthropic.messages.create(
+                    model="claude-3-haiku-20240307",
+                    max_tokens=1000,
+                    messages=[{
+                        "role": "user",
+                        "content": analysis_prompt
+                    }]
+                )
+                
+                # Format the response
+                analysis_text = format_claude_response(response.content[0].text)
+                
+                # Cache the response with timestamp
+                if not hasattr(app.config, 'analysis_cache'):
+                    app.config['analysis_cache'] = {}
+                    app.config['cache_times'] = {}
+                app.config['analysis_cache'][cache_key] = analysis_text
+                app.config['cache_times'][cache_key] = datetime.now()
+        else:
+            # Fetch and analyze articles for the second query
+            articles2 = fetch_news(
+                keywords=query2,
+                from_date=from_date2 if from_date2 else from_date1,
+                to_date=to_date2 if to_date2 else to_date1,
+                language=language2,
+                source=source2
+            )
+            analysis2 = analyze_articles(articles2, query2)
+            
+            # Prepare summarized articles for the second query
+            summarized_articles2 = summarize_articles(articles2)
+            
+            # Check cache with all parameters for comparative search
+            cache_key = f"comparative_{query1}_{query2}_{from_date1}_{to_date1}_{from_date2}_{to_date2}_{language1}_{source1}_{language2}_{source2}"
+            cached_response = app.config.get('analysis_cache', {}).get(cache_key)
+            
+            if cached_response:
+                analysis_text = cached_response
+            else:
+                # Prepare the analysis prompt for comparative search
+                analysis_prompt = f"""Compare news coverage between {query1} ({from_date1} to {to_date1}) and {query2} ({from_date2 if from_date2 else from_date1} to {to_date2 if to_date2 else to_date1}).
+                Key points:
+                1. Major Coverage Differences
+                2. Key Trends
+                3. Business Implications
+                
+                {query1} articles: {json.dumps(summarized_articles1)}
+                {query2} articles: {json.dumps(summarized_articles2)}"""
+                
+                # Get analysis from Claude
+                response = anthropic.messages.create(
+                    model="claude-3-haiku-20240307",
+                    max_tokens=1000,
+                    messages=[{
+                        "role": "user",
+                        "content": analysis_prompt
+                    }]
+                )
+                
+                # Format the response
+                analysis_text = format_claude_response(response.content[0].text)
+                
+                # Cache the response with timestamp
+                if not hasattr(app.config, 'analysis_cache'):
+                    app.config['analysis_cache'] = {}
+                    app.config['cache_times'] = {}
+                app.config['analysis_cache'][cache_key] = analysis_text
+                app.config['cache_times'][cache_key] = datetime.now()
+        
+        # Create a form-like object with the request parameters to maintain compatibility with the template
+        form_data = {}
+        for key, value in request.args.items():
+            form_data[key] = value
+        
+        return render_template(
+            "result.html",
+            query1=query1,
+            query2=query2,
+            enhanced_query1=processed_query1,
+            enhanced_query2=processed_query2,
+            textual_analysis=analysis_text,
+            analysis1=analysis1,
+            analysis2=analysis2,
+            articles1=articles1,
+            articles2=articles2,
+            request=type('obj', (object,), {'form': form_data})  # Create a mock request object with form attribute
+        )
+        
+    except Exception as e:
+        flash(f"Error: {str(e)}")
+        return redirect(url_for("index"))
 
 if __name__ == "__main__":
     # Get port from environment variable or default to 5008

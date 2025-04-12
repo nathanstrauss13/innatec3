@@ -1,0 +1,245 @@
+2025-04-10 16:06:10,487 - innatec3 - INFO - Logging initialized for innatec3 at level INFO
+2025-04-10 16:06:10,487 - innatec3 - INFO - Starting application with DevelopmentConfig configuration
+2025-04-10 16:06:10,542 - innatec3 - INFO - Instance path: /Users/nathanstrauss/Documents/HerokuAppBackup/innatec3/instance
+2025-04-10 16:20:43,981 - innatec3 - INFO - Logging initialized for innatec3 at level INFO
+2025-04-10 16:20:43,982 - innatec3 - INFO - Starting application with DevelopmentConfig configuration
+2025-04-10 16:20:44,368 - innatec3.news_service - INFO - NEWS_API_KEY is set
+2025-04-10 16:20:44,368 - innatec3.news_service - INFO - ANTHROPIC_API_KEY is set
+2025-04-10 16:20:44,427 - innatec3 - INFO - NEWS_API_KEY is set
+2025-04-10 16:20:44,427 - innatec3 - INFO - ANTHROPIC_API_KEY is set
+2025-04-10 16:20:44,564 - innatec3 - INFO - Logging initialized for innatec3 at level INFO
+2025-04-10 16:20:44,564 - innatec3 - INFO - Starting application with DevelopmentConfig configuration
+2025-04-10 16:20:44,825 - innatec3.news_service - INFO - NEWS_API_KEY is set
+2025-04-10 16:20:44,825 - innatec3.news_service - INFO - ANTHROPIC_API_KEY is set
+2025-04-10 16:20:44,839 - innatec3 - INFO - NEWS_API_KEY is set
+2025-04-10 16:20:44,839 - innatec3 - INFO - ANTHROPIC_API_KEY is set
+2025-04-10 16:21:29,419 - innatec3.news_service - INFO - Enhancing query: 'uniqlo'
+2025-04-10 16:21:31,774 - innatec3.news_service - INFO - Enhanced query: Uniqlo clothing retailer
+2025-04-10 16:21:31,774 - innatec3.api_utils - INFO - Cache miss for enhance_query_with_ai:<services.news_service.NewsService object at 0x1040e5160>:uniqlo, cached for 3600s
+2025-04-10 16:21:31,774 - innatec3.news_service - INFO - Boolean search query: Original='Uniqlo clothing retailer' → Processed='"Uniqlo clothing retailer" OR (Uniqlo OR clothing OR retailer)'
+2025-04-10 16:21:31,775 - innatec3.routes.main - INFO - Fetching articles for 'uniqlo' (2025-03-13 to 2025-04-10)
+2025-04-10 16:21:31,775 - innatec3.news_service - INFO - Fetching news for query: '"Uniqlo clothing retailer" OR (Uniqlo OR clothing OR retailer)', date range: 2025-03-13 to 2025-04-10
+2025-04-10 16:21:32,238 - innatec3.news_service - INFO - Fetched 99 articles for '"Uniqlo clothing retailer" OR (Uniqlo OR clothing OR retailer)'
+2025-04-10 16:21:32,241 - innatec3.news_service - INFO - Successfully fetched 99 articles from News API
+2025-04-10 16:21:32,241 - innatec3.api_utils - INFO - Cache miss for fetch_news:<services.news_service.NewsService object at 0x1040e5160>:"Uniqlo clothing retailer" OR (Uniqlo OR clothing OR retailer):2025-03-13:2025-04-10:en:, cached for 1800s
+2025-04-10 16:21:32,251 - innatec3.news_service - INFO - Analyzing sentiment for 99 articles in batches of 25
+2025-04-10 16:21:32,251 - innatec3.news_service - INFO - Sending batch of 25 texts to Claude for sentiment analysis
+2025-04-10 16:21:33,461 - innatec3.news_service - INFO - Successfully parsed 24 sentiment values
+2025-04-10 16:21:33,461 - innatec3.news_service - WARNING - Received fewer sentiments (24) than texts (25), padding with neutral values
+2025-04-10 16:21:33,461 - innatec3.news_service - INFO - Sending batch of 25 texts to Claude for sentiment analysis
+2025-04-10 16:21:35,052 - innatec3.news_service - INFO - Successfully parsed 24 sentiment values
+2025-04-10 16:21:35,052 - innatec3.news_service - WARNING - Received fewer sentiments (24) than texts (25), padding with neutral values
+2025-04-10 16:21:35,052 - innatec3.news_service - INFO - Sending batch of 25 texts to Claude for sentiment analysis
+2025-04-10 16:21:36,761 - innatec3.news_service - INFO - Successfully parsed 24 sentiment values
+2025-04-10 16:21:36,761 - innatec3.news_service - WARNING - Received fewer sentiments (24) than texts (25), padding with neutral values
+2025-04-10 16:21:36,762 - innatec3.news_service - INFO - Sending batch of 24 texts to Claude for sentiment analysis
+2025-04-10 16:21:38,051 - innatec3.news_service - INFO - Successfully parsed 24 sentiment values
+2025-04-10 16:21:42,103 - innatec3.routes.main - ERROR - Error processing search: Could not build url for endpoint 'index'. Did you mean 'main.index' instead?
+2025-04-10 16:23:42,429 - innatec3.api_utils - INFO - Cache hit for enhance_query_with_ai:<services.news_service.NewsService object at 0x1040e5160>:uniqlo
+2025-04-10 16:23:42,430 - innatec3.news_service - INFO - Boolean search query: Original='Uniqlo clothing retailer' → Processed='"Uniqlo clothing retailer" OR (Uniqlo OR clothing OR retailer)'
+2025-04-10 16:23:42,430 - innatec3.routes.main - INFO - Fetching articles for 'uniqlo' (2025-03-13 to 2025-04-10)
+2025-04-10 16:23:42,430 - innatec3.api_utils - INFO - Cache hit for fetch_news:<services.news_service.NewsService object at 0x1040e5160>:"Uniqlo clothing retailer" OR (Uniqlo OR clothing OR retailer):2025-03-13:2025-04-10:en:
+2025-04-10 16:24:41,926 - innatec3.news_service - INFO - Enhancing query: 'google'
+2025-04-10 16:24:42,942 - innatec3.news_service - INFO - Enhanced query: google search engine
+2025-04-10 16:24:42,943 - innatec3.api_utils - INFO - Cache miss for enhance_query_with_ai:<services.news_service.NewsService object at 0x1040e5160>:google, cached for 3600s
+2025-04-10 16:24:42,943 - innatec3.news_service - INFO - Boolean search query: Original='google search engine' → Processed='"google search engine" OR (google OR search OR engine)'
+2025-04-10 16:24:42,943 - innatec3.routes.main - INFO - Fetching articles for 'google' (2025-03-13 to 2025-04-10)
+2025-04-10 16:24:42,943 - innatec3.news_service - INFO - Fetching news for query: '"google search engine" OR (google OR search OR engine)', date range: 2025-03-13 to 2025-04-10
+2025-04-10 16:24:43,219 - innatec3.news_service - INFO - Fetched 98 articles for '"google search engine" OR (google OR search OR engine)'
+2025-04-10 16:24:43,221 - innatec3.news_service - INFO - Successfully fetched 98 articles from News API
+2025-04-10 16:24:43,221 - innatec3.api_utils - INFO - Cache miss for fetch_news:<services.news_service.NewsService object at 0x1040e5160>:"google search engine" OR (google OR search OR engine):2025-03-13:2025-04-10:en:, cached for 1800s
+2025-04-10 16:24:43,221 - innatec3.news_service - INFO - Analyzing sentiment for 98 articles in batches of 25
+2025-04-10 16:24:43,221 - innatec3.news_service - INFO - Sending batch of 25 texts to Claude for sentiment analysis
+2025-04-10 16:24:44,580 - innatec3.news_service - INFO - Successfully parsed 25 sentiment values
+2025-04-10 16:24:44,581 - innatec3.news_service - INFO - Sending batch of 25 texts to Claude for sentiment analysis
+2025-04-10 16:24:46,541 - innatec3.news_service - INFO - Successfully parsed 24 sentiment values
+2025-04-10 16:24:46,542 - innatec3.news_service - WARNING - Received fewer sentiments (24) than texts (25), padding with neutral values
+2025-04-10 16:24:46,542 - innatec3.news_service - INFO - Sending batch of 25 texts to Claude for sentiment analysis
+2025-04-10 16:24:48,319 - innatec3.news_service - INFO - Successfully parsed 25 sentiment values
+2025-04-10 16:24:48,320 - innatec3.news_service - INFO - Sending batch of 23 texts to Claude for sentiment analysis
+2025-04-10 16:24:49,905 - innatec3.news_service - INFO - Successfully parsed 22 sentiment values
+2025-04-10 16:24:49,905 - innatec3.news_service - WARNING - Received fewer sentiments (22) than texts (23), padding with neutral values
+2025-04-10 16:24:49,918 - innatec3.news_service - INFO - Enhancing query: 'apple'
+2025-04-10 16:24:51,505 - innatec3.news_service - INFO - Enhanced query: Apple technology company
+2025-04-10 16:24:51,505 - innatec3.api_utils - INFO - Cache miss for enhance_query_with_ai:<services.news_service.NewsService object at 0x1040e5160>:apple, cached for 3600s
+2025-04-10 16:24:51,505 - innatec3.news_service - INFO - Boolean search query: Original='Apple technology company' → Processed='"Apple technology company" OR (Apple OR technology OR company)'
+2025-04-10 16:24:51,506 - innatec3.routes.main - INFO - Fetching articles for 'apple' (2025-03-13 to 2025-04-10)
+2025-04-10 16:24:51,506 - innatec3.news_service - INFO - Fetching news for query: '"Apple technology company" OR (Apple OR technology OR company)', date range: 2025-03-13 to 2025-04-10
+2025-04-10 16:24:51,829 - innatec3.news_service - INFO - Fetched 99 articles for '"Apple technology company" OR (Apple OR technology OR company)'
+2025-04-10 16:24:51,832 - innatec3.news_service - INFO - Successfully fetched 99 articles from News API
+2025-04-10 16:24:51,832 - innatec3.api_utils - INFO - Cache miss for fetch_news:<services.news_service.NewsService object at 0x1040e5160>:"Apple technology company" OR (Apple OR technology OR company):2025-03-13:2025-04-10:en:, cached for 1800s
+2025-04-10 16:24:51,832 - innatec3.news_service - INFO - Analyzing sentiment for 99 articles in batches of 25
+2025-04-10 16:24:51,832 - innatec3.news_service - INFO - Sending batch of 25 texts to Claude for sentiment analysis
+2025-04-10 16:24:53,409 - innatec3.news_service - INFO - Successfully parsed 24 sentiment values
+2025-04-10 16:24:53,409 - innatec3.news_service - WARNING - Received fewer sentiments (24) than texts (25), padding with neutral values
+2025-04-10 16:24:53,409 - innatec3.news_service - INFO - Sending batch of 25 texts to Claude for sentiment analysis
+2025-04-10 16:24:54,589 - innatec3.news_service - INFO - Successfully parsed 23 sentiment values
+2025-04-10 16:24:54,589 - innatec3.news_service - WARNING - Received fewer sentiments (23) than texts (25), padding with neutral values
+2025-04-10 16:24:54,589 - innatec3.news_service - INFO - Sending batch of 25 texts to Claude for sentiment analysis
+2025-04-10 16:24:55,827 - innatec3.news_service - INFO - Successfully parsed 25 sentiment values
+2025-04-10 16:24:55,827 - innatec3.news_service - INFO - Sending batch of 24 texts to Claude for sentiment analysis
+2025-04-10 16:24:57,134 - innatec3.news_service - INFO - Successfully parsed 21 sentiment values
+2025-04-10 16:24:57,134 - innatec3.news_service - WARNING - Received fewer sentiments (21) than texts (24), padding with neutral values
+2025-04-10 16:27:39,675 - innatec3 - INFO - Logging initialized for innatec3 at level INFO
+2025-04-10 16:27:39,675 - innatec3 - INFO - Starting application with DevelopmentConfig configuration
+2025-04-10 16:27:40,009 - innatec3.news_service - INFO - NEWS_API_KEY is set
+2025-04-10 16:27:40,009 - innatec3.news_service - INFO - ANTHROPIC_API_KEY is set
+2025-04-10 16:27:40,030 - innatec3 - INFO - NEWS_API_KEY is set
+2025-04-10 16:27:40,030 - innatec3 - INFO - ANTHROPIC_API_KEY is set
+2025-04-10 16:44:21,717 - innatec3.news_service - INFO - Enhancing query: 'google'
+2025-04-10 16:44:22,725 - innatec3.news_service - INFO - Enhanced query: google search engine
+2025-04-10 16:44:22,725 - innatec3.api_utils - INFO - Cache miss for enhance_query_with_ai:<services.news_service.NewsService object at 0x107da52b0>:google, cached for 3600s
+2025-04-10 16:44:22,725 - innatec3.news_service - INFO - Boolean search query: Original='google search engine' → Processed='"google search engine" OR (google OR search OR engine)'
+2025-04-10 16:44:22,726 - innatec3.routes.main - INFO - Fetching articles for 'google' (2025-03-13 to 2025-04-10)
+2025-04-10 16:44:22,726 - innatec3.news_service - INFO - Fetching news for query: '"google search engine" OR (google OR search OR engine)', date range: 2025-03-13 to 2025-04-10
+2025-04-10 16:44:23,086 - innatec3.news_service - INFO - Fetched 97 articles for '"google search engine" OR (google OR search OR engine)'
+2025-04-10 16:44:23,089 - innatec3.news_service - INFO - Successfully fetched 97 articles from News API
+2025-04-10 16:44:23,089 - innatec3.api_utils - INFO - Cache miss for fetch_news:<services.news_service.NewsService object at 0x107da52b0>:"google search engine" OR (google OR search OR engine):2025-03-13:2025-04-10:en:, cached for 1800s
+2025-04-10 16:44:23,098 - innatec3.news_service - INFO - Analyzing sentiment for 97 articles in batches of 25
+2025-04-10 16:44:23,098 - innatec3.news_service - INFO - Sending batch of 25 texts to Claude for sentiment analysis
+2025-04-10 16:44:24,329 - innatec3.news_service - INFO - Successfully parsed 25 sentiment values
+2025-04-10 16:44:24,330 - innatec3.news_service - INFO - Sending batch of 25 texts to Claude for sentiment analysis
+2025-04-10 16:44:25,596 - innatec3.news_service - INFO - Successfully parsed 23 sentiment values
+2025-04-10 16:44:25,597 - innatec3.news_service - WARNING - Received fewer sentiments (23) than texts (25), padding with neutral values
+2025-04-10 16:44:25,597 - innatec3.news_service - INFO - Sending batch of 25 texts to Claude for sentiment analysis
+2025-04-10 16:44:27,040 - innatec3.news_service - INFO - Successfully parsed 23 sentiment values
+2025-04-10 16:44:27,040 - innatec3.news_service - WARNING - Received fewer sentiments (23) than texts (25), padding with neutral values
+2025-04-10 16:44:27,040 - innatec3.news_service - INFO - Sending batch of 22 texts to Claude for sentiment analysis
+2025-04-10 16:44:28,519 - innatec3.news_service - INFO - Successfully parsed 18 sentiment values
+2025-04-10 16:44:28,519 - innatec3.news_service - WARNING - Received fewer sentiments (18) than texts (22), padding with neutral values
+2025-04-10 16:44:28,526 - innatec3.news_service - INFO - Created timeline with 1 data points
+2025-04-10 16:44:28,531 - innatec3.news_service - INFO - Enhancing query: 'apple'
+2025-04-10 16:44:29,544 - innatec3.news_service - INFO - Enhanced query: Apple technology company
+2025-04-10 16:44:29,545 - innatec3.api_utils - INFO - Cache miss for enhance_query_with_ai:<services.news_service.NewsService object at 0x107da52b0>:apple, cached for 3600s
+2025-04-10 16:44:29,545 - innatec3.news_service - INFO - Boolean search query: Original='Apple technology company' → Processed='"Apple technology company" OR (Apple OR technology OR company)'
+2025-04-10 16:44:29,545 - innatec3.routes.main - INFO - Fetching articles for 'apple' (2025-03-13 to 2025-04-10)
+2025-04-10 16:44:29,545 - innatec3.news_service - INFO - Fetching news for query: '"Apple technology company" OR (Apple OR technology OR company)', date range: 2025-03-13 to 2025-04-10
+2025-04-10 16:44:29,915 - innatec3.news_service - INFO - Fetched 96 articles for '"Apple technology company" OR (Apple OR technology OR company)'
+2025-04-10 16:44:29,918 - innatec3.news_service - INFO - Successfully fetched 96 articles from News API
+2025-04-10 16:44:29,918 - innatec3.api_utils - INFO - Cache miss for fetch_news:<services.news_service.NewsService object at 0x107da52b0>:"Apple technology company" OR (Apple OR technology OR company):2025-03-13:2025-04-10:en:, cached for 1800s
+2025-04-10 16:44:29,918 - innatec3.news_service - INFO - Analyzing sentiment for 96 articles in batches of 25
+2025-04-10 16:44:29,918 - innatec3.news_service - INFO - Sending batch of 25 texts to Claude for sentiment analysis
+2025-04-10 16:44:31,499 - innatec3.news_service - INFO - Successfully parsed 23 sentiment values
+2025-04-10 16:44:31,500 - innatec3.news_service - WARNING - Received fewer sentiments (23) than texts (25), padding with neutral values
+2025-04-10 16:44:31,500 - innatec3.news_service - INFO - Sending batch of 25 texts to Claude for sentiment analysis
+2025-04-10 16:44:33,053 - innatec3.news_service - INFO - Successfully parsed 25 sentiment values
+2025-04-10 16:44:33,053 - innatec3.news_service - INFO - Sending batch of 25 texts to Claude for sentiment analysis
+2025-04-10 16:44:35,398 - innatec3.news_service - INFO - Successfully parsed 24 sentiment values
+2025-04-10 16:44:35,398 - innatec3.news_service - WARNING - Received fewer sentiments (24) than texts (25), padding with neutral values
+2025-04-10 16:44:35,398 - innatec3.news_service - INFO - Sending batch of 21 texts to Claude for sentiment analysis
+2025-04-10 16:44:36,563 - innatec3.news_service - INFO - Successfully parsed 21 sentiment values
+2025-04-10 16:44:36,571 - innatec3.news_service - INFO - Created timeline with 1 data points
+2025-04-10 16:45:21,546 - innatec3.api_utils - INFO - Cache hit for enhance_query_with_ai:<services.news_service.NewsService object at 0x107da52b0>:google
+2025-04-10 16:45:21,546 - innatec3.news_service - INFO - Boolean search query: Original='google search engine' → Processed='"google search engine" OR (google OR search OR engine)'
+2025-04-10 16:45:21,546 - innatec3.routes.main - INFO - Fetching articles for 'google' (2025-03-13 to 2025-04-10)
+2025-04-10 16:45:21,546 - innatec3.api_utils - INFO - Cache hit for fetch_news:<services.news_service.NewsService object at 0x107da52b0>:"google search engine" OR (google OR search OR engine):2025-03-13:2025-04-10:en:
+2025-04-10 16:45:21,558 - innatec3.news_service - INFO - Created timeline with 1 data points
+2025-04-10 16:46:23,111 - innatec3 - INFO - Logging initialized for innatec3 at level INFO
+2025-04-10 16:46:23,111 - innatec3 - INFO - Starting application with DevelopmentConfig configuration
+2025-04-10 16:46:23,438 - innatec3.news_service - INFO - NEWS_API_KEY is set
+2025-04-10 16:46:23,438 - innatec3.news_service - INFO - ANTHROPIC_API_KEY is set
+2025-04-10 16:46:23,456 - innatec3 - INFO - NEWS_API_KEY is set
+2025-04-10 16:46:23,456 - innatec3 - INFO - ANTHROPIC_API_KEY is set
+2025-04-10 16:46:37,885 - innatec3 - INFO - Logging initialized for innatec3 at level INFO
+2025-04-10 16:46:37,885 - innatec3 - INFO - Starting application with DevelopmentConfig configuration
+2025-04-10 16:46:38,138 - innatec3.news_service - INFO - NEWS_API_KEY is set
+2025-04-10 16:46:38,138 - innatec3.news_service - INFO - ANTHROPIC_API_KEY is set
+2025-04-10 16:46:38,152 - innatec3 - INFO - NEWS_API_KEY is set
+2025-04-10 16:46:38,153 - innatec3 - INFO - ANTHROPIC_API_KEY is set
+2025-04-10 16:47:00,666 - innatec3.news_service - INFO - Enhancing query: 'google'
+2025-04-10 16:47:01,596 - innatec3.news_service - INFO - Enhanced query: google search engine
+2025-04-10 16:47:01,596 - innatec3.api_utils - INFO - Cache miss for enhance_query_with_ai:<services.news_service.NewsService object at 0x105389160>:google, cached for 3600s
+2025-04-10 16:47:01,596 - innatec3.news_service - INFO - Boolean search query: Original='google search engine' → Processed='"google search engine" OR (google OR search OR engine)'
+2025-04-10 16:47:01,596 - innatec3.routes.main - INFO - Fetching articles for 'google' (2025-03-13 to 2025-04-10)
+2025-04-10 16:47:01,596 - innatec3.news_service - INFO - Fetching news for query: '"google search engine" OR (google OR search OR engine)', date range: 2025-03-13 to 2025-04-10
+2025-04-10 16:47:01,771 - innatec3.news_service - INFO - Fetched 97 articles for '"google search engine" OR (google OR search OR engine)'
+2025-04-10 16:47:01,772 - innatec3.news_service - INFO - Successfully fetched 97 articles from News API
+2025-04-10 16:47:01,772 - innatec3.api_utils - INFO - Cache miss for fetch_news:<services.news_service.NewsService object at 0x105389160>:"google search engine" OR (google OR search OR engine):2025-03-13:2025-04-10:en:, cached for 1800s
+2025-04-10 16:47:01,777 - innatec3.news_service - INFO - Analyzing sentiment for 97 articles in batches of 25
+2025-04-10 16:47:01,777 - innatec3.news_service - INFO - Sending batch of 25 texts to Claude for sentiment analysis
+2025-04-10 16:47:05,903 - innatec3.news_service - INFO - Successfully parsed 23 sentiment values
+2025-04-10 16:47:05,903 - innatec3.news_service - WARNING - Received fewer sentiments (23) than texts (25), padding with neutral values
+2025-04-10 16:47:05,903 - innatec3.news_service - INFO - Sending batch of 25 texts to Claude for sentiment analysis
+2025-04-10 16:47:07,147 - innatec3.news_service - INFO - Successfully parsed 24 sentiment values
+2025-04-10 16:47:07,148 - innatec3.news_service - WARNING - Received fewer sentiments (24) than texts (25), padding with neutral values
+2025-04-10 16:47:07,148 - innatec3.news_service - INFO - Sending batch of 25 texts to Claude for sentiment analysis
+2025-04-10 16:47:08,428 - innatec3.news_service - INFO - Successfully parsed 24 sentiment values
+2025-04-10 16:47:08,428 - innatec3.news_service - WARNING - Received fewer sentiments (24) than texts (25), padding with neutral values
+2025-04-10 16:47:08,428 - innatec3.news_service - INFO - Sending batch of 22 texts to Claude for sentiment analysis
+2025-04-10 16:47:09,924 - innatec3.news_service - INFO - Successfully parsed 19 sentiment values
+2025-04-10 16:47:09,924 - innatec3.news_service - WARNING - Received fewer sentiments (19) than texts (22), padding with neutral values
+2025-04-10 16:47:09,924 - innatec3.news_service - INFO - Processing 97 articles for timeline
+2025-04-10 16:47:09,932 - innatec3.news_service - INFO - Grouped articles into 1 unique dates
+2025-04-10 16:47:09,932 - innatec3.news_service - INFO - Created timeline with 1 data points spanning from 2025-04-09 to 2025-04-09
+2025-04-10 16:47:51,547 - innatec3.news_service - INFO - Enhancing query: 'uniqlo'
+2025-04-10 16:47:52,902 - innatec3.news_service - INFO - Enhanced query: uniqlo clothing brand
+2025-04-10 16:47:52,903 - innatec3.api_utils - INFO - Cache miss for enhance_query_with_ai:<services.news_service.NewsService object at 0x105389160>:uniqlo, cached for 3600s
+2025-04-10 16:47:52,903 - innatec3.news_service - INFO - Boolean search query: Original='uniqlo clothing brand' → Processed='"uniqlo clothing brand" OR (uniqlo OR clothing OR brand)'
+2025-04-10 16:47:52,903 - innatec3.routes.main - INFO - Fetching articles for 'uniqlo' (2025-03-24 to 2025-04-10)
+2025-04-10 16:47:52,903 - innatec3.news_service - INFO - Fetching news for query: '"uniqlo clothing brand" OR (uniqlo OR clothing OR brand)', date range: 2025-03-24 to 2025-04-10
+2025-04-10 16:47:53,264 - innatec3.news_service - INFO - Fetched 99 articles for '"uniqlo clothing brand" OR (uniqlo OR clothing OR brand)'
+2025-04-10 16:47:53,266 - innatec3.news_service - INFO - Successfully fetched 99 articles from News API
+2025-04-10 16:47:53,267 - innatec3.api_utils - INFO - Cache miss for fetch_news:<services.news_service.NewsService object at 0x105389160>:"uniqlo clothing brand" OR (uniqlo OR clothing OR brand):2025-03-24:2025-04-10:en:, cached for 1800s
+2025-04-10 16:47:53,267 - innatec3.news_service - INFO - Analyzing sentiment for 99 articles in batches of 25
+2025-04-10 16:47:53,267 - innatec3.news_service - INFO - Sending batch of 25 texts to Claude for sentiment analysis
+2025-04-10 16:47:54,580 - innatec3.news_service - INFO - Successfully parsed 25 sentiment values
+2025-04-10 16:47:54,580 - innatec3.news_service - INFO - Sending batch of 25 texts to Claude for sentiment analysis
+2025-04-10 16:47:56,727 - innatec3.news_service - INFO - Successfully parsed 25 sentiment values
+2025-04-10 16:47:56,727 - innatec3.news_service - INFO - Sending batch of 25 texts to Claude for sentiment analysis
+2025-04-10 16:47:58,021 - innatec3.news_service - INFO - Successfully parsed 24 sentiment values
+2025-04-10 16:47:58,022 - innatec3.news_service - WARNING - Received fewer sentiments (24) than texts (25), padding with neutral values
+2025-04-10 16:47:58,022 - innatec3.news_service - INFO - Sending batch of 24 texts to Claude for sentiment analysis
+2025-04-10 16:47:59,711 - innatec3.news_service - INFO - Successfully parsed 24 sentiment values
+2025-04-10 16:47:59,711 - innatec3.news_service - INFO - Processing 99 articles for timeline
+2025-04-10 16:47:59,720 - innatec3.news_service - INFO - Grouped articles into 1 unique dates
+2025-04-10 16:47:59,720 - innatec3.news_service - INFO - Created timeline with 1 data points spanning from 2025-04-09 to 2025-04-09
+2025-04-10 16:50:51,996 - innatec3 - INFO - Logging initialized for innatec3 at level INFO
+2025-04-10 16:50:51,996 - innatec3 - INFO - Starting application with DevelopmentConfig configuration
+2025-04-10 16:50:52,308 - innatec3.news_service - INFO - NEWS_API_KEY is set
+2025-04-10 16:50:52,308 - innatec3.news_service - INFO - ANTHROPIC_API_KEY is set
+2025-04-10 16:50:52,326 - innatec3 - INFO - NEWS_API_KEY is set
+2025-04-10 16:50:52,326 - innatec3 - INFO - ANTHROPIC_API_KEY is set
+2025-04-10 16:51:01,806 - innatec3 - INFO - Logging initialized for innatec3 at level INFO
+2025-04-10 16:51:01,806 - innatec3 - INFO - Starting application with DevelopmentConfig configuration
+2025-04-10 16:51:02,072 - innatec3.news_service - INFO - NEWS_API_KEY is set
+2025-04-10 16:51:02,073 - innatec3.news_service - INFO - ANTHROPIC_API_KEY is set
+2025-04-10 16:51:02,088 - innatec3 - INFO - NEWS_API_KEY is set
+2025-04-10 16:51:02,088 - innatec3 - INFO - ANTHROPIC_API_KEY is set
+2025-04-10 16:51:12,482 - innatec3 - INFO - Logging initialized for innatec3 at level INFO
+2025-04-10 16:51:12,483 - innatec3 - INFO - Starting application with DevelopmentConfig configuration
+2025-04-10 16:51:12,743 - innatec3.news_service - INFO - NEWS_API_KEY is set
+2025-04-10 16:51:12,744 - innatec3.news_service - INFO - ANTHROPIC_API_KEY is set
+2025-04-10 16:51:12,758 - innatec3 - INFO - NEWS_API_KEY is set
+2025-04-10 16:51:12,758 - innatec3 - INFO - ANTHROPIC_API_KEY is set
+2025-04-10 16:51:22,143 - innatec3 - INFO - Logging initialized for innatec3 at level INFO
+2025-04-10 16:51:22,143 - innatec3 - INFO - Starting application with DevelopmentConfig configuration
+2025-04-10 16:51:22,402 - innatec3.news_service - INFO - NEWS_API_KEY is set
+2025-04-10 16:51:22,402 - innatec3.news_service - INFO - ANTHROPIC_API_KEY is set
+2025-04-10 16:51:22,417 - innatec3 - INFO - NEWS_API_KEY is set
+2025-04-10 16:51:22,417 - innatec3 - INFO - ANTHROPIC_API_KEY is set
+2025-04-10 16:52:59,742 - innatec3.news_service - INFO - Enhancing query: 'uniqlo'
+2025-04-10 16:53:01,169 - innatec3.news_service - INFO - Enhanced query: uniqlo clothing brand
+2025-04-10 16:53:01,169 - innatec3.api_utils - INFO - Cache miss for enhance_query_with_ai:<services.news_service.NewsService object at 0x103fb5010>:uniqlo, cached for 3600s
+2025-04-10 16:53:01,169 - innatec3.news_service - INFO - Boolean search query: Original='uniqlo clothing brand' → Processed='"uniqlo clothing brand" OR (uniqlo OR clothing OR brand)'
+2025-04-10 16:53:01,169 - innatec3.routes.main - INFO - Fetching articles for 'uniqlo' (2025-03-24 to 2025-04-10)
+2025-04-10 16:53:01,169 - innatec3.news_service - INFO - Fetching news for query: '"uniqlo clothing brand" OR (uniqlo OR clothing OR brand)', date range: 2025-03-24 to 2025-04-10
+2025-04-10 16:53:01,169 - innatec3.news_service - INFO - API parameters: {'q': '"uniqlo clothing brand" OR (uniqlo OR clothing OR brand)', 'apiKey': 'b81d22f3021b4fffb03f06434cfe4db1', 'language': 'en', 'from': '2025-03-24T00:00:00', 'to': '2025-04-10T23:59:59', 'sortBy': 'publishedAt'}
+2025-04-10 16:53:01,505 - innatec3.news_service - INFO - API URL: https://newsapi.org/v2/everything?q=%22uniqlo+clothing+brand%22+OR+%28uniqlo+OR+clothing+OR+brand%29&apiKey=b81d22f3021b4fffb03f06434cfe4db1&language=en&from=2025-03-24T00%3A00%3A00&to=2025-04-10T23%3A59%3A59&sortBy=publishedAt
+2025-04-10 16:53:01,507 - innatec3.news_service - INFO - Fetched 99 articles for '"uniqlo clothing brand" OR (uniqlo OR clothing OR brand)'
+2025-04-10 16:53:01,509 - innatec3.news_service - INFO - Successfully fetched 99 articles from News API
+2025-04-10 16:53:01,509 - innatec3.api_utils - INFO - Cache miss for fetch_news:<services.news_service.NewsService object at 0x103fb5010>:"uniqlo clothing brand" OR (uniqlo OR clothing OR brand):2025-03-24:2025-04-10:en:, cached for 1800s
+2025-04-10 16:53:01,518 - innatec3.news_service - INFO - Analyzing sentiment for 99 articles in batches of 25
+2025-04-10 16:53:01,518 - innatec3.news_service - INFO - Sending batch of 25 texts to Claude for sentiment analysis
+2025-04-10 16:53:02,722 - innatec3.news_service - INFO - Successfully parsed 24 sentiment values
+2025-04-10 16:53:02,722 - innatec3.news_service - WARNING - Received fewer sentiments (24) than texts (25), padding with neutral values
+2025-04-10 16:53:02,722 - innatec3.news_service - INFO - Sending batch of 25 texts to Claude for sentiment analysis
+2025-04-10 16:53:04,064 - innatec3.news_service - INFO - Successfully parsed 24 sentiment values
+2025-04-10 16:53:04,064 - innatec3.news_service - WARNING - Received fewer sentiments (24) than texts (25), padding with neutral values
+2025-04-10 16:53:04,065 - innatec3.news_service - INFO - Sending batch of 25 texts to Claude for sentiment analysis
+2025-04-10 16:53:05,444 - innatec3.news_service - INFO - Successfully parsed 25 sentiment values
+2025-04-10 16:53:05,445 - innatec3.news_service - INFO - Sending batch of 24 texts to Claude for sentiment analysis
+2025-04-10 16:53:06,741 - innatec3.news_service - INFO - Successfully parsed 24 sentiment values
+2025-04-10 16:53:06,741 - innatec3.news_service - INFO - Processing 99 articles for timeline
+2025-04-10 16:53:06,741 - innatec3.news_service - INFO - Sample publishedAt dates: ['2025-04-09T20:50:30Z', '2025-04-09T20:49:28Z', '2025-04-09T20:46:43Z', '2025-04-09T20:45:00Z', '2025-04-09T20:41:00Z']
+2025-04-10 16:53:06,749 - innatec3.news_service - INFO - Grouped articles into 1 unique dates
+2025-04-10 16:53:06,750 - innatec3.news_service - INFO - Created timeline with 1 data points spanning from 2025-04-09 to 2025-04-09
