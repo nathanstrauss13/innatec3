@@ -191,19 +191,7 @@
                     <!-- Total Coverage and Sentiment -->
                     <li><strong>Total coverage:</strong> {{ analysis1.total_articles }} articles with an average sentiment score of {{ '{:.2f}'.format(analysis1.avg_sentiment) }} ({{ 'positive' if analysis1.avg_sentiment > 0.2 else ('negative' if analysis1.avg_sentiment < -0.2 else 'neutral') }})</li>
                     
-                    <!-- Highest Volume Day -->
-                    {% set max_count1 = 0 %}
-                    {% set max_date1 = None %}
-                    {% set peak_article = None %}
-                    {% for item in analysis1.timeline %}
-                        {% if item.count > max_count1 %}
-                            {% set max_count1 = item.count %}
-                            {% set max_date1 = item.date %}
-                            {% set peak_article = item.peak_article if item.peak_article is defined else None %}
-                        {% endif %}
-                    {% endfor %}
-                    
-                    <li><strong>Highest volume day:</strong> {{ max_date1 }} with {{ max_count1 }} articles{% if peak_article %}, primarily focused on {{ peak_article.title.split(' ')[:5]|join(' ') }}...{% endif %}</li>
+                    <!-- Highest Volume Day removed as it's shown in the graph below -->
                     
                     <!-- Top Sources -->
                     <li><strong>Top sources:</strong> {% for source in analysis1.sources[:5] %}{{ source.name }} ({{ source.count }}){% if not loop.last %}, {% endif %}{% endfor %}</li>
@@ -220,7 +208,21 @@
                     {% set neg_percent = (negative_articles / articles1|length * 100)|round|int %}
                     {% set neu_percent = (neutral_articles / articles1|length * 100)|round|int %}
                     
-                    <li><strong>Sentiment analysis</strong> shows a mix of {{ 'positive' if pos_percent > neg_percent and pos_percent > neu_percent else ('negative' if neg_percent > pos_percent and neg_percent > neu_percent else 'neutral') }} ({{ pos_percent }}%) and {{ 'positive' if pos_percent > neg_percent and pos_percent < neu_percent else ('negative' if neg_percent > pos_percent and neg_percent < neu_percent else 'neutral') }} ({{ neg_percent if neg_percent > pos_percent and neg_percent < neu_percent else pos_percent }}%) content, with {{ 'limited' if neu_percent < 30 else 'substantial' }} neutral coverage ({{ neu_percent }}%)</li>
+                    <li>
+                        <strong>Sentiment analysis</strong> shows a mix of {{ 'positive' if pos_percent > neg_percent and pos_percent > neu_percent else ('negative' if neg_percent > pos_percent and neg_percent > neu_percent else 'neutral') }} ({{ pos_percent }}%) and {{ 'positive' if pos_percent > neg_percent and pos_percent < neu_percent else ('negative' if neg_percent > pos_percent and neg_percent < neu_percent else 'neutral') }} ({{ neg_percent if neg_percent > pos_percent and neg_percent < neu_percent else pos_percent }}%) content, with {{ 'limited' if neu_percent < 30 else 'substantial' }} neutral coverage ({{ neu_percent }}%)
+                        {% if query2 %}
+                        <ul class="list-disc pl-5 space-y-1 mt-1">
+                            <li>{{ query1 }} received {{ 'more' if analysis1.avg_sentiment > analysis2.avg_sentiment else 'less' }} positive coverage than {{ query2 }} (avg. sentiment {{ '{:.2f}'.format(analysis1.avg_sentiment) }} vs {{ '{:.2f}'.format(analysis2.avg_sentiment) }})</li>
+                            <li>{{ 'Both entities had similar article volumes' if 0.8 < (analysis1.total_articles / analysis2.total_articles) < 1.2 else (query1 if analysis1.total_articles > analysis2.total_articles else query2) + ' had significantly more coverage' }} ({{ analysis1.total_articles }} vs {{ analysis2.total_articles }} articles)</li>
+                            
+                            <!-- Peak coverage information removed as it's shown in the graph below -->
+                            
+                            {% if analysis2.topics|length > 0 %}
+                            <li>{{ query2 }} coverage heavily influenced by {{ analysis2.topics[:3]|map(attribute='topic')|join(', ') }}</li>
+                            {% endif %}
+                        </ul>
+                        {% endif %}
+                    </li>
                     
                     <!-- Content Categories -->
                     {% set categories = {
@@ -249,23 +251,7 @@
                     <li><strong>Content was primarily about</strong> {% for category, count in sorted_categories[:3] %}{{ category }} ({{ (count / analysis1.total_articles * 100)|round|int }}%){% if not loop.last %}, {% endif %}{% endfor %}</li>
                     {% endif %}
                     
-                    {% if query2 %}
-                    <!-- Comparative Insights -->
-                    <li>{{ query1 }} received {{ 'more' if analysis1.avg_sentiment > analysis2.avg_sentiment else 'less' }} positive coverage than {{ query2 }} (avg. sentiment {{ '{:.2f}'.format(analysis1.avg_sentiment) }} vs {{ '{:.2f}'.format(analysis2.avg_sentiment) }})</li>
-                    <li>{{ 'Both entities had similar article volumes' if 0.8 < (analysis1.total_articles / analysis2.total_articles) < 1.2 else (query1 if analysis1.total_articles > analysis2.total_articles else query2) + ' had significantly more coverage' }} ({{ analysis1.total_articles }} vs {{ analysis2.total_articles }} articles)</li>
-                    
-                    {% set max_count2 = 0 %}
-                    {% set max_date2 = None %}
-                    {% for item in analysis2.timeline %}
-                        {% if item.count > max_count2 %}
-                            {% set max_count2 = item.count %}
-                            {% set max_date2 = item.date %}
-                        {% endif %}
-                    {% endfor %}
-                    
-                    <li>{{ query2 }}'s peak coverage: {{ max_date2 }} with {{ max_count2 }} articles</li>
-                    <li>{{ query2 }} coverage heavily influenced by {{ analysis2.topics[:3]|map(attribute='topic')|join(', ') }}</li>
-                    {% endif %}
+                    <!-- Content Categories (moved up from below) -->
                 </ul>
             </div>
 

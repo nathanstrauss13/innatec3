@@ -850,7 +850,14 @@ def results():
         
         # Helper function to format Claude's response
         def format_claude_response(text):
-            formatted_text = text
+            # Pre-process the text to fix common formatting issues
+            
+            # Fix date ranges that might be split across lines with hyphens
+            # This pattern looks for date-like patterns split across lines
+            formatted_text = re.sub(r'(\d{4})-(\d{2})-(\d{2})\s*\n\s*-\s*\n\s*(\d{4})-(\d{2})-(\d{2})', r'\1-\2-\3 to \4-\5-\6', text)
+            
+            # Fix any remaining hyphenated line breaks that might be part of date ranges
+            formatted_text = re.sub(r'(\d+)\s*\n\s*-\s*\n\s*(\d+)', r'\1-\2', formatted_text)
             
             # Process section headers (lines that end with a colon)
             formatted_text = re.sub(r'^([^:\n]+:)$', r'<p><strong>\1</strong></p>', formatted_text, flags=re.MULTILINE)
@@ -887,12 +894,19 @@ def results():
             else:
                 # Prepare the analysis prompt for single search term
                 analysis_prompt = f"""Analyze news coverage for {query1} ({from_date1} to {to_date1}).
-                Key points to address:
-                1. Major Coverage Differences: Identify the main themes, tones, and focus areas in the coverage
-                2. Key Trends: Analyze patterns in coverage volume, sentiment evolution, and source diversity
-                3. Business Implications: Discuss market perception, competitive positioning, and strategic opportunities
+
+IMPORTANT: Format your response carefully with these guidelines:
+- Keep the date range on a single line (don't split dates with hyphens across lines)
+- Use clear section headers for each main point
+- Format numbered lists consistently
+- Use paragraph breaks between sections
+
+Key points to address:
+1. Major Coverage Differences: Identify the main themes, tones, and focus areas in the coverage
+2. Key Trends: Analyze patterns in coverage volume, sentiment evolution, and source diversity
+3. Business Implications: Discuss market perception, competitive positioning, and strategic opportunities
                 
-                Articles: {json.dumps(summarized_articles1)}"""
+Articles: {json.dumps(summarized_articles1)}"""
                 
                 # Get analysis from Claude
                 response = anthropic.messages.create(
@@ -936,13 +950,20 @@ def results():
             else:
                 # Prepare the analysis prompt for comparative search
                 analysis_prompt = f"""Compare news coverage between {query1} ({from_date1} to {to_date1}) and {query2} ({from_date2 if from_date2 else from_date1} to {to_date2 if to_date2 else to_date1}).
-                Key points:
-                1. Major Coverage Differences
-                2. Key Trends
-                3. Business Implications
+
+IMPORTANT: Format your response carefully with these guidelines:
+- Keep the date range on a single line (don't split dates with hyphens across lines)
+- Use clear section headers for each main point
+- Format numbered lists consistently
+- Use paragraph breaks between sections
+
+Key points to address:
+1. Major Coverage Differences: Identify the main themes, tones, and focus areas in the coverage
+2. Key Trends: Analyze patterns in coverage volume, sentiment evolution, and source diversity
+3. Business Implications: Discuss market perception, competitive positioning, and strategic opportunities
                 
-                {query1} articles: {json.dumps(summarized_articles1)}
-                {query2} articles: {json.dumps(summarized_articles2)}"""
+{query1} articles: {json.dumps(summarized_articles1)}
+{query2} articles: {json.dumps(summarized_articles2)}"""
                 
                 # Get analysis from Claude
                 response = anthropic.messages.create(
