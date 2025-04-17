@@ -57,6 +57,37 @@
             background-color: var(--primary-color);
             margin-right: 8px;
         }
+        /* Loading Overlay Styles */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            flex-direction: column;
+            color: white;
+        }
+        .spinner {
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 5px solid white;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
 <body class="min-h-screen p-4 md:p-8">
@@ -266,6 +297,13 @@
         {% endwith %}
         
     </div>
+    
+    <!-- Loading Overlay (Hidden by Default) -->
+    <div id="loading-overlay" class="loading-overlay hidden">
+        <div class="spinner"></div>
+        <p class="text-xl">Analyzing media...</p>
+        <p class="text-sm mt-2">This may take a minute or two.</p>
+    </div>
 
     <!-- Include Premium Modal -->
     {% include 'premium_modal.html' %}
@@ -401,7 +439,10 @@
                 return true;
             }
             
-            // Add form validation
+            // Get loading overlay element
+            const loadingOverlay = document.getElementById('loading-overlay');
+            
+            // Add form validation and show loading overlay on submit
             document.querySelector('form').addEventListener('submit', function(e) {
                 const query1 = document.getElementById('query1').value.trim();
                 const fromDate1 = document.getElementById('from_date1').value;
@@ -433,6 +474,9 @@
                     e.preventDefault();
                     return;
                 }
+                
+                // Show loading overlay when form is submitted and validation passes
+                loadingOverlay.classList.remove('hidden');
             });
         });
     </script>

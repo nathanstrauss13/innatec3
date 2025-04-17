@@ -43,18 +43,37 @@ with app.app_context():
 # Initialize cache cleanup
 def cleanup_cache():
     """Remove old cache entries (older than 1 hour)"""
-    if hasattr(app.config, 'analysis_cache'):
+    # Check if the cache exists in app.config using dictionary access
+    if 'analysis_cache' in app.config:
         current_time = datetime.now()
-        app.config['cache_times'] = {k: v for k, v in app.config.get('cache_times', {}).items() 
+        # Log the cache cleanup operation
+        print(f"Cleaning up cache at {current_time}. Before cleanup: {len(app.config.get('cache_times', {}))} entries")
+        
+        # Update cache_times dictionary, removing entries older than 1 hour
+        app.config['cache_times'] = {k: v for k, v in app.config.get('cache_times', {}).items()
                                    if (current_time - v).total_seconds() < 3600}
-        app.config['analysis_cache'] = {k: v for k, v in app.config['analysis_cache'].items() 
+        
+        # Update analysis_cache to only include entries that still exist in cache_times
+        app.config['analysis_cache'] = {k: v for k, v in app.config['analysis_cache'].items()
                                       if k in app.config['cache_times']}
+        
+        print(f"After cleanup: {len(app.config['cache_times'])} entries remaining")
 
 # Initialize APScheduler
 from apscheduler.schedulers.background import BackgroundScheduler
+import atexit
+
+# Create scheduler with proper shutdown
 scheduler = BackgroundScheduler()
 scheduler.add_job(func=cleanup_cache, trigger="interval", hours=1)
 scheduler.start()
+
+# Register the scheduler shutdown function to be called when the application exits
+@atexit.register
+def shutdown_scheduler():
+    print("Shutting down scheduler...")
+    scheduler.shutdown()
+    print("Scheduler shut down successfully")
 
 # API keys and configuration
 NEWS_API_KEY = os.environ.get("NEWS_API_KEY")
