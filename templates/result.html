@@ -1,6 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>innate c3 | media analysis</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -54,7 +56,7 @@
         }
     </style>
 </head>
-<body class="min-h-screen p-8">
+<body class="min-h-screen p-4 md:p-8">
     <div class="max-w-6xl mx-auto">
         <div class="divider"></div>
         <div class="flex justify-between items-center">
@@ -160,7 +162,7 @@
             <!-- Coverage Metrics -->
             <div class="card p-6 mb-8">
                 <h3 class="text-lg font-semibold mb-4">Coverage Metrics</h3>
-                <div class="grid {% if query2 %}grid-cols-4{% else %}grid-cols-2{% endif %} gap-8 text-center">
+                <div class="grid {% if query2 %}grid-cols-2 md:grid-cols-4{% else %}grid-cols-1 md:grid-cols-2{% endif %} gap-4 md:gap-8 text-center">
                     <!-- First Query Stats -->
                     <div>
                         <div class="text-3xl font-bold" style="color: var(--primary-color);">{{ analysis1.total_articles }}</div>
@@ -282,7 +284,7 @@
                 <!-- Sentiment Distribution -->
                 <div class="card p-6">
                     <h3 class="text-lg font-semibold mb-4">Sentiment Distribution</h3>
-                    <div class="grid {% if query2 %}grid-cols-2{% else %}grid-cols-1{% endif %} gap-4">
+                    <div class="grid {% if query2 %}grid-cols-1 sm:grid-cols-2{% else %}grid-cols-1{% endif %} gap-4">
                         <div>
                             <h4 class="text-md font-medium mb-2 text-center" style="color: var(--primary-color);">{{ query1 }}</h4>
                             <div class="h-48">
@@ -304,7 +306,7 @@
             <!-- Sentiment by Outlet (Updated) -->
             <div class="card p-6 mb-8">
                 <h3 class="text-lg font-semibold mb-4">Sentiment by News Outlet</h3>
-                <div class="grid {% if query2 %}grid-cols-2{% else %}grid-cols-1{% endif %} gap-8">
+                <div class="grid {% if query2 %}grid-cols-1 md:grid-cols-2{% else %}grid-cols-1{% endif %} gap-8">
                     <!-- First Query Sentiment by Outlet -->
                     <div>
                         <h4 class="text-md font-medium mb-2" style="color: var(--primary-color);">{{ query1 }}</h4>
@@ -449,7 +451,7 @@
             <!-- Top Topics -->
             <div class="card p-6 mb-8">
                 <h3 class="text-lg font-semibold mb-4">Most Mentioned Topics</h3>
-                <div class="grid {% if query2 %}grid-cols-2{% else %}grid-cols-1{% endif %} gap-8">
+                <div class="grid {% if query2 %}grid-cols-1 md:grid-cols-2{% else %}grid-cols-1{% endif %} gap-8">
                     <!-- First Query Topics -->
                     <div>
                         <h4 class="text-md font-medium mb-2" style="color: var(--primary-color);">{{ query1 }}</h4>
@@ -480,7 +482,7 @@
             </div>
             
             <!-- Source Articles -->
-            <div class="grid {% if query2 %}grid-cols-2{% else %}grid-cols-1{% endif %} gap-8">
+            <div class="grid {% if query2 %}grid-cols-1 md:grid-cols-2{% else %}grid-cols-1{% endif %} gap-8">
                 <!-- First Query Articles -->
                 <div>
                     <h2 class="text-xl font-semibold mb-4" style="color: var(--primary-color);">{{ query1 }} Articles</h2>

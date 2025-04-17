@@ -99,7 +99,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 r: 20,
                 t: 10,
                 b: 50
-            }
+            },
+            autosize: true
         };
         
         Plotly.newPlot('sentimentScatter', traces, layout, {responsive: true});

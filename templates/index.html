@@ -1,6 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>innate c3 | media analysis</title>
     {% if ga_measurement_id %}
     <!-- Google Analytics Tag -->
@@ -57,7 +59,7 @@
         }
     </style>
 </head>
-<body class="min-h-screen p-8">
+<body class="min-h-screen p-4 md:p-8">
     <div class="max-w-4xl mx-auto">
         <div class="divider"></div>
         <div class="flex justify-between items-center">
@@ -71,7 +73,7 @@
         {% if analytics_data %}
         <div class="card px-8 pt-6 pb-8 mb-8">
             <h2 class="text-xl font-bold mb-4">Website Analytics</h2>
-            <div class="grid grid-cols-3 gap-4 mb-6">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                 <div class="bg-blue-50 p-4 rounded">
                     <h3 class="text-sm font-semibold text-blue-800">Total Users</h3>
                     <p class="text-2xl font-bold text-blue-600">{{ analytics_data.total_users }}</p>
@@ -90,7 +92,7 @@
         
         <form method="POST" class="card px-8 pt-6 pb-8 mb-4">
             <div class="mb-4">
-                <div class="flex items-start">
+                <div class="flex flex-col md:flex-row md:items-start gap-4">
                     <!-- Primary Search Query -->
                     <div class="flex-grow">
                         <label class="block text-gray-700 text-sm font-bold mb-2" for="query1">
@@ -100,24 +102,24 @@
                                id="query1" name="query1" type="text" placeholder="e.g., Apple">
                     </div>
                     
-                    <!-- Compare Toggle Button -->
-                    <div class="ml-4 mt-7">
-                        <button type="button" id="compare-toggle" class="text-sm font-medium flex items-center" style="color: var(--primary-color);">
-                            <span id="compare-text">Compare</span>
-                            <svg id="compare-icon" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                            </svg>
-                        </button>
-                    </div>
-                    
                     <!-- Comparative Search (Hidden by Default) -->
-                    <div id="comparative-search" class="hidden ml-4 flex-grow">
+                    <div id="comparative-search" class="hidden flex-grow">
                         <label class="block text-gray-700 text-sm font-bold mb-2" for="query2">
                             Comparative Search
                         </label>
                         <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                                id="query2" name="query2" type="text" placeholder="e.g., Google">
                     </div>
+                </div>
+                
+                <!-- Compare Toggle Button -->
+                <div class="mt-2 mb-4">
+                    <button type="button" id="compare-toggle" class="text-sm font-medium flex items-center" style="color: var(--primary-color);">
+                        <span id="compare-text">Compare</span>
+                        <svg id="compare-icon" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
                 </div>
                 <!-- AI-enhanced search copy removed -->
             </div>
