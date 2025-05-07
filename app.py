@@ -421,11 +421,11 @@ def enhance_query_with_ai(query):
 
 def parse_boolean_query(query):
     """
-    Parse a boolean search query with support for:
-    - Quoted phrases for exact matches
-    - AND/OR operators (default is AND)
-    - Minus sign for exclusion
-    - Multiple keywords (Google News style)
+    Parse a boolean search query with enhanced support for:
+    - Quoted phrases for exact matches (e.g., "artificial intelligence")
+    - AND/OR operators with proper precedence (e.g., "AI" AND "machine learning" OR robotics)
+    - Nested expressions with parentheses (e.g., AI AND (robotics OR "machine learning"))
+    - Minus sign for exclusion (e.g., AI -"machine learning")
     
     Returns a processed query string compatible with the News API
     """
@@ -433,24 +433,67 @@ def parse_boolean_query(query):
     if not query.strip():
         return query
     
-    # Check if the query already contains boolean operators
-    if " AND " in query.upper() or " OR " in query.upper() or '"' in query or "-" in query:
-        # If it already has boolean operators, don't modify it
-        processed_query = query
-    else:
-        # Split the query into individual keywords
-        keywords = query.strip().split()
+    # Helper function to process quoted phrases
+    def process_quotes(text):
+        # Find all quoted phrases and replace spaces with underscores temporarily
+        quoted_phrases = re.findall(r'"([^"]*)"', text)
+        processed_text = text
+        for phrase in quoted_phrases:
+            if ' ' in phrase:  # Only process phrases with spaces
+                processed_text = processed_text.replace(
+                    f'"{phrase}"', 
+                    f'"{phrase}"'  # Keep the quotes to ensure exact phrase matching
+                )
+        return processed_text
+    
+    # Helper function to process boolean operators
+    def process_operators(text):
+        # Standardize boolean operators to uppercase
+        text = re.sub(r'\bAND\b|\band\b', 'AND', text)
+        text = re.sub(r'\bOR\b|\bor\b', 'OR', text)
         
-        if len(keywords) > 1:
-            # For multiple keywords, create a query that finds articles containing ANY of the keywords
-            # This is more like Google News behavior
-            processed_query = " OR ".join(keywords)
-            
-            # Also add the original phrase as an exact match option for higher relevance
-            processed_query = f'"{query}" OR ({processed_query})'
-        else:
-            # For single keywords, use as-is
-            processed_query = query
+        # Handle implicit AND operations (space-separated terms)
+        # But only if they're not already part of a quoted phrase
+        parts = []
+        current_pos = 0
+        in_quotes = False
+        current_term = ''
+        
+        for i, char in enumerate(text):
+            if char == '"':
+                in_quotes = not in_quotes
+                current_term += char
+            elif char == ' ' and not in_quotes:
+                if current_term:
+                    parts.append(current_term.strip())
+                current_term = ''
+            else:
+                current_term += char
+        
+        if current_term:
+            parts.append(current_term.strip())
+        
+        # Join terms with explicit AND if not already joined by OR
+        processed_text = ''
+        for i, part in enumerate(parts):
+            if i > 0:
+                if 'OR' not in parts[i-1] and 'OR' not in part:
+                    processed_text += ' AND '
+                else:
+                    processed_text += ' '
+            processed_text += part
+        
+        return processed_text
+    
+    # Process the query
+    processed_query = query.strip()
+    
+    # Handle quoted phrases first
+    processed_query = process_quotes(processed_query)
+    
+    # Handle boolean operators if not already in proper format
+    if not (re.search(r'\bAND\b|\bOR\b', processed_query, re.IGNORECASE) and '"' in processed_query):
+        processed_query = process_operators(processed_query)
     
     print(f"Boolean search query: Original='{query}' → Processed='{processed_query}'")
     return processed_query
@@ -626,17 +669,14 @@ def fetch_news(keywords, from_date=None, to_date=None, language="en", source=Non
     
     # Fetch articles from News API
     news_api_articles, news_api_success = fetch_news_api(keywords, from_date, to_date, language, source)
-    all_articles.extend(news_api_articles)
     
-    # If API failed or returned no articles, use mock data
-    if not news_api_success or len(all_articles) == 0:
-        print("News API failed or returned no articles. Using mock data instead.")
-        mock_articles = generate_mock_news(keywords, from_date, to_date, language, source)
-        # Add API source to mock articles
-        for article in mock_articles:
-            article["api_source"] = "Mock Data"
-        all_articles.extend(mock_articles)
-
+    # Only use actual API results, no mock data
+    if news_api_success:
+        all_articles.extend(news_api_articles)
+    else:
+        print("News API request failed")
+        return []  # Return empty list if API request failed
+    
     # Remove duplicates based on URL
     seen_urls = set()
     unique_articles = []
@@ -645,7 +685,7 @@ def fetch_news(keywords, from_date=None, to_date=None, language="en", source=Non
             seen_urls.add(article['url'])
             unique_articles.append(article)
     
-    print(f"Returning {len(unique_articles)} unique articles from all sources")
+    print(f"Returning {len(unique_articles)} unique articles from News API")
     return unique_articles
 
 # Path for contact form submissions log file
@@ -776,25 +816,77 @@ def index():
                 flash(error)
             return redirect(url_for("index"))
         
-        # Redirect to results page with query parameters
-        params = {
-            "query1": query1,
-            "from_date1": from_date1,
-            "to_date1": to_date1,
-            "language1": language1,
-            "source1": source1
-        }
-        
-        if query2:
-            params.update({
-                "query2": query2,
-                "from_date2": from_date2 if from_date2 else from_date1,
-                "to_date2": to_date2 if to_date2 else to_date1,
-                "language2": language2,
-                "source2": source2
-            })
+        try:
+            # Validate date ranges
+            valid, start_date1, end_date1 = validate_date_range(from_date1, to_date1)
             
-        return redirect(url_for("results", **params))
+            # Check if date range is more than 30 days (free tier limit)
+            delta1 = end_date1 - start_date1
+            if delta1.days > 30:
+                flash("Free tier is limited to 30 days of historical data. Please join our premium waiting list for extended access.")
+                return redirect(url_for("premium_waitlist"))
+            
+            if query2 and (from_date2 and to_date2):
+                valid, start_date2, end_date2 = validate_date_range(from_date2, to_date2)
+                
+                # Check if date range is more than 30 days (free tier limit)
+                delta2 = end_date2 - start_date2
+                if delta2.days > 30:
+                    flash("Free tier is limited to 30 days of historical data. Please join our premium waiting list for extended access.")
+                    return redirect(url_for("premium_waitlist"))
+            
+            # Process boolean queries
+            processed_query1 = {"enhanced_query": parse_boolean_query(query1), "entity_type": "", "reasoning": "Boolean search query"}
+            processed_query2 = {"enhanced_query": parse_boolean_query(query2), "entity_type": "", "reasoning": "Boolean search query"} if query2 else None
+            
+            # Fetch and analyze articles for the first query
+            articles1 = fetch_news(
+                keywords=query1,
+                from_date=from_date1,
+                to_date=to_date1,
+                language=language1,
+                source=source1
+            )
+            analysis1 = analyze_articles(articles1, query1)
+            
+            # Initialize variables for second query
+            articles2 = []
+            analysis2 = None
+            analysis_text = None
+            
+            # Fetch and analyze articles for the second query if provided
+            if query2:
+                articles2 = fetch_news(
+                    keywords=query2,
+                    from_date=from_date2 if from_date2 else from_date1,
+                    to_date=to_date2 if to_date2 else to_date1,
+                    language=language2,
+                    source=source2
+                )
+                analysis2 = analyze_articles(articles2, query2)
+            
+            # Create a form-like object with the request parameters
+            form_data = {}
+            for key, value in request.form.items():
+                form_data[key] = value
+            
+            return render_template(
+                "result.html",
+                query1=query1,
+                query2=query2,
+                enhanced_query1=processed_query1,
+                enhanced_query2=processed_query2,
+                textual_analysis=analysis_text,
+                analysis1=analysis1,
+                analysis2=analysis2,
+                articles1=articles1,
+                articles2=articles2,
+                request=type('obj', (object,), {'form': form_data})  # Create a mock request object with form attribute
+            )
+            
+        except Exception as e:
+            flash(f"Error: {str(e)}")
+            return redirect(url_for("index"))
             
     return render_template("index.html")
 
