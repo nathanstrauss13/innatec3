@@ -870,19 +870,19 @@ def index():
             for key, value in request.form.items():
                 form_data[key] = value
             
-            return render_template(
-                "result.html",
+            # Redirect to results page with query parameters
+            return redirect(url_for("results", 
                 query1=query1,
-                query2=query2,
-                enhanced_query1=processed_query1,
-                enhanced_query2=processed_query2,
-                textual_analysis=analysis_text,
-                analysis1=analysis1,
-                analysis2=analysis2,
-                articles1=articles1,
-                articles2=articles2,
-                request=type('obj', (object,), {'form': form_data})  # Create a mock request object with form attribute
-            )
+                from_date1=from_date1,
+                to_date1=to_date1,
+                language1=language1,
+                source1=source1,
+                query2=query2 if query2 else None,
+                from_date2=from_date2 if from_date2 else None,
+                to_date2=to_date2 if to_date2 else None,
+                language2=language2 if query2 else None,
+                source2=source2 if query2 else None
+            ))
             
         except Exception as e:
             flash(f"Error: {str(e)}")
