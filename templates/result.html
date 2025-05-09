@@ -206,12 +206,30 @@
                 <h3 class="text-lg font-semibold mb-4">Key Insights</h3>
                 <ul class="list-disc pl-5 space-y-2">
                     <!-- Total Coverage and Sentiment -->
+                    {% if query2 %}
+                    <li><strong>Total coverage:</strong>
+                        <ul class="list-disc pl-5 mt-1">
+                            <li><strong>{{ query1 }}:</strong> {{ analysis1.total_articles }} articles with an average sentiment score of {{ '{:.2f}'.format(analysis1.avg_sentiment) }} ({{ 'positive' if analysis1.avg_sentiment > 0.2 else ('negative' if analysis1.avg_sentiment < -0.2 else 'neutral') }})</li>
+                            <li><strong>{{ query2 }}:</strong> {{ analysis2.total_articles }} articles with an average sentiment score of {{ '{:.2f}'.format(analysis2.avg_sentiment) }} ({{ 'positive' if analysis2.avg_sentiment > 0.2 else ('negative' if analysis2.avg_sentiment < -0.2 else 'neutral') }})</li>
+                        </ul>
+                    </li>
+                    {% else %}
                     <li><strong>Total coverage:</strong> {{ analysis1.total_articles }} articles with an average sentiment score of {{ '{:.2f}'.format(analysis1.avg_sentiment) }} ({{ 'positive' if analysis1.avg_sentiment > 0.2 else ('negative' if analysis1.avg_sentiment < -0.2 else 'neutral') }})</li>
+                    {% endif %}
                     
                     <!-- Highest Volume Day removed as it's shown in the graph below -->
                     
                     <!-- Top Sources -->
+                    {% if query2 %}
+                    <li><strong>Top sources:</strong>
+                        <ul class="list-disc pl-5 mt-1">
+                            <li><strong>{{ query1 }}:</strong> {% for source in analysis1.sources[:5] %}{{ source.name }} ({{ source.count }}){% if not loop.last %}, {% endif %}{% endfor %}</li>
+                            <li><strong>{{ query2 }}:</strong> {% for source in analysis2.sources[:5] %}{{ source.name }} ({{ source.count }}){% if not loop.last %}, {% endif %}{% endfor %}</li>
+                        </ul>
+                    </li>
+                    {% else %}
                     <li><strong>Top sources:</strong> {% for source in analysis1.sources[:5] %}{{ source.name }} ({{ source.count }}){% if not loop.last %}, {% endif %}{% endfor %}</li>
+                    {% endif %}
                     
                     <!-- Top Topics -->
                     <li><strong>{{ analysis1.topics[:3]|map(attribute='topic')|join(', ')|capitalize }}</strong> dominated with {% for topic in analysis1.topics[:3] %}{{ topic.count }}{% if not loop.last %}, {% endif %}{% endfor %} mentions{% if analysis1.topics|length > 3 %}, followed by {{ analysis1.topics[3:5]|map(attribute='topic')|join(', ') }} ({{ analysis1.topics[3:5]|map(attribute='count')|join(', ') }}){% endif %}</li>
@@ -554,6 +572,26 @@
 
     <!-- Pass data from template to JavaScript -->
     <script>
+        // Helper function to decode HTML entities
+        function decodeHtmlEntities(text) {
+            var element = document.createElement('div');
+            element.innerHTML = text;
+            return element.textContent || element.innerText || text;
+        }
+        
+        // Apply HTML entity decoding to source names
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait for charts to be rendered
+            setTimeout(function() {
+                // Find all chart labels and decode them
+                var chartLabels = document.querySelectorAll('.chartjs-axis-labels text');
+                chartLabels.forEach(function(label) {
+                    if (label.textContent.includes('&#')) {
+                        label.textContent = decodeHtmlEntities(label.textContent);
+                    }
+                });
+            }, 1000);
+        });
         window.articles1 = {{ articles1 | tojson | safe }};
         window.articles2 = {{ articles2 | tojson if articles2 else 'null' | safe }};
         window.analysis1 = {{ analysis1 | tojson | safe }};

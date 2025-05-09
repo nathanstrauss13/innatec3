@@ -184,9 +184,10 @@ Here are the texts to analyze:
             'peak_article': peak_article
         })
     
-    # News source distribution
-    sources = Counter(article['source']['name'] for article in articles)
-    top_sources = [{'name': name, 'count': count} 
+    # News source distribution with HTML entity decoding
+    import html
+    sources = Counter(html.unescape(article['source']['name']) for article in articles)
+    top_sources = [{'name': html.unescape(name), 'count': count}
                    for name, count in sources.most_common(10)]
     
     # Extended stop words list
@@ -1101,6 +1102,18 @@ Key points to address:
         for key, value in request.args.items():
             form_data[key] = value
         
+        # Debug logging for comparative analysis
+        if query2:
+            print(f"DEBUG - Comparative Analysis:")
+            print(f"  Query1: {query1}, Articles: {len(articles1)}, Sources: {len(analysis1['sources']) if 'sources' in analysis1 else 0}")
+            print(f"  Query2: {query2}, Articles: {len(articles2)}, Sources: {len(analysis2['sources']) if 'sources' in analysis2 else 0}")
+            
+            # Log top sources for both queries
+            if 'sources' in analysis1 and analysis1['sources']:
+                print(f"  Top sources for {query1}: {', '.join([f'{s['name']} ({s['count']})' for s in analysis1['sources'][:3]])}")
+            if 'sources' in analysis2 and analysis2['sources']:
+                print(f"  Top sources for {query2}: {', '.join([f'{s['name']} ({s['count']})' for s in analysis2['sources'][:3]])}")
+        
         return render_template(
             "result.html",
             query1=query1,
@@ -1121,5 +1134,5 @@ Key points to address:
 
 if __name__ == "__main__":
     # Get port from environment variable or default to 5008
-    port = int(os.environ.get("PORT", 5008))
+    port = int(os.environ.get("PORT", 5009))
     app.run(host='0.0.0.0', port=port, debug=True)
