@@ -186,9 +186,24 @@ Here are the texts to analyze:
         })
     
     # News source distribution with HTML entity decoding
-    sources = Counter(html.unescape(article['source']['name']) for article in articles)
-    top_sources = [{'name': html.unescape(name), 'count': count}
-                   for name, count in sources.most_common(10)]
+    sources = Counter()
+    for article in articles:
+        try:
+            source_name = html.unescape(article['source']['name']) if article['source']['name'] else ""
+            sources[source_name] += 1
+        except Exception as e:
+            print(f"Error decoding source name: {e}")
+            source_name = article['source']['name'] if article['source']['name'] else ""
+            sources[source_name] += 1
+    
+    top_sources = []
+    for name, count in sources.most_common(10):
+        try:
+            decoded_name = html.unescape(name) if name else ""
+            top_sources.append({'name': decoded_name, 'count': count})
+        except Exception as e:
+            print(f"Error decoding source name in most_common: {e}")
+            top_sources.append({'name': name, 'count': count})
     
     # Extended stop words list
     stop_words = {
