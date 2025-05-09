@@ -1117,6 +1117,13 @@ Key points to address:
         for key, value in request.args.items():
             form_data[key] = value
         
+        # Helper function to format sources
+        def format_sources(sources):
+            result = []
+            for s in sources[:3]:
+                result.append(f"{s['name']} ({s['count']})")
+            return ', '.join(result)
+        
         # Debug logging for comparative analysis
         if query2:
             print(f"DEBUG - Comparative Analysis:")
@@ -1125,9 +1132,9 @@ Key points to address:
             
             # Log top sources for both queries
             if 'sources' in analysis1 and analysis1['sources']:
-                print(f"  Top sources for {query1}: {', '.join([f'{s['name']} ({s['count']})' for s in analysis1['sources'][:3]])}")
+                print(f"  Top sources for {query1}: {format_sources(analysis1['sources'])}")
             if 'sources' in analysis2 and analysis2['sources']:
-                print(f"  Top sources for {query2}: {', '.join([f'{s['name']} ({s['count']})' for s in analysis2['sources'][:3]])}")
+                print(f"  Top sources for {query2}: {format_sources(analysis2['sources'])}")
         
         return render_template(
             "result.html",
