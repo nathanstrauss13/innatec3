@@ -3,6 +3,7 @@ import json
 import re
 import random
 import requests
+import html
 from collections import Counter
 from datetime import datetime, timedelta
 from flask import Flask, render_template, request, redirect, url_for, flash
@@ -185,7 +186,6 @@ Here are the texts to analyze:
         })
     
     # News source distribution with HTML entity decoding
-    import html
     sources = Counter(html.unescape(article['source']['name']) for article in articles)
     top_sources = [{'name': html.unescape(name), 'count': count}
                    for name, count in sources.most_common(10)]
