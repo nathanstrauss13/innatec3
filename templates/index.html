@@ -95,9 +95,14 @@
         <div class="divider"></div>
         <div class="flex justify-between items-center">
             <h1 class="text-3xl font-bold mb-4 mt-4">innate c3 | media analysis</h1>
-            <a href="https://www.innatec3.com/#contact" class="btn-primary font-bold py-2 px-4 rounded">
-                Bespoke Analysis
-            </a>
+            <div class="flex gap-2">
+                <a href="/upload" class="btn-primary font-bold py-2 px-4 rounded">
+                    Upload Files
+                </a>
+                <a href="https://www.innatec3.com/#contact" class="btn-primary font-bold py-2 px-4 rounded">
+                    Bespoke Analysis
+                </a>
+            </div>
         </div>
         <div class="divider"></div>
         
@@ -301,7 +306,7 @@
     <!-- Loading Overlay (Hidden by Default) -->
     <div id="loading-overlay" class="loading-overlay hidden">
         <div class="spinner"></div>
-        <p class="text-xl">Analyzing media...</p>
+        <p class="text-xl">🤖 Analyzing media...</p>
         <p class="text-sm mt-2">This may take a minute or two.</p>
     </div>
 
@@ -340,6 +345,14 @@
                     toggleText.textContent = 'Hide Advanced Filters';
                     toggleIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />';
                 }
+                try {
+                    if (typeof gtag === 'function') {
+                        gtag('event', 'advanced_filters_toggle', {
+                            app: 'media_analyzer',
+                            state: advancedFilters.classList.contains('hidden') ? 'hidden' : 'shown'
+                        });
+                    }
+                } catch (e) { /* no-op */ }
             }
             
             // Function to update UI based on comparative search visibility
@@ -371,6 +384,16 @@
                 
                 // Update the UI based on comparative search visibility
                 updateUIForComparison();
+
+                // Analytics
+                try {
+                    if (typeof gtag === 'function') {
+                        gtag('event', 'compare_toggle', {
+                            app: 'media_analyzer',
+                            state: comparativeSearch.classList.contains('hidden') ? 'off' : 'on'
+                        });
+                    }
+                } catch (e) { /* no-op */ }
             }
             
             // Add click event listeners
@@ -474,6 +497,21 @@
                     e.preventDefault();
                     return;
                 }
+
+                // Analytics
+                try {
+                    if (typeof gtag === 'function') {
+                        gtag('event', 'analyze_submit', {
+                            app: 'media_analyzer',
+                            query1: query1,
+                            query2: query2 || '',
+                            from_date1: fromDate1,
+                            to_date1: toDate1,
+                            from_date2: fromDate2 || '',
+                            to_date2: toDate2 || ''
+                        });
+                    }
+                } catch (e) { /* no-op */ }
                 
                 // Show loading overlay when form is submitted and validation passes
                 loadingOverlay.classList.remove('hidden');
