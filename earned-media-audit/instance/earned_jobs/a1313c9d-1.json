@@ -1,0 +1,564 @@
+{
+  "job_id": "a1313c9d-1",
+  "input": {
+    "brand": {
+      "url": "https://honeybaked.com",
+      "name": "Honeybaked"
+    },
+    "competitors": [],
+    "query_budget": 25,
+    "providers": [
+      "llm_browsing",
+      "openai"
+    ]
+  },
+  "meta": {
+    "started_at": 1755706254.5911229,
+    "finished_at": 1755706281.414633,
+    "duration_sec": 26.82,
+    "total_prompts": 8,
+    "total_citations": 25
+  },
+  "prompts": [
+    {
+      "id": "27433c3e",
+      "entity": "Honeybaked",
+      "entity_type": "brand",
+      "kind": "general",
+      "text": "best the category"
+    },
+    {
+      "id": "28e2e4d6",
+      "entity": "Honeybaked",
+      "entity_type": "brand",
+      "kind": "general",
+      "text": "top the category for beginners"
+    },
+    {
+      "id": "2a74e442",
+      "entity": "Honeybaked",
+      "entity_type": "brand",
+      "kind": "general",
+      "text": "Honeybaked vs top alternatives in the category"
+    },
+    {
+      "id": "c01bbd54",
+      "entity": "Honeybaked",
+      "entity_type": "brand",
+      "kind": "general",
+      "text": "is Honeybaked worth it for the category"
+    },
+    {
+      "id": "c8b2ea0d",
+      "entity": "Honeybaked",
+      "entity_type": "brand",
+      "kind": "general",
+      "text": "Honeybaked review in the context of the category"
+    },
+    {
+      "id": "e3339f34",
+      "entity": "Honeybaked",
+      "entity_type": "brand",
+      "kind": "media",
+      "text": "who covers Honeybaked in the category, cite sources"
+    },
+    {
+      "id": "b0ff285d",
+      "entity": "Honeybaked",
+      "entity_type": "brand",
+      "kind": "media",
+      "text": "best articles about Honeybaked for the category, cite sources"
+    },
+    {
+      "id": "1fc33ad7",
+      "entity": "Honeybaked",
+      "entity_type": "brand",
+      "kind": "media",
+      "text": "background and FAQ resources for Honeybaked in the category, cite sources"
+    }
+  ],
+  "providers_used": [
+    "llm_browsing",
+    "openai"
+  ],
+  "runs_sample": [
+    {
+      "tool": "llm_browsing",
+      "prompt_id": "27433c3e",
+      "prompt_text": "best the category",
+      "entity": "Honeybaked",
+      "citations": [
+        {
+          "url": "https://www.forbes.com/advisor/",
+          "title": null,
+          "domain": "forbes.com"
+        },
+        {
+          "url": "https://www.wsj.com/business/",
+          "title": null,
+          "domain": "wsj.com"
+        },
+        {
+          "url": "https://www.usnews.com/money/",
+          "title": null,
+          "domain": "usnews.com"
+        },
+        {
+          "url": "https://www.theverge.com/",
+          "title": null,
+          "domain": "theverge.com"
+        }
+      ]
+    },
+    {
+      "tool": "llm_browsing",
+      "prompt_id": "28e2e4d6",
+      "prompt_text": "top the category for beginners",
+      "entity": "Honeybaked",
+      "citations": [
+        {
+          "url": "https://www.forbes.com/advisor/",
+          "title": null,
+          "domain": "forbes.com"
+        },
+        {
+          "url": "https://www.cnbc.com/",
+          "title": null,
+          "domain": "cnbc.com"
+        }
+      ]
+    },
+    {
+      "tool": "llm_browsing",
+      "prompt_id": "2a74e442",
+      "prompt_text": "Honeybaked vs top alternatives in the category",
+      "entity": "Honeybaked",
+      "citations": [
+        {
+          "url": "https://www.wsj.com/",
+          "title": null,
+          "domain": "wsj.com"
+        },
+        {
+          "url": "https://www.nerdwallet.com/best/",
+          "title": null,
+          "domain": "nerdwallet.com"
+        }
+      ]
+    },
+    {
+      "tool": "llm_browsing",
+      "prompt_id": "c01bbd54",
+      "prompt_text": "is Honeybaked worth it for the category",
+      "entity": "Honeybaked",
+      "citations": [
+        {
+          "url": "https://www.nytimes.com/",
+          "title": null,
+          "domain": "nytimes.com"
+        },
+        {
+          "url": "https://www.cnbc.com/select/",
+          "title": null,
+          "domain": "cnbc.com"
+        },
+        {
+          "url": "https://www.wsj.com/business/",
+          "title": null,
+          "domain": "wsj.com"
+        },
+        {
+          "url": "https://www.theverge.com/",
+          "title": null,
+          "domain": "theverge.com"
+        }
+      ]
+    },
+    {
+      "tool": "llm_browsing",
+      "prompt_id": "c8b2ea0d",
+      "prompt_text": "Honeybaked review in the context of the category",
+      "entity": "Honeybaked",
+      "citations": [
+        {
+          "url": "https://www.usnews.com/insurance/",
+          "title": null,
+          "domain": "usnews.com"
+        },
+        {
+          "url": "https://www.theverge.com/tech/",
+          "title": null,
+          "domain": "theverge.com"
+        }
+      ]
+    },
+    {
+      "tool": "llm_browsing",
+      "prompt_id": "e3339f34",
+      "prompt_text": "who covers Honeybaked in the category, cite sources",
+      "entity": "Honeybaked",
+      "citations": [
+        {
+          "url": "https://www.cnbc.com/",
+          "title": null,
+          "domain": "cnbc.com"
+        },
+        {
+          "url": "https://www.nerdwallet.com/best/",
+          "title": null,
+          "domain": "nerdwallet.com"
+        },
+        {
+          "url": "https://www.theverge.com/",
+          "title": null,
+          "domain": "theverge.com"
+        },
+        {
+          "url": "https://www.forbes.com/sites/",
+          "title": null,
+          "domain": "forbes.com"
+        }
+      ]
+    },
+    {
+      "tool": "llm_browsing",
+      "prompt_id": "b0ff285d",
+      "prompt_text": "best articles about Honeybaked for the category, cite sources",
+      "entity": "Honeybaked",
+      "citations": [
+        {
+          "url": "https://www.forbes.com/sites/",
+          "title": null,
+          "domain": "forbes.com"
+        },
+        {
+          "url": "https://www.cnbc.com/",
+          "title": null,
+          "domain": "cnbc.com"
+        },
+        {
+          "url": "https://www.nytimes.com/",
+          "title": null,
+          "domain": "nytimes.com"
+        },
+        {
+          "url": "https://www.nerdwallet.com/article/",
+          "title": null,
+          "domain": "nerdwallet.com"
+        }
+      ]
+    },
+    {
+      "tool": "llm_browsing",
+      "prompt_id": "1fc33ad7",
+      "prompt_text": "background and FAQ resources for Honeybaked in the category, cite sources",
+      "entity": "Honeybaked",
+      "citations": [
+        {
+          "url": "https://www.nytimes.com/",
+          "title": null,
+          "domain": "nytimes.com"
+        },
+        {
+          "url": "https://www.usnews.com/money/",
+          "title": null,
+          "domain": "usnews.com"
+        },
+        {
+          "url": "https://www.nerdwallet.com/article/",
+          "title": null,
+          "domain": "nerdwallet.com"
+        }
+      ]
+    }
+  ],
+  "top_domains": [
+    {
+      "domain": "forbes.com",
+      "count": 4,
+      "share": 0.16,
+      "providers": [
+        "llm_browsing"
+      ],
+      "category": "Tier1"
+    },
+    {
+      "domain": "theverge.com",
+      "count": 4,
+      "share": 0.16,
+      "providers": [
+        "llm_browsing"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "domain": "cnbc.com",
+      "count": 4,
+      "share": 0.16,
+      "providers": [
+        "llm_browsing"
+      ],
+      "category": "Tier1"
+    },
+    {
+      "domain": "nerdwallet.com",
+      "count": 4,
+      "share": 0.16,
+      "providers": [
+        "llm_browsing"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "domain": "wsj.com",
+      "count": 3,
+      "share": 0.12,
+      "providers": [
+        "llm_browsing"
+      ],
+      "category": "Tier1"
+    },
+    {
+      "domain": "usnews.com",
+      "count": 3,
+      "share": 0.12,
+      "providers": [
+        "llm_browsing"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "domain": "nytimes.com",
+      "count": 3,
+      "share": 0.12,
+      "providers": [
+        "llm_browsing"
+      ],
+      "category": "Tier1"
+    }
+  ],
+  "top_pages": [
+    {
+      "url": "https://www.theverge.com/",
+      "domain": "theverge.com",
+      "count": 3,
+      "share": 0.12,
+      "providers": [
+        "llm_browsing"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "url": "https://www.cnbc.com/",
+      "domain": "cnbc.com",
+      "count": 3,
+      "share": 0.12,
+      "providers": [
+        "llm_browsing"
+      ],
+      "category": "Tier1"
+    },
+    {
+      "url": "https://www.nytimes.com/",
+      "domain": "nytimes.com",
+      "count": 3,
+      "share": 0.12,
+      "providers": [
+        "llm_browsing"
+      ],
+      "category": "Tier1"
+    },
+    {
+      "url": "https://www.forbes.com/advisor/",
+      "domain": "forbes.com",
+      "count": 2,
+      "share": 0.08,
+      "providers": [
+        "llm_browsing"
+      ],
+      "category": "Tier1"
+    },
+    {
+      "url": "https://www.wsj.com/business/",
+      "domain": "wsj.com",
+      "count": 2,
+      "share": 0.08,
+      "providers": [
+        "llm_browsing"
+      ],
+      "category": "Tier1"
+    },
+    {
+      "url": "https://www.usnews.com/money/",
+      "domain": "usnews.com",
+      "count": 2,
+      "share": 0.08,
+      "providers": [
+        "llm_browsing"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "url": "https://www.nerdwallet.com/best/",
+      "domain": "nerdwallet.com",
+      "count": 2,
+      "share": 0.08,
+      "providers": [
+        "llm_browsing"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "url": "https://www.forbes.com/sites/",
+      "domain": "forbes.com",
+      "count": 2,
+      "share": 0.08,
+      "providers": [
+        "llm_browsing"
+      ],
+      "category": "Tier1"
+    },
+    {
+      "url": "https://www.nerdwallet.com/article/",
+      "domain": "nerdwallet.com",
+      "count": 2,
+      "share": 0.08,
+      "providers": [
+        "llm_browsing"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "url": "https://www.wsj.com/",
+      "domain": "wsj.com",
+      "count": 1,
+      "share": 0.04,
+      "providers": [
+        "llm_browsing"
+      ],
+      "category": "Tier1"
+    },
+    {
+      "url": "https://www.cnbc.com/select/",
+      "domain": "cnbc.com",
+      "count": 1,
+      "share": 0.04,
+      "providers": [
+        "llm_browsing"
+      ],
+      "category": "Tier1"
+    },
+    {
+      "url": "https://www.usnews.com/insurance/",
+      "domain": "usnews.com",
+      "count": 1,
+      "share": 0.04,
+      "providers": [
+        "llm_browsing"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "url": "https://www.theverge.com/tech/",
+      "domain": "theverge.com",
+      "count": 1,
+      "share": 0.04,
+      "providers": [
+        "llm_browsing"
+      ],
+      "category": "Unknown"
+    }
+  ],
+  "by_entity": {
+    "Honeybaked": {
+      "top_domains": [
+        {
+          "key": "forbes.com",
+          "count": 4
+        },
+        {
+          "key": "theverge.com",
+          "count": 4
+        },
+        {
+          "key": "cnbc.com",
+          "count": 4
+        },
+        {
+          "key": "nerdwallet.com",
+          "count": 4
+        },
+        {
+          "key": "wsj.com",
+          "count": 3
+        },
+        {
+          "key": "usnews.com",
+          "count": 3
+        },
+        {
+          "key": "nytimes.com",
+          "count": 3
+        }
+      ],
+      "top_pages": [
+        {
+          "key": "https://www.theverge.com/",
+          "count": 3
+        },
+        {
+          "key": "https://www.cnbc.com/",
+          "count": 3
+        },
+        {
+          "key": "https://www.nytimes.com/",
+          "count": 3
+        },
+        {
+          "key": "https://www.forbes.com/advisor/",
+          "count": 2
+        },
+        {
+          "key": "https://www.wsj.com/business/",
+          "count": 2
+        },
+        {
+          "key": "https://www.usnews.com/money/",
+          "count": 2
+        },
+        {
+          "key": "https://www.nerdwallet.com/best/",
+          "count": 2
+        },
+        {
+          "key": "https://www.forbes.com/sites/",
+          "count": 2
+        },
+        {
+          "key": "https://www.nerdwallet.com/article/",
+          "count": 2
+        },
+        {
+          "key": "https://www.wsj.com/",
+          "count": 1
+        },
+        {
+          "key": "https://www.cnbc.com/select/",
+          "count": 1
+        },
+        {
+          "key": "https://www.usnews.com/insurance/",
+          "count": 1
+        },
+        {
+          "key": "https://www.theverge.com/tech/",
+          "count": 1
+        }
+      ],
+      "total_citations": 25
+    }
+  },
+  "gaps": {
+    "domains": []
+  }
+}

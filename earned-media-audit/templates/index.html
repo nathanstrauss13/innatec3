@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Earned AI Visibility Audit</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .spinner {
+      border: 5px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top: 5px solid white;
+      width: 46px;
+      height: 46px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg);} 100% { transform: rotate(360deg);} }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <div class="max-w-6xl mx-auto p-6">
+    <header class="mb-6">
+      <h1 class="text-3xl font-bold text-gray-900">Earned AI Visibility Audit</h1>
+      <p class="text-gray-600 mt-1">Identify the outlets and pages most cited by AI answers for your brand and competitors. Export outreach targets for PR.</p>
+    </header>
+
+    <!-- Form Card -->
+    <section class="bg-white rounded-xl shadow p-6">
+      <h2 class="text-xl font-semibold mb-4">Run Audit</h2>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Brand URL<span class="text-red-500">*</span></label>
+          <input id="brandUrl" type="url" placeholder="https://example.com"
+                 class="mt-1 w-full rounded border-gray-300 focus:ring-emerald-600 focus:border-emerald-600 px-3 py-2" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Brand Name (optional)</label>
+          <input id="brandName" type="text" placeholder="Example Brand"
+                 class="mt-1 w-full rounded border-gray-300 focus:ring-emerald-600 focus:border-emerald-600 px-3 py-2" />
+        </div>
+        <div class="lg:col-span-2">
+          <label class="block text-sm font-medium text-gray-700">Competitor URLs (optional, up to 3)</label>
+          <div class="mt-1 grid grid-cols-1 md:grid-cols-3 gap-2">
+            <input class="compUrl rounded border-gray-300 px-3 py-2 focus:ring-emerald-600 focus:border-emerald-600" type="url" placeholder="https://competitor-1.com" />
+            <input class="compUrl rounded border-gray-300 px-3 py-2 focus:ring-emerald-600 focus:border-emerald-600" type="url" placeholder="https://competitor-2.com" />
+            <input class="compUrl rounded border-gray-300 px-3 py-2 focus:ring-emerald-600 focus:border-emerald-600" type="url" placeholder="https://competitor-3.com" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Query Budget</label>
+          <div class="flex items-center gap-3 mt-1">
+            <input id="queryBudget" type="range" min="10" max="40" value="25" class="w-full"/>
+            <span id="budgetValue" class="text-sm text-gray-700 w-10 text-right">25</span>
+          </div>
+          <p class="text-xs text-gray-500 mt-1">Number of prompts distributed across brand and competitors (80/20 general vs media queries).</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Providers</label>
+          <div class="mt-2 flex items-center gap-6 flex-wrap">
+            <label class="inline-flex items-center gap-2">
+              <input id="provLlm" type="checkbox" checked class="rounded text-emerald-600"/>
+              <span class="text-sm">LLM Browsing (Anthropic)</span>
+            </label>
+            <label class="inline-flex items-center gap-2">
+              <input id="provPerplexity" type="checkbox" class="rounded text-emerald-600"/>
+              <span class="text-sm">Perplexity API</span>
+            </label>
+            <label class="inline-flex items-center gap-2">
+              <input id="provOpenAI" type="checkbox" class="rounded text-emerald-600"/>
+              <span class="text-sm">OpenAI</span>
+            </label>
+            <label class="inline-flex items-center gap-2">
+              <input id="provGemini" type="checkbox" class="rounded text-emerald-600"/>
+              <span class="text-sm">Gemini</span>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="mt-6 flex items-center gap-3">
+        <button id="runBtn" class="bg-emerald-700 hover:bg-emerald-800 text-white font-semibold px-6 py-2.5 rounded">
+          Run Earned Audit
+        </button>
+        <div id="errorBox" class="hidden text-sm text-red-600"></div>
+      </div>
+    </section>
+
+    <!-- Loading -->
+    <div id="loading" class="fixed inset-0 bg-black/60 text-white hidden items-center justify-center z-50">
+      <div class="flex flex-col items-center">
+        <div class="spinner mb-3"></div>
+        <div class="text-sm">Analyzing citations across prompts…</div>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <section id="results" class="mt-8 hidden">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-xl font-semibold">Results</h2>
+        <div class="flex gap-2">
+          <button id="exportDomains" class="px-3 py-2 text-sm bg-white border rounded hover:bg-gray-50">Export Domains CSV</button>
+          <button id="exportPages" class="px-3 py-2 text-sm bg-white border rounded hover:bg-gray-50">Export Pages CSV</button>
+          <button id="exportGaps" class="px-3 py-2 text-sm bg-white border rounded hover:bg-gray-50">Export Gaps CSV</button>
+        </div>
+      </div>
+
+      <!-- Summary -->
+      <div id="summary" class="bg-white rounded-xl shadow p-5 mb-6">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+          <div>
+            <div class="text-2xl font-bold text-emerald-700" id="totalPrompts">0</div>
+            <div class="text-xs text-gray-600">Total Prompts</div>
+          </div>
+          <div>
+            <div class="text-2xl font-bold text-emerald-700" id="totalCitations">0</div>
+            <div class="text-xs text-gray-600">Total Citations</div>
+          </div>
+          <div>
+            <div class="text-2xl font-bold text-emerald-700" id="durationSec">0s</div>
+            <div class="text-xs text-gray-600">Duration</div>
+          </div>
+          <div>
+            <div class="text-2xl font-bold text-emerald-700" id="providersUsed">-</div>
+            <div class="text-xs text-gray-600">Providers</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="mb-4">
+        <nav class="flex gap-2">
+          <button class="tabBtn px-3 py-2 rounded bg-emerald-700 text-white" data-tab="tabDomains">Domains</button>
+          <button class="tabBtn px-3 py-2 rounded bg-white border" data-tab="tabPages">Pages</button>
+          <button class="tabBtn px-3 py-2 rounded bg-white border" data-tab="tabGaps">Gaps</button>
+          <button class="tabBtn px-3 py-2 rounded bg-white border" data-tab="tabRaw">Raw Sample</button>
+        </nav>
+      </div>
+
+      <!-- Domains -->
+      <div id="tabDomains" class="bg-white rounded-xl shadow p-4">
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-sm">
+            <thead class="text-left bg-gray-100">
+              <tr>
+                <th class="px-3 py-2">#</th>
+                <th class="px-3 py-2">Domain</th>
+                <th class="px-3 py-2">Count</th>
+                <th class="px-3 py-2">Share</th>
+                <th class="px-3 py-2">Providers</th>
+                <th class="px-3 py-2">Category</th>
+              </tr>
+            </thead>
+            <tbody id="domainsTbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Pages -->
+      <div id="tabPages" class="bg-white rounded-xl shadow p-4 hidden">
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-sm">
+            <thead class="text-left bg-gray-100">
+              <tr>
+                <th class="px-3 py-2">#</th>
+                <th class="px-3 py-2">Page</th>
+                <th class="px-3 py-2">Domain</th>
+                <th class="px-3 py-2">Count</th>
+                <th class="px-3 py-2">Share</th>
+                <th class="px-3 py-2">Providers</th>
+                <th class="px-3 py-2">Category</th>
+              </tr>
+            </thead>
+            <tbody id="pagesTbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Gaps -->
+      <div id="tabGaps" class="bg-white rounded-xl shadow p-4 hidden">
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-sm">
+            <thead class="text-left bg-gray-100">
+              <tr>
+                <th class="px-3 py-2">#</th>
+                <th class="px-3 py-2">Domain</th>
+                <th class="px-3 py-2">Competitors</th>
+                <th class="px-3 py-2">Competitor Citations</th>
+                <th class="px-3 py-2">Brand Citations</th>
+                <th class="px-3 py-2">Delta</th>
+                <th class="px-3 py-2">Category</th>
+              </tr>
+            </thead>
+            <tbody id="gapsTbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Raw sample -->
+      <div id="tabRaw" class="bg-white rounded-xl shadow p-4 hidden">
+        <pre id="rawSample" class="mono text-xs whitespace-pre-wrap"></pre>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const budget = document.getElementById('queryBudget');
+    const budgetValue = document.getElementById('budgetValue');
+    budget.addEventListener('input', () => budgetValue.textContent = budget.value);
+
+    const tabs = document.querySelectorAll('.tabBtn');
+    tabs.forEach(btn => {
+      btn.addEventListener('click', () => {
+        tabs.forEach(b => { b.classList.remove('bg-emerald-700','text-white'); b.classList.add('bg-white','border'); });
+        document.querySelectorAll('#tabDomains,#tabPages,#tabGaps,#tabRaw').forEach(el => el.classList.add('hidden'));
+        btn.classList.add('bg-emerald-700','text-white'); btn.classList.remove('bg-white','border');
+        document.getElementById(btn.dataset.tab).classList.remove('hidden');
+      });
+    });
+
+    function csvEscape(val) {
+      const s = (val ?? '').toString();
+      if (/[",\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+      return s;
+    }
+    function downloadCSV(filename, rows) {
+      const csv = rows.map(r => r.map(csvEscape).join(',')).join('\n');
+      const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = filename; a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    function renderResults(data) {
+      document.getElementById('results').classList.remove('hidden');
+      document.getElementById('totalPrompts').textContent = data?.meta?.total_prompts ?? 0;
+      document.getElementById('totalCitations').textContent = data?.meta?.total_citations ?? 0;
+      const dur = data?.meta?.duration_sec ?? 0;
+      document.getElementById('durationSec').textContent = dur + 's';
+      document.getElementById('providersUsed').textContent = (data?.providers_used || []).join(', ') || '-';
+
+      // Domains
+      const dt = document.getElementById('domainsTbody');
+      dt.innerHTML = '';
+      (data.top_domains || []).forEach((row, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="px-3 py-2 text-gray-500">${idx+1}</td>
+          <td class="px-3 py-2 font-medium">${row.domain}</td>
+          <td class="px-3 py-2">${row.count}</td>
+          <td class="px-3 py-2">${(row.share*100).toFixed(2)}%</td>
+          <td class="px-3 py-2">${(row.providers||[]).join(', ')}</td>
+          <td class="px-3 py-2">${row.category || '-'}</td>`;
+        dt.appendChild(tr);
+      });
+
+      // Pages
+      const pt = document.getElementById('pagesTbody');
+      pt.innerHTML = '';
+      (data.top_pages || []).forEach((row, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="px-3 py-2 text-gray-500">${idx+1}</td>
+          <td class="px-3 py-2"><a href="${row.url}" target="_blank" class="text-emerald-700 hover:underline">${row.url}</a></td>
+          <td class="px-3 py-2">${row.domain}</td>
+          <td class="px-3 py-2">${row.count}</td>
+          <td class="px-3 py-2">${(row.share*100).toFixed(2)}%</td>
+          <td class="px-3 py-2">${(row.providers||[]).join(', ')}</td>
+          <td class="px-3 py-2">${row.category || '-'}</td>`;
+        pt.appendChild(tr);
+      });
+
+      // Gaps
+      const gt = document.getElementById('gapsTbody');
+      gt.innerHTML = '';
+      (data.gaps?.domains || []).forEach((row, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="px-3 py-2 text-gray-500">${idx+1}</td>
+          <td class="px-3 py-2 font-medium">${row.domain}</td>
+          <td class="px-3 py-2">${(row.competitors||[]).join(', ')}</td>
+          <td class="px-3 py-2">${row.competitor_citations}</td>
+          <td class="px-3 py-2">${row.brand_citations}</td>
+          <td class="px-3 py-2">${row.delta}</td>
+          <td class="px-3 py-2">${row.category || '-'}</td>`;
+        gt.appendChild(tr);
+      });
+
+      // Raw sample
+      document.getElementById('rawSample').textContent = JSON.stringify(data.runs_sample || [], null, 2);
+
+      // Exports
+      document.getElementById('exportDomains').onclick = () => {
+        const rows = [["Rank","Domain","Count","Share","Providers","Category"]];
+        (data.top_domains || []).forEach((r,i)=>rows.push([i+1, r.domain, r.count, (r.share*100).toFixed(2)+"%", (r.providers||[]).join("; "), r.category||""]));
+        downloadCSV("earned_domains.csv", rows);
+      };
+      document.getElementById('exportPages').onclick = () => {
+        const rows = [["Rank","URL","Domain","Count","Share","Providers","Category"]];
+        (data.top_pages || []).forEach((r,i)=>rows.push([i+1, r.url, r.domain, r.count, (r.share*100).toFixed(2)+"%", (r.providers||[]).join("; "), r.category||""]));
+        downloadCSV("earned_pages.csv", rows);
+      };
+      document.getElementById('exportGaps').onclick = () => {
+        const rows = [["Rank","Domain","Competitors","Competitor Citations","Brand Citations","Delta","Category"]];
+        (data.gaps?.domains || []).forEach((r,i)=>rows.push([i+1, r.domain, (r.competitors||[]).join("; "), r.competitor_citations, r.brand_citations, r.delta, r.category||""]));
+        downloadCSV("earned_gaps.csv", rows);
+      };
+    }
+
+    function showError(msg) {
+      const box = document.getElementById('errorBox');
+      box.textContent = msg;
+      box.classList.remove('hidden');
+    }
+    function hideError() {
+      document.getElementById('errorBox').classList.add('hidden');
+    }
+
+    document.getElementById('runBtn').addEventListener('click', async () => {
+      hideError();
+      const brandUrl = document.getElementById('brandUrl').value.trim();
+      const brandName = document.getElementById('brandName').value.trim();
+      if (!brandUrl) {
+        showError('Please enter a Brand URL.');
+        return;
+      }
+      const compUrls = Array.from(document.querySelectorAll('.compUrl'))
+        .map(i => i.value.trim()).filter(Boolean).slice(0,3);
+      const providers = [];
+      if (document.getElementById('provLlm').checked) providers.push('llm_browsing');
+      if (document.getElementById('provPerplexity')?.checked) providers.push('perplexity');
+      if (document.getElementById('provOpenAI')?.checked) providers.push('openai');
+      if (document.getElementById('provGemini')?.checked) providers.push('gemini');
+
+      const payload = {
+        brand_url: brandUrl,
+        brand_name: brandName || undefined,
+        competitor_urls: compUrls,
+        query_budget: Number(document.getElementById('queryBudget').value),
+        providers
+      };
+
+      document.getElementById('loading').classList.remove('hidden');
+      try {
+        const resp = await fetch('/earned/run', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(payload)
+        });
+        const data = await resp.json();
+        if (!resp.ok || data.error) {
+          throw new Error(data.error || 'Request failed');
+        }
+        renderResults(data);
+        // Default to Domains tab
+        tabs.forEach((b,i)=>{ if(i===0){ b.click(); }});
+        document.getElementById('results').scrollIntoView({behavior:'smooth'});
+      } catch (err) {
+        console.error(err);
+        showError(err.message || 'Audit failed. Please try again.');
+      } finally {
+        document.getElementById('loading').classList.add('hidden');
+      }
+    });
+  </script>
+</body>
+</html>

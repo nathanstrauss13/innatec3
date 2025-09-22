@@ -1,0 +1,1091 @@
+{
+  "job_id": "fd0809e7-c",
+  "input": {
+    "brand": {
+      "url": "https://www.americanexpress.com",
+      "name": "Americanexpress"
+    },
+    "competitors": [
+      {
+        "url": "https://www.chase.com",
+        "name": "Chase"
+      }
+    ],
+    "query_budget": 8,
+    "providers": [
+      "perplexity",
+      "openai",
+      "gemini"
+    ]
+  },
+  "meta": {
+    "started_at": 1755704893.119818,
+    "finished_at": 1755704979.472563,
+    "duration_sec": 86.35,
+    "total_prompts": 8,
+    "total_citations": 40
+  },
+  "prompts": [
+    {
+      "id": "7e9cb87d",
+      "entity": "Americanexpress",
+      "entity_type": "brand",
+      "kind": "general",
+      "text": "best the category"
+    },
+    {
+      "id": "91389e51",
+      "entity": "Americanexpress",
+      "entity_type": "brand",
+      "kind": "general",
+      "text": "top the category for beginners"
+    },
+    {
+      "id": "2b6fc7fb",
+      "entity": "Americanexpress",
+      "entity_type": "brand",
+      "kind": "media",
+      "text": "who covers Americanexpress in the category, cite sources"
+    },
+    {
+      "id": "e525bd2c",
+      "entity": "Chase",
+      "entity_type": "competitor",
+      "kind": "general",
+      "text": "best credit cards"
+    },
+    {
+      "id": "6db5e47a",
+      "entity": "Chase",
+      "entity_type": "competitor",
+      "kind": "general",
+      "text": "best rewards"
+    },
+    {
+      "id": "0c62d69e",
+      "entity": "Chase",
+      "entity_type": "competitor",
+      "kind": "media",
+      "text": "who covers Chase in credit cards, cite sources"
+    },
+    {
+      "id": "27418d49",
+      "entity": "Americanexpress vs Chase",
+      "entity_type": "comparison",
+      "kind": "general",
+      "text": "Americanexpress vs Chase — pros and cons; cite sources"
+    },
+    {
+      "id": "a95db0d1",
+      "entity": "Americanexpress vs Chase",
+      "entity_type": "comparison",
+      "kind": "general",
+      "text": "alternatives to Americanexpress and Chase; cite sources"
+    }
+  ],
+  "providers_used": [
+    "perplexity",
+    "openai",
+    "gemini"
+  ],
+  "runs_sample": [
+    {
+      "tool": "perplexity",
+      "prompt_id": "7e9cb87d",
+      "prompt_text": "best the category",
+      "entity": "Americanexpress",
+      "citations": [
+        {
+          "url": "https://www.youtube.com/watch?v=UEHdVJJiiZw",
+          "title": null,
+          "domain": "youtube.com"
+        },
+        {
+          "url": "https://financebuzz.com/amex-green-card-vs-chase-sapphire-preferred",
+          "title": null,
+          "domain": "financebuzz.com"
+        },
+        {
+          "url": "https://upgradedpoints.com/credit-cards/amex-vs-chase-credit-cards/",
+          "title": null,
+          "domain": "upgradedpoints.com"
+        },
+        {
+          "url": "https://travelupdate.com/amex-platinum-card-v-s-chase-sapphire-reserve-card-who-is-the-clear-winner/",
+          "title": null,
+          "domain": "travelupdate.com"
+        },
+        {
+          "url": "https://www.businessinsider.com/personal-finance/credit-cards/chase-points-vs-amex-points-comparison",
+          "title": null,
+          "domain": "businessinsider.com"
+        }
+      ]
+    },
+    {
+      "tool": "perplexity",
+      "prompt_id": "91389e51",
+      "prompt_text": "top the category for beginners",
+      "entity": "Americanexpress",
+      "citations": [
+        {
+          "url": "https://www.youtube.com/watch?v=Wq4OV-2gSPY",
+          "title": null,
+          "domain": "youtube.com"
+        },
+        {
+          "url": "https://thepointsguy.com/credit-cards/chase-vs-american-express-which-credit-card-issuer-is-right-for-you/",
+          "title": null,
+          "domain": "thepointsguy.com"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=H4n9vHI6ZQw",
+          "title": null,
+          "domain": "youtube.com"
+        },
+        {
+          "url": "https://thepointsguy.com/credit-cards/amex-cash-back-vs-chase-cash-back-which-is-best/",
+          "title": null,
+          "domain": "thepointsguy.com"
+        },
+        {
+          "url": "https://www.nerdwallet.com/article/credit-cards/chase-trifecta-vs-amex-trifecta",
+          "title": null,
+          "domain": "nerdwallet.com"
+        }
+      ]
+    },
+    {
+      "tool": "perplexity",
+      "prompt_id": "2b6fc7fb",
+      "prompt_text": "who covers Americanexpress in the category, cite sources",
+      "entity": "Americanexpress",
+      "citations": [
+        {
+          "url": "https://www.americanexpress.com/en-us/benefits/membership/",
+          "title": null,
+          "domain": "americanexpress.com"
+        },
+        {
+          "url": "https://www.creditcards.com/card-advice/add-authorized-user-american-express/",
+          "title": null,
+          "domain": "creditcards.com"
+        },
+        {
+          "url": "https://www.americanexpress.com/en-us/credit-cards/credit-intel/american-express-card-levels/",
+          "title": null,
+          "domain": "americanexpress.com"
+        },
+        {
+          "url": "https://network.americanexpress.com",
+          "title": null,
+          "domain": "network.americanexpress.com"
+        },
+        {
+          "url": "https://www.americanexpress.com/en-us/credit-cards/credit-intel/cards/",
+          "title": null,
+          "domain": "americanexpress.com"
+        }
+      ]
+    },
+    {
+      "tool": "perplexity",
+      "prompt_id": "e525bd2c",
+      "prompt_text": "best credit cards",
+      "entity": "Chase",
+      "citations": [
+        {
+          "url": "https://upgradedpoints.com/credit-cards/amex-vs-chase-credit-cards/",
+          "title": null,
+          "domain": "upgradedpoints.com"
+        },
+        {
+          "url": "https://www.nerdwallet.com/article/credit-cards/chase-trifecta-vs-amex-trifecta",
+          "title": null,
+          "domain": "nerdwallet.com"
+        },
+        {
+          "url": "https://thepointsguy.com/credit-cards/chase-vs-american-express-which-credit-card-issuer-is-right-for-you/",
+          "title": null,
+          "domain": "thepointsguy.com"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=Wq4OV-2gSPY",
+          "title": null,
+          "domain": "youtube.com"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=H4n9vHI6ZQw",
+          "title": null,
+          "domain": "youtube.com"
+        }
+      ]
+    },
+    {
+      "tool": "perplexity",
+      "prompt_id": "6db5e47a",
+      "prompt_text": "best rewards",
+      "entity": "Chase",
+      "citations": [
+        {
+          "url": "https://upgradedpoints.com/credit-cards/amex-vs-chase-credit-cards/",
+          "title": null,
+          "domain": "upgradedpoints.com"
+        },
+        {
+          "url": "https://www.lendingtree.com/credit-cards/articles/amex-membership-rewards-vs-chase-ultimate-rewards/",
+          "title": null,
+          "domain": "lendingtree.com"
+        },
+        {
+          "url": "https://www.bankrate.com/credit-cards/rewards/american-express-membership-rewards-vs-chase-ultimate-rewards/",
+          "title": null,
+          "domain": "bankrate.com"
+        },
+        {
+          "url": "https://thepointsguy.com/credit-cards/amex-membership-rewards-vs-chase-ultimate-rewards/",
+          "title": null,
+          "domain": "thepointsguy.com"
+        },
+        {
+          "url": "https://www.businessinsider.com/personal-finance/credit-cards/chase-points-vs-amex-points-comparison",
+          "title": null,
+          "domain": "businessinsider.com"
+        }
+      ]
+    },
+    {
+      "tool": "perplexity",
+      "prompt_id": "0c62d69e",
+      "prompt_text": "who covers Chase in credit cards, cite sources",
+      "entity": "Chase",
+      "citations": [
+        {
+          "url": "https://www.bankrate.com/credit-cards/issuers/chase/",
+          "title": null,
+          "domain": "bankrate.com"
+        },
+        {
+          "url": "https://thepointsguy.com/credit-cards/chase/",
+          "title": null,
+          "domain": "thepointsguy.com"
+        },
+        {
+          "url": "https://www.creditkarma.com/credit-cards/chase",
+          "title": null,
+          "domain": "creditkarma.com"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=JxxrvNLxIy4",
+          "title": null,
+          "domain": "youtube.com"
+        },
+        {
+          "url": "https://www.consumeraffairs.com/credit_cards/chase_credit_cards.html",
+          "title": null,
+          "domain": "consumeraffairs.com"
+        }
+      ]
+    },
+    {
+      "tool": "perplexity",
+      "prompt_id": "27418d49",
+      "prompt_text": "Americanexpress vs Chase — pros and cons; cite sources",
+      "entity": "Americanexpress vs Chase",
+      "citations": [
+        {
+          "url": "https://www.youtube.com/watch?v=UEHdVJJiiZw",
+          "title": null,
+          "domain": "youtube.com"
+        },
+        {
+          "url": "https://upgradedpoints.com/credit-cards/amex-vs-chase-credit-cards/",
+          "title": null,
+          "domain": "upgradedpoints.com"
+        },
+        {
+          "url": "https://www.dailydrop.com/pages/chase-sapphire-preferred-vs-amex-gold",
+          "title": null,
+          "domain": "dailydrop.com"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=gWgU1UbON5U",
+          "title": null,
+          "domain": "youtube.com"
+        },
+        {
+          "url": "https://www.businessinsider.com/personal-finance/credit-cards/chase-points-vs-amex-points-comparison",
+          "title": null,
+          "domain": "businessinsider.com"
+        }
+      ]
+    },
+    {
+      "tool": "perplexity",
+      "prompt_id": "a95db0d1",
+      "prompt_text": "alternatives to Americanexpress and Chase; cite sources",
+      "entity": "Americanexpress vs Chase",
+      "citations": [
+        {
+          "url": "https://www.nerdwallet.com/article/travel/which-cards-to-consider-instead-of-the-chase-sapphire-reserve",
+          "title": null,
+          "domain": "nerdwallet.com"
+        },
+        {
+          "url": "https://upgradedpoints.com/credit-cards/amex-vs-chase-credit-cards/",
+          "title": null,
+          "domain": "upgradedpoints.com"
+        },
+        {
+          "url": "https://thepointsguy.com/credit-cards/best-premium-travel-rewards-cards/",
+          "title": null,
+          "domain": "thepointsguy.com"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=UEHdVJJiiZw",
+          "title": null,
+          "domain": "youtube.com"
+        },
+        {
+          "url": "https://thepointsguy.com/credit-cards/alternatives-to-chase-sapphire-reserve/",
+          "title": null,
+          "domain": "thepointsguy.com"
+        }
+      ]
+    }
+  ],
+  "top_domains": [
+    {
+      "domain": "youtube.com",
+      "count": 9,
+      "share": 0.225,
+      "providers": [
+        "perplexity"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "domain": "thepointsguy.com",
+      "count": 7,
+      "share": 0.175,
+      "providers": [
+        "perplexity"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "domain": "upgradedpoints.com",
+      "count": 5,
+      "share": 0.125,
+      "providers": [
+        "perplexity"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "domain": "businessinsider.com",
+      "count": 3,
+      "share": 0.075,
+      "providers": [
+        "perplexity"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "domain": "nerdwallet.com",
+      "count": 3,
+      "share": 0.075,
+      "providers": [
+        "perplexity"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "domain": "americanexpress.com",
+      "count": 3,
+      "share": 0.075,
+      "providers": [
+        "perplexity"
+      ],
+      "category": "Owned"
+    },
+    {
+      "domain": "bankrate.com",
+      "count": 2,
+      "share": 0.05,
+      "providers": [
+        "perplexity"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "domain": "financebuzz.com",
+      "count": 1,
+      "share": 0.025,
+      "providers": [
+        "perplexity"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "domain": "travelupdate.com",
+      "count": 1,
+      "share": 0.025,
+      "providers": [
+        "perplexity"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "domain": "creditcards.com",
+      "count": 1,
+      "share": 0.025,
+      "providers": [
+        "perplexity"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "domain": "network.americanexpress.com",
+      "count": 1,
+      "share": 0.025,
+      "providers": [
+        "perplexity"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "domain": "lendingtree.com",
+      "count": 1,
+      "share": 0.025,
+      "providers": [
+        "perplexity"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "domain": "creditkarma.com",
+      "count": 1,
+      "share": 0.025,
+      "providers": [
+        "perplexity"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "domain": "consumeraffairs.com",
+      "count": 1,
+      "share": 0.025,
+      "providers": [
+        "perplexity"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "domain": "dailydrop.com",
+      "count": 1,
+      "share": 0.025,
+      "providers": [
+        "perplexity"
+      ],
+      "category": "Unknown"
+    }
+  ],
+  "top_pages": [
+    {
+      "url": "https://upgradedpoints.com/credit-cards/amex-vs-chase-credit-cards/",
+      "domain": "upgradedpoints.com",
+      "count": 5,
+      "share": 0.125,
+      "providers": [
+        "perplexity"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=UEHdVJJiiZw",
+      "domain": "youtube.com",
+      "count": 3,
+      "share": 0.075,
+      "providers": [
+        "perplexity"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "url": "https://www.businessinsider.com/personal-finance/credit-cards/chase-points-vs-amex-points-comparison",
+      "domain": "businessinsider.com",
+      "count": 3,
+      "share": 0.075,
+      "providers": [
+        "perplexity"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=Wq4OV-2gSPY",
+      "domain": "youtube.com",
+      "count": 2,
+      "share": 0.05,
+      "providers": [
+        "perplexity"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "url": "https://thepointsguy.com/credit-cards/chase-vs-american-express-which-credit-card-issuer-is-right-for-you/",
+      "domain": "thepointsguy.com",
+      "count": 2,
+      "share": 0.05,
+      "providers": [
+        "perplexity"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=H4n9vHI6ZQw",
+      "domain": "youtube.com",
+      "count": 2,
+      "share": 0.05,
+      "providers": [
+        "perplexity"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "url": "https://www.nerdwallet.com/article/credit-cards/chase-trifecta-vs-amex-trifecta",
+      "domain": "nerdwallet.com",
+      "count": 2,
+      "share": 0.05,
+      "providers": [
+        "perplexity"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "url": "https://financebuzz.com/amex-green-card-vs-chase-sapphire-preferred",
+      "domain": "financebuzz.com",
+      "count": 1,
+      "share": 0.025,
+      "providers": [
+        "perplexity"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "url": "https://travelupdate.com/amex-platinum-card-v-s-chase-sapphire-reserve-card-who-is-the-clear-winner/",
+      "domain": "travelupdate.com",
+      "count": 1,
+      "share": 0.025,
+      "providers": [
+        "perplexity"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "url": "https://thepointsguy.com/credit-cards/amex-cash-back-vs-chase-cash-back-which-is-best/",
+      "domain": "thepointsguy.com",
+      "count": 1,
+      "share": 0.025,
+      "providers": [
+        "perplexity"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "url": "https://www.americanexpress.com/en-us/benefits/membership/",
+      "domain": "americanexpress.com",
+      "count": 1,
+      "share": 0.025,
+      "providers": [
+        "perplexity"
+      ],
+      "category": "Owned"
+    },
+    {
+      "url": "https://www.creditcards.com/card-advice/add-authorized-user-american-express/",
+      "domain": "creditcards.com",
+      "count": 1,
+      "share": 0.025,
+      "providers": [
+        "perplexity"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "url": "https://www.americanexpress.com/en-us/credit-cards/credit-intel/american-express-card-levels/",
+      "domain": "americanexpress.com",
+      "count": 1,
+      "share": 0.025,
+      "providers": [
+        "perplexity"
+      ],
+      "category": "Owned"
+    },
+    {
+      "url": "https://network.americanexpress.com",
+      "domain": "network.americanexpress.com",
+      "count": 1,
+      "share": 0.025,
+      "providers": [
+        "perplexity"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "url": "https://www.americanexpress.com/en-us/credit-cards/credit-intel/cards/",
+      "domain": "americanexpress.com",
+      "count": 1,
+      "share": 0.025,
+      "providers": [
+        "perplexity"
+      ],
+      "category": "Owned"
+    },
+    {
+      "url": "https://www.lendingtree.com/credit-cards/articles/amex-membership-rewards-vs-chase-ultimate-rewards/",
+      "domain": "lendingtree.com",
+      "count": 1,
+      "share": 0.025,
+      "providers": [
+        "perplexity"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "url": "https://www.bankrate.com/credit-cards/rewards/american-express-membership-rewards-vs-chase-ultimate-rewards/",
+      "domain": "bankrate.com",
+      "count": 1,
+      "share": 0.025,
+      "providers": [
+        "perplexity"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "url": "https://thepointsguy.com/credit-cards/amex-membership-rewards-vs-chase-ultimate-rewards/",
+      "domain": "thepointsguy.com",
+      "count": 1,
+      "share": 0.025,
+      "providers": [
+        "perplexity"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "url": "https://www.bankrate.com/credit-cards/issuers/chase/",
+      "domain": "bankrate.com",
+      "count": 1,
+      "share": 0.025,
+      "providers": [
+        "perplexity"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "url": "https://thepointsguy.com/credit-cards/chase/",
+      "domain": "thepointsguy.com",
+      "count": 1,
+      "share": 0.025,
+      "providers": [
+        "perplexity"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "url": "https://www.creditkarma.com/credit-cards/chase",
+      "domain": "creditkarma.com",
+      "count": 1,
+      "share": 0.025,
+      "providers": [
+        "perplexity"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=JxxrvNLxIy4",
+      "domain": "youtube.com",
+      "count": 1,
+      "share": 0.025,
+      "providers": [
+        "perplexity"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "url": "https://www.consumeraffairs.com/credit_cards/chase_credit_cards.html",
+      "domain": "consumeraffairs.com",
+      "count": 1,
+      "share": 0.025,
+      "providers": [
+        "perplexity"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "url": "https://www.dailydrop.com/pages/chase-sapphire-preferred-vs-amex-gold",
+      "domain": "dailydrop.com",
+      "count": 1,
+      "share": 0.025,
+      "providers": [
+        "perplexity"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=gWgU1UbON5U",
+      "domain": "youtube.com",
+      "count": 1,
+      "share": 0.025,
+      "providers": [
+        "perplexity"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "url": "https://www.nerdwallet.com/article/travel/which-cards-to-consider-instead-of-the-chase-sapphire-reserve",
+      "domain": "nerdwallet.com",
+      "count": 1,
+      "share": 0.025,
+      "providers": [
+        "perplexity"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "url": "https://thepointsguy.com/credit-cards/best-premium-travel-rewards-cards/",
+      "domain": "thepointsguy.com",
+      "count": 1,
+      "share": 0.025,
+      "providers": [
+        "perplexity"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "url": "https://thepointsguy.com/credit-cards/alternatives-to-chase-sapphire-reserve/",
+      "domain": "thepointsguy.com",
+      "count": 1,
+      "share": 0.025,
+      "providers": [
+        "perplexity"
+      ],
+      "category": "Unknown"
+    }
+  ],
+  "by_entity": {
+    "Americanexpress": {
+      "top_domains": [
+        {
+          "key": "youtube.com",
+          "count": 3
+        },
+        {
+          "key": "americanexpress.com",
+          "count": 3
+        },
+        {
+          "key": "thepointsguy.com",
+          "count": 2
+        },
+        {
+          "key": "financebuzz.com",
+          "count": 1
+        },
+        {
+          "key": "upgradedpoints.com",
+          "count": 1
+        },
+        {
+          "key": "travelupdate.com",
+          "count": 1
+        },
+        {
+          "key": "businessinsider.com",
+          "count": 1
+        },
+        {
+          "key": "nerdwallet.com",
+          "count": 1
+        },
+        {
+          "key": "creditcards.com",
+          "count": 1
+        },
+        {
+          "key": "network.americanexpress.com",
+          "count": 1
+        }
+      ],
+      "top_pages": [
+        {
+          "key": "https://www.youtube.com/watch?v=UEHdVJJiiZw",
+          "count": 1
+        },
+        {
+          "key": "https://financebuzz.com/amex-green-card-vs-chase-sapphire-preferred",
+          "count": 1
+        },
+        {
+          "key": "https://upgradedpoints.com/credit-cards/amex-vs-chase-credit-cards/",
+          "count": 1
+        },
+        {
+          "key": "https://travelupdate.com/amex-platinum-card-v-s-chase-sapphire-reserve-card-who-is-the-clear-winner/",
+          "count": 1
+        },
+        {
+          "key": "https://www.businessinsider.com/personal-finance/credit-cards/chase-points-vs-amex-points-comparison",
+          "count": 1
+        },
+        {
+          "key": "https://www.youtube.com/watch?v=Wq4OV-2gSPY",
+          "count": 1
+        },
+        {
+          "key": "https://thepointsguy.com/credit-cards/chase-vs-american-express-which-credit-card-issuer-is-right-for-you/",
+          "count": 1
+        },
+        {
+          "key": "https://www.youtube.com/watch?v=H4n9vHI6ZQw",
+          "count": 1
+        },
+        {
+          "key": "https://thepointsguy.com/credit-cards/amex-cash-back-vs-chase-cash-back-which-is-best/",
+          "count": 1
+        },
+        {
+          "key": "https://www.nerdwallet.com/article/credit-cards/chase-trifecta-vs-amex-trifecta",
+          "count": 1
+        },
+        {
+          "key": "https://www.americanexpress.com/en-us/benefits/membership/",
+          "count": 1
+        },
+        {
+          "key": "https://www.creditcards.com/card-advice/add-authorized-user-american-express/",
+          "count": 1
+        },
+        {
+          "key": "https://www.americanexpress.com/en-us/credit-cards/credit-intel/american-express-card-levels/",
+          "count": 1
+        },
+        {
+          "key": "https://network.americanexpress.com",
+          "count": 1
+        },
+        {
+          "key": "https://www.americanexpress.com/en-us/credit-cards/credit-intel/cards/",
+          "count": 1
+        }
+      ],
+      "total_citations": 15
+    },
+    "Chase": {
+      "top_domains": [
+        {
+          "key": "thepointsguy.com",
+          "count": 3
+        },
+        {
+          "key": "youtube.com",
+          "count": 3
+        },
+        {
+          "key": "upgradedpoints.com",
+          "count": 2
+        },
+        {
+          "key": "bankrate.com",
+          "count": 2
+        },
+        {
+          "key": "nerdwallet.com",
+          "count": 1
+        },
+        {
+          "key": "lendingtree.com",
+          "count": 1
+        },
+        {
+          "key": "businessinsider.com",
+          "count": 1
+        },
+        {
+          "key": "creditkarma.com",
+          "count": 1
+        },
+        {
+          "key": "consumeraffairs.com",
+          "count": 1
+        }
+      ],
+      "top_pages": [
+        {
+          "key": "https://upgradedpoints.com/credit-cards/amex-vs-chase-credit-cards/",
+          "count": 2
+        },
+        {
+          "key": "https://www.nerdwallet.com/article/credit-cards/chase-trifecta-vs-amex-trifecta",
+          "count": 1
+        },
+        {
+          "key": "https://thepointsguy.com/credit-cards/chase-vs-american-express-which-credit-card-issuer-is-right-for-you/",
+          "count": 1
+        },
+        {
+          "key": "https://www.youtube.com/watch?v=Wq4OV-2gSPY",
+          "count": 1
+        },
+        {
+          "key": "https://www.youtube.com/watch?v=H4n9vHI6ZQw",
+          "count": 1
+        },
+        {
+          "key": "https://www.lendingtree.com/credit-cards/articles/amex-membership-rewards-vs-chase-ultimate-rewards/",
+          "count": 1
+        },
+        {
+          "key": "https://www.bankrate.com/credit-cards/rewards/american-express-membership-rewards-vs-chase-ultimate-rewards/",
+          "count": 1
+        },
+        {
+          "key": "https://thepointsguy.com/credit-cards/amex-membership-rewards-vs-chase-ultimate-rewards/",
+          "count": 1
+        },
+        {
+          "key": "https://www.businessinsider.com/personal-finance/credit-cards/chase-points-vs-amex-points-comparison",
+          "count": 1
+        },
+        {
+          "key": "https://www.bankrate.com/credit-cards/issuers/chase/",
+          "count": 1
+        },
+        {
+          "key": "https://thepointsguy.com/credit-cards/chase/",
+          "count": 1
+        },
+        {
+          "key": "https://www.creditkarma.com/credit-cards/chase",
+          "count": 1
+        },
+        {
+          "key": "https://www.youtube.com/watch?v=JxxrvNLxIy4",
+          "count": 1
+        },
+        {
+          "key": "https://www.consumeraffairs.com/credit_cards/chase_credit_cards.html",
+          "count": 1
+        }
+      ],
+      "total_citations": 15
+    },
+    "Americanexpress vs Chase": {
+      "top_domains": [
+        {
+          "key": "youtube.com",
+          "count": 3
+        },
+        {
+          "key": "upgradedpoints.com",
+          "count": 2
+        },
+        {
+          "key": "thepointsguy.com",
+          "count": 2
+        },
+        {
+          "key": "dailydrop.com",
+          "count": 1
+        },
+        {
+          "key": "businessinsider.com",
+          "count": 1
+        },
+        {
+          "key": "nerdwallet.com",
+          "count": 1
+        }
+      ],
+      "top_pages": [
+        {
+          "key": "https://www.youtube.com/watch?v=UEHdVJJiiZw",
+          "count": 2
+        },
+        {
+          "key": "https://upgradedpoints.com/credit-cards/amex-vs-chase-credit-cards/",
+          "count": 2
+        },
+        {
+          "key": "https://www.dailydrop.com/pages/chase-sapphire-preferred-vs-amex-gold",
+          "count": 1
+        },
+        {
+          "key": "https://www.youtube.com/watch?v=gWgU1UbON5U",
+          "count": 1
+        },
+        {
+          "key": "https://www.businessinsider.com/personal-finance/credit-cards/chase-points-vs-amex-points-comparison",
+          "count": 1
+        },
+        {
+          "key": "https://www.nerdwallet.com/article/travel/which-cards-to-consider-instead-of-the-chase-sapphire-reserve",
+          "count": 1
+        },
+        {
+          "key": "https://thepointsguy.com/credit-cards/best-premium-travel-rewards-cards/",
+          "count": 1
+        },
+        {
+          "key": "https://thepointsguy.com/credit-cards/alternatives-to-chase-sapphire-reserve/",
+          "count": 1
+        }
+      ],
+      "total_citations": 10
+    }
+  },
+  "gaps": {
+    "domains": [
+      {
+        "domain": "bankrate.com",
+        "competitors": [
+          "Chase"
+        ],
+        "competitor_citations": 2,
+        "brand_citations": 0,
+        "delta": 2,
+        "category": "Unknown"
+      },
+      {
+        "domain": "lendingtree.com",
+        "competitors": [
+          "Chase"
+        ],
+        "competitor_citations": 1,
+        "brand_citations": 0,
+        "delta": 1,
+        "category": "Unknown"
+      },
+      {
+        "domain": "creditkarma.com",
+        "competitors": [
+          "Chase"
+        ],
+        "competitor_citations": 1,
+        "brand_citations": 0,
+        "delta": 1,
+        "category": "Unknown"
+      },
+      {
+        "domain": "consumeraffairs.com",
+        "competitors": [
+          "Chase"
+        ],
+        "competitor_citations": 1,
+        "brand_citations": 0,
+        "delta": 1,
+        "category": "Unknown"
+      }
+    ]
+  }
+}

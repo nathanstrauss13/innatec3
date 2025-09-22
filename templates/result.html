@@ -4,6 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>innate c3 | media analysis</title>
+    {% if share_url %}
+    {% set _og_title = (query1 ~ (query2 and (' vs ' ~ query2) or '') ~ ' | Media Analysis') %}
+    {% set _og_desc = (query1 ~ (query2 and (' vs ' ~ query2) or '') ~ ' • ' ~ (analysis1.total_articles if analysis1 and analysis1.total_articles is not none else 0) ~ ' articles' ~ (query2 and (', ' ~ (analysis2.total_articles if analysis2 and analysis2.total_articles is not none else 0) ~ ' for ' ~ query2) or '') ~ ' • Sentiment ' ~ ('%.2f' % (analysis1.avg_sentiment if analysis1 and analysis1.avg_sentiment is not none else 0.0))) %}
+    <meta property="og:title" content="{{ _og_title }}">
+    <meta property="og:description" content="{{ _og_desc }}">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="innate c3">
+    <meta property="og:url" content="{{ share_url }}">
+    <meta property="og:image" content="{{ slug and (share_url|replace('/results/' ~ slug, '/og/' ~ slug ~ '.png')) or 'https://placehold.co/1200x630/005e30/ffffff?text=innate+c3+media+analysis' }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ _og_title }}">
+    <meta name="twitter:description" content="{{ _og_desc }}">
+    <meta name="twitter:image" content="{{ slug and (share_url|replace('/results/' ~ slug, '/og/' ~ slug ~ '.png')) or 'https://placehold.co/1200x630/005e30/ffffff?text=innate+c3+media+analysis' }}">
+    <link rel="canonical" href="{{ share_url }}">
+    {% endif %}
+    {% if ga_measurement_id %}
+    <!-- Google Analytics Tag -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ ga_measurement_id }}"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '{{ ga_measurement_id }}');
+    </script>
+    {% endif %}
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
@@ -37,6 +62,8 @@
             background-color: #004020;
         }
         .card {
+            display: block;
+            width: 100%;
             background-color: white;
             border-radius: 0.5rem;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -54,16 +81,55 @@
         .back-link:hover {
             color: #004020;
         }
+        /* Force vertical stacking and prevent horizontal overflow */
+        #resultsRoot {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 2rem;
+            overflow-x: hidden;
+        }
+        #resultsRoot > * {
+            width: 100%;
+        }
+        .card {
+            display: block;
+            width: 100%;
+            clear: both; /* ensure each card starts on a new row */
+        }
+        html, body {
+            overflow-x: hidden;
+        }
+        /* Prevent grids/plots from forcing horizontal growth */
+        .grid, .prose {
+            min-width: 0;
+        }
+        canvas, #sentimentScatter {
+            max-width: 100%;
+        }
+        /* Enforce single-column flow and responsive plots */
+        #resultsRoot .grid { grid-auto-flow: row; }
+        #resultsRoot .grid > * { min-width: 0; }
+        #resultsRoot .card { float: none; display: block; width: 100%; max-width: 100%; }
+        #resultsRoot .flex { flex-wrap: wrap; }
+        .js-plotly-plot, .plot-container, #sentimentScatter { width: 100% !important; max-width: 100% !important; }
+        .js-plotly-plot .main-svg { max-width: 100% !important; }
+        img, svg { max-width: 100%; height: auto; }
     </style>
 </head>
 <body class="min-h-screen p-4 md:p-8">
-    <div class="max-w-6xl mx-auto">
+    <div id="resultsRoot" class="max-w-6xl mx-auto flex flex-col space-y-8">
         <div class="divider"></div>
         <div class="flex justify-between items-center">
             <h1 class="text-3xl font-bold mb-4 mt-4">innate c3 | media analysis</h1>
-            <a href="https://www.innatec3.com/#contact" class="btn-primary font-bold py-2 px-4 rounded">
-                Bespoke Analysis
-            </a>
+            <div class="flex gap-2">
+                <a href="/examples" class="btn-primary font-bold py-2 px-4 rounded" title="View recent shared analyses">
+                    Examples
+                </a>
+                <a href="https://www.innatec3.com/#contact" class="btn-primary font-bold py-2 px-4 rounded">
+                    Bespoke Analysis
+                </a>
+            </div>
         </div>
         <div class="divider"></div>
         
@@ -155,6 +221,13 @@
                                 <p>Paste contents into Claude and try a prompt such as, "analyze this press coverage and visualize its data"</p>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- Downloads and Email -->
+                    <div class="flex gap-2">
+                        <button id="downloadCsvBtn" class="btn-primary font-bold py-2 px-4 rounded shadow-md transition-colors">Download CSV</button>
+                        <button id="downloadPdfBtn" class="btn-primary font-bold py-2 px-4 rounded shadow-md transition-colors">Download PDF</button>
+                        <button id="emailMeBtn" class="btn-primary font-bold py-2 px-4 rounded shadow-md transition-colors">Email me this analysis</button>
                     </div>
                 </div>
             </div>
@@ -305,7 +378,7 @@
             </div>
             
             <!-- Visualizations -->
-            <div class="grid grid-cols-1 {% if query2 %}md:grid-cols-2{% endif %} gap-8 mb-8">
+            <div class="grid grid-cols-1 gap-8 mb-8">
                 <!-- Top Sources -->
                 <div class="card p-6">
                     <h3 class="text-lg font-semibold mb-4">Top News Sources</h3>
@@ -339,7 +412,7 @@
             <!-- Sentiment by Outlet (Updated) -->
             <div class="card p-6 mb-8">
                 <h3 class="text-lg font-semibold mb-4">Sentiment by News Outlet</h3>
-                <div class="grid {% if query2 %}grid-cols-1 md:grid-cols-2{% else %}grid-cols-1{% endif %} gap-8">
+                <div class="grid grid-cols-1 gap-8">
                     <!-- First Query Sentiment by Outlet -->
                     <div>
                         <h4 class="text-md font-medium mb-2" style="color: var(--primary-color);">{{ query1 }}</h4>
@@ -484,7 +557,7 @@
             <!-- Top Topics -->
             <div class="card p-6 mb-8">
                 <h3 class="text-lg font-semibold mb-4">Most Mentioned Topics</h3>
-                <div class="grid {% if query2 %}grid-cols-1 md:grid-cols-2{% else %}grid-cols-1{% endif %} gap-8">
+                <div class="grid grid-cols-1 gap-8">
                     <!-- First Query Topics -->
                     <div>
                         <h4 class="text-md font-medium mb-2" style="color: var(--primary-color);">{{ query1 }}</h4>
@@ -518,7 +591,7 @@
 
             {% if articles1|length > 0 %}
             <!-- Source Articles -->
-            <div class="grid {% if query2 %}grid-cols-1 md:grid-cols-2{% else %}grid-cols-1{% endif %} gap-8">
+            <div class="grid grid-cols-1 gap-8">
                 <!-- First Query Articles -->
                 <div>
                     <h2 class="text-xl font-semibold mb-4" style="color: var(--primary-color);">{{ query1 }} Articles</h2>
@@ -568,7 +641,20 @@
             </div>
             {% endif %}
         </div>
-    </div>
+
+        <!-- Email Modal -->
+        <div id="emailModal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-50">
+            <div class="bg-white rounded-lg p-6 w-96">
+                <h3 class="text-lg font-semibold mb-2" style="color: var(--primary-color);">Email this analysis</h3>
+                <p class="text-sm text-gray-600 mb-3">Enter your email to receive a summary and the share link.</p>
+                <input type="email" id="emailInput" class="w-full border rounded px-3 py-2 mb-3" placeholder="you@company.com" />
+                <div class="flex justify-end gap-2">
+                    <button id="emailCancelBtn" class="px-4 py-2 border rounded">Cancel</button>
+                    <button id="emailSubmitBtn" class="btn-primary px-4 py-2 rounded">Send</button>
+                </div>
+                <div id="emailMsg" class="text-sm mt-2"></div>
+            </div>
+        </div>
 
     <!-- Pass data from template to JavaScript -->
     <script>
@@ -592,13 +678,215 @@
                 });
             }, 1000);
         });
-        window.articles1 = {{ articles1 | tojson | safe }};
-        window.articles2 = {{ articles2 | tojson if articles2 else 'null' | safe }};
-        window.analysis1 = {{ analysis1 | tojson | safe }};
-        window.analysis2 = {{ analysis2 | tojson if analysis2 else 'null' | safe }};
-        window.query1 = "{{ query1 }}";
-        window.query2 = "{{ query2 if query2 else '' }}";
+        (function() {
+            // Expose data as safe JSON
+            window.articles1 = {{ articles1 | tojson | safe }};
+            window.articles2 = {{ articles2 | default(None) | tojson | safe }};
+            window.analysis1 = {{ analysis1 | tojson | safe }};
+            window.analysis2 = {{ analysis2 | default(None) | tojson | safe }};
+            window.query1 = {{ query1 | tojson }};
+            window.query2 = {{ (query2 if query2 else '') | tojson }};
+            window.shareUrl = {{ (share_url if share_url else '') | tojson }};
+            window.slug = {{ (slug if slug else '') | tojson }};
+
+            // Analytics events
+            document.addEventListener('DOMContentLoaded', function() {
+                try {
+                    if (typeof gtag === 'function') {
+                        gtag('event', 'view_result', {
+                            app: 'media_analyzer',
+                            query1: window.query1 || '',
+                            query2: window.query2 || '',
+                            total_articles_1: window.analysis1 ? window.analysis1.total_articles : 0,
+                            total_articles_2: window.analysis2 ? window.analysis2.total_articles : 0
+                        });
+                        var shareBtn = document.getElementById('shareBtn');
+                        if (shareBtn) shareBtn.addEventListener('click', function() {
+                            try {
+                                if (typeof gtag === 'function') {
+                                    gtag('event', 'share_clicked', {
+                                        app: 'media_analyzer',
+                                        query1: window.query1 || '',
+                                        query2: window.query2 || ''
+                                    });
+                                }
+                            } catch (e) { /* no-op */ }
+                            var url = window.shareUrl || window.location.href;
+                            if (navigator.share) {
+                                navigator.share({
+                                    title: 'Media Analysis',
+                                    text: 'View this media analysis',
+                                    url: url
+                                }).catch(function(){ 
+                                    try {
+                                        var original = shareBtn.innerHTML;
+                                        var tempInput = document.createElement('input');
+                                        tempInput.value = url;
+                                        document.body.appendChild(tempInput);
+                                        tempInput.select();
+                                        document.execCommand('copy');
+                                        document.body.removeChild(tempInput);
+                                        shareBtn.innerHTML = 'Link Copied!';
+                                        setTimeout(function(){ shareBtn.innerHTML = original; }, 1800);
+                                    } catch (e) {}
+                                });
+                            } else {
+                                try {
+                                    var original = shareBtn.innerHTML;
+                                    var tempInput = document.createElement('input');
+                                    tempInput.value = url;
+                                    document.body.appendChild(tempInput);
+                                    tempInput.select();
+                                    document.execCommand('copy');
+                                    document.body.removeChild(tempInput);
+                                    shareBtn.innerHTML = 'Link Copied!';
+                                    setTimeout(function(){ shareBtn.innerHTML = original; }, 1800);
+                                } catch (e) {}
+                            }
+                        });
+                        var copyBtn = document.getElementById('copyToClaudeBtn');
+                        if (copyBtn) copyBtn.addEventListener('click', function() {
+                            gtag('event', 'copy_to_claude_clicked', {
+                                app: 'media_analyzer',
+                                query1: window.query1 || '',
+                                query2: window.query2 || ''
+                            });
+                        });
+                    }
+                } catch (e) {
+                    // no-op
+                }
+            });
+        })();
+
+        // Lead gen and export utilities
+        function toCSVRow(values) {
+            return values.map(v => {
+                if (v === null || v === undefined) return '';
+                const s = String(v).replace(/"/g, '""');
+                return `"${s}"`;
+            }).join(',');
+        }
+
+        function downloadCSV() {
+            const rows = [];
+            rows.push(toCSVRow(['Query','Title','Source','Published','Sentiment','URL','API Source']));
+            const add = (arr, label) => {
+                (arr || []).forEach(a => {
+                    rows.push(toCSVRow([
+                        label || window.query1,
+                        a.title,
+                        a.source && a.source.name,
+                        (a.publishedAt || '').split('T')[0],
+                        typeof a.sentiment === 'number' ? a.sentiment.toFixed(2) : '',
+                        a.url,
+                        a.api_source || ''
+                    ]));
+                });
+            };
+            add(window.articles1, window.query1);
+            if (window.articles2 && window.articles2.length) add(window.articles2, window.query2);
+            const blob = new Blob([rows.join('\n')], {type: 'text/csv;charset=utf-8;'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = (window.query1 || 'analysis') + (window.query2 ? `_vs_${window.query2}` : '') + '.csv';
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            try { if (typeof gtag==='function') gtag('event','download_csv',{app:'media_analyzer'}); } catch(e){}
+            try {
+                fetch('/api/lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:'',slug:window.slug || '',action:'download_csv'})});
+            } catch(e){}
+        }
+
+        async function downloadPDF() {
+            try {
+                const { jsPDF } = window.jspdf || {};
+                const root = document.getElementById('resultsRoot');
+                const canvas = await html2canvas(root, {scale: 2, useCORS: true, windowWidth: root.scrollWidth});
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF('p','pt','a4');
+                const pageWidth = 595.28;
+                const ratio = canvas.width / canvas.height;
+                const imgWidth = pageWidth - 40;
+                const imgHeight = imgWidth / ratio;
+                let y = 20;
+                if (imgHeight > 842) {
+                    const pageHeight = 842;
+                    let remaining = imgHeight;
+                    let srcY = 0;
+                    const sliceHeight = canvas.height * ((pageHeight - 40) / imgHeight);
+                    while (remaining > 0) {
+                        const sliceCanvas = document.createElement('canvas');
+                        sliceCanvas.width = canvas.width;
+                        sliceCanvas.height = Math.min(sliceHeight, canvas.height - srcY);
+                        const ctx = sliceCanvas.getContext('2d');
+                        ctx.drawImage(canvas, 0, srcY, canvas.width, sliceCanvas.height, 0, 0, sliceCanvas.width, sliceCanvas.height);
+                        const sliceData = sliceCanvas.toDataURL('image/png');
+                        if (y !== 20) pdf.addPage();
+                        pdf.addImage(sliceData, 'PNG', 20, 20, imgWidth, (pageHeight - 40));
+                        srcY += sliceHeight;
+                        remaining -= (pageHeight - 40);
+                        y += pageHeight;
+                    }
+                } else {
+                    pdf.addImage(imgData, 'PNG', 20, y, imgWidth, imgHeight);
+                }
+                const name = (window.query1 || 'analysis') + (window.query2 ? `_vs_${window.query2}` : '') + '.pdf';
+                pdf.save(name);
+                try { if (typeof gtag==='function') gtag('event','download_pdf',{app:'media_analyzer'}); } catch(e){}
+                try { fetch('/api/lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:'',slug:window.slug || '',action:'download_pdf'})}); } catch(e){}
+            } catch (e) {
+                console.error('PDF export failed', e);
+                alert('PDF export failed. Please try again.');
+            }
+        }
+
+        function openEmailModal() {
+            const m = document.getElementById('emailModal');
+            if (m) { m.classList.remove('hidden'); m.classList.add('flex'); }
+        }
+        function closeEmailModal() {
+            const m = document.getElementById('emailModal');
+            if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
+        }
+        function submitEmail() {
+            const input = document.getElementById('emailInput');
+            const msg = document.getElementById('emailMsg');
+            const email = (input.value || '').trim();
+            if (!email) { msg.textContent = 'Please enter your email.'; msg.className='text-red-600 text-sm mt-2'; return; }
+            msg.textContent = 'Sending...'; msg.className='text-gray-600 text-sm mt-2';
+            fetch('/api/email_summary', {
+                method:'POST',
+                headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({ email: email, slug: window.slug || '' })
+            }).then(r=>r.json()).then(data=>{
+                if (data.ok) {
+                    msg.textContent = data.sent ? 'Sent! Check your inbox.' : 'Saved. We will follow up shortly.';
+                    msg.className='text-green-700 text-sm mt-2';
+                    try { if (typeof gtag==='function') gtag('event','email_summary_submit',{app:'media_analyzer'}); } catch(e){}
+                    setTimeout(closeEmailModal, 1500);
+                } else {
+                    msg.textContent = 'Failed to send. Please try again.'; msg.className='text-red-600 text-sm mt-2';
+                }
+            }).catch(()=>{
+                msg.textContent = 'Failed to send. Please try again.'; msg.className='text-red-600 text-sm mt-2';
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var csvBtn = document.getElementById('downloadCsvBtn');
+            if (csvBtn) csvBtn.addEventListener('click', downloadCSV);
+            var pdfBtn = document.getElementById('downloadPdfBtn');
+            if (pdfBtn) pdfBtn.addEventListener('click', downloadPDF);
+            var emailBtn = document.getElementById('emailMeBtn');
+            if (emailBtn) emailBtn.addEventListener('click', openEmailModal);
+            var emailCancelBtn = document.getElementById('emailCancelBtn');
+            if (emailCancelBtn) emailCancelBtn.addEventListener('click', closeEmailModal);
+            var emailSubmitBtn = document.getElementById('emailSubmitBtn');
+            if (emailSubmitBtn) emailSubmitBtn.addEventListener('click', submitEmail);
+        });
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
     <script src="{{ url_for('static', filename='js/result-charts.js') }}"></script>
 </body>
 </html>

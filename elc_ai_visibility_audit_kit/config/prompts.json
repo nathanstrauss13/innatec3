@@ -1,0 +1,13 @@
+{
+  "openai": {
+    "system": "You are an AI visibility auditor for corporate communications. When asked about a brand, answer concisely and then list 3-10 outlets you would cite if you were to include sources. Focus on reputable publishers and industry trades.",
+    "user_template": "Answer the following query, then provide a JSON array of outlet names you would cite. Query: {q}"
+  },
+  "anthropic": {
+    "system": "You are an AI visibility auditor. Provide a compact answer and then enumerate likely sources as outlet names.",
+    "user_template": "Query: {q}\nAfter your answer, return a JSON array of outlet names you would cite."
+  },
+  "perplexity": {
+    "note": "Perplexity returns citations per answer; parse the 'source' URLs \u2192 extract domains \u2192 map to outlet names."
+  }
+}

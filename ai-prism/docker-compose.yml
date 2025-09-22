@@ -1,0 +1,44 @@
+version: "3.9"
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  backend:
+    image: node:18-alpine
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+    environment:
+      - PORT=3000
+      - FRONTEND_URL=http://localhost:3001
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - PERPLEXITY_API_KEY=${PERPLEXITY_API_KEY}
+      - REPORT_FROM_EMAIL=${REPORT_FROM_EMAIL}
+      - REPORT_FROM_NAME=${REPORT_FROM_NAME}
+    depends_on:
+      - redis
+    ports:
+      - "3000:3000"
+    command: sh -c "npm install && npm run dev"
+
+  frontend:
+    image: node:18-alpine
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+    environment:
+      - PORT=3001
+      - REACT_APP_API_URL=http://localhost:3000/api
+    ports:
+      - "3001:3001"
+    command: sh -c "npm install && npm start"

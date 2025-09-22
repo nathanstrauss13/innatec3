@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RepEnhance iOS App Demo</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #111827;
+            color: white;
+            min-height: 100vh;
+        }
+        .container { max-width: 400px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; margin-bottom: 40px; }
+        .logo { font-size: 28px; font-weight: bold; margin-bottom: 10px; }
+        .subtitle { font-size: 18px; color: #9ca3af; margin-bottom: 8px; }
+        .description { font-size: 14px; color: #6b7280; line-height: 1.5; }
+        
+        .card { 
+            background: #1f2937; 
+            border: 1px solid #374151; 
+            border-radius: 16px; 
+            padding: 32px; 
+            margin-bottom: 24px;
+        }
+        
+        .form-group { margin-bottom: 24px; }
+        .label { 
+            display: flex; 
+            align-items: center; 
+            font-size: 14px; 
+            font-weight: 500; 
+            color: #e5e7eb; 
+            margin-bottom: 8px; 
+        }
+        .icon { margin-right: 8px; }
+        
+        .input { 
+            width: 100%; 
+            padding: 12px 16px; 
+            background: #374151; 
+            border: 1px solid #4b5563; 
+            border-radius: 8px; 
+            color: white; 
+            font-size: 16px;
+            transition: border-color 0.2s;
+        }
+        .input:focus { 
+            outline: none; 
+            border-color: #3b82f6; 
+            border-width: 2px;
+        }
+        
+        .button { 
+            width: 100%; 
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6); 
+            color: white; 
+            border: none; 
+            padding: 16px; 
+            border-radius: 8px; 
+            font-size: 16px; 
+            font-weight: 600; 
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: opacity 0.2s;
+        }
+        .button:hover { opacity: 0.9; }
+        .button:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .features { 
+            display: flex; 
+            justify-content: space-around; 
+            padding-top: 24px; 
+            border-top: 1px solid #374151; 
+            margin-top: 24px;
+        }
+        .feature { text-align: center; font-size: 12px; color: #9ca3af; }
+        
+        .loading { text-align: center; padding: 40px 0; }
+        .spinner { 
+            width: 40px; 
+            height: 40px; 
+            border: 4px solid #374151; 
+            border-top: 4px solid #3b82f6; 
+            border-radius: 50%; 
+            animation: spin 1s linear infinite; 
+            margin: 0 auto 20px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .progress { margin: 20px 0; }
+        .progress-item { 
+            background: #1f2937; 
+            border: 1px solid #374151; 
+            border-radius: 8px; 
+            padding: 12px; 
+            margin-bottom: 8px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+        }
+        .progress-item.completed { border-color: #10b981; }
+        .progress-text { font-size: 14px; color: #d1d5db; }
+        
+        .results { padding: 20px 0; }
+        .scores { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 16px; 
+            margin-bottom: 24px;
+        }
+        .score-card { 
+            background: #1f2937; 
+            border: 1px solid #374151; 
+            border-radius: 12px; 
+            padding: 16px; 
+            text-align: center;
+        }
+        .score-value { 
+            font-size: 32px; 
+            font-weight: bold; 
+            margin-bottom: 4px;
+        }
+        .score-label { 
+            font-size: 12px; 
+            color: #9ca3af; 
+            text-transform: uppercase; 
+            letter-spacing: 1px;
+        }
+        .score-high { color: #10b981; }
+        .score-medium { color: #f59e0b; }
+        .score-low { color: #ef4444; }
+        
+        .recommendations { margin-top: 24px; }
+        .rec-item { 
+            background: #1f2937; 
+            border: 1px solid #374151; 
+            border-radius: 12px; 
+            padding: 16px; 
+            margin-bottom: 12px;
+        }
+        .rec-title { font-weight: 600; margin-bottom: 8px; }
+        .rec-desc { font-size: 14px; color: #9ca3af; margin-bottom: 12px; }
+        .rec-badges { display: flex; gap: 8px; margin-bottom: 12px; }
+        .badge { 
+            padding: 4px 8px; 
+            border-radius: 12px; 
+            font-size: 12px; 
+            font-weight: 500;
+        }
+        .badge-high { background: #065f46; color: #10b981; border: 1px solid #10b981; }
+        .badge-medium { background: #92400e; color: #f59e0b; border: 1px solid #f59e0b; }
+        .badge-low { background: #7f1d1d; color: #ef4444; border: 1px solid #ef4444; }
+        
+        .guide-btn { 
+            background: none; 
+            border: none; 
+            color: #3b82f6; 
+            font-size: 14px; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            gap: 4px;
+        }
+        .guide-content { 
+            margin-top: 16px; 
+            padding-top: 16px; 
+            border-top: 1px solid #374151; 
+            display: none;
+        }
+        .guide-content.show { display: block; }
+        .guide-steps { list-style: none; }
+        .guide-steps li { 
+            margin-bottom: 8px; 
+            font-size: 14px; 
+            color: #d1d5db; 
+            display: flex; 
+            align-items: flex-start;
+        }
+        .guide-steps li::before { 
+            content: counter(step-counter) "."; 
+            counter-increment: step-counter; 
+            color: #3b82f6; 
+            margin-right: 8px; 
+            font-weight: 600;
+        }
+        .guide-steps { counter-reset: step-counter; }
+        
+        .hidden { display: none; }
+        .alert { 
+            background: #92400e; 
+            border: 1px solid #f59e0b; 
+            border-radius: 8px; 
+            padding: 16px; 
+            margin: 16px 0; 
+            display: flex; 
+            align-items: flex-start; 
+            gap: 12px;
+        }
+        .alert-content h3 { color: #fbbf24; margin-bottom: 4px; }
+        .alert-content p { color: #fef3c7; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Input Screen -->
+        <div id="inputScreen">
+            <div class="header">
+                <div class="logo">✨ RepEnhance</div>
+                <div class="subtitle">Boost your AI reputation</div>
+                <div class="description">
+                    See what ChatGPT, Claude, and Gemini find when people search for you. 
+                    Get actionable insights to enhance your digital presence.
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="header">
+                    <div style="width: 64px; height: 64px; background: #1e3a8a; border: 1px solid #3b82f6; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                        🔍
+                    </div>
+                    <h2 style="font-size: 24px; font-weight: bold; margin-bottom: 8px;">Discover your AI footprint</h2>
+                    <p class="description">We'll check what AI assistants find about you across the web</p>
+                </div>
+
+                <form id="analysisForm">
+                    <div class="form-group">
+                        <label class="label">
+                            <span class="icon">👤</span>
+                            Full Name
+                        </label>
+                        <input type="text" class="input" id="name" placeholder="e.g. Sarah Johnson" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="label">
+                            <span class="icon">📍</span>
+                            Location
+                        </label>
+                        <input type="text" class="input" id="location" placeholder="e.g. New York, NY" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="label">
+                            <span class="icon">🎓</span>
+                            Recent Affiliation
+                        </label>
+                        <input type="text" class="input" id="affiliation" placeholder="e.g. Stanford University, Google, etc.">
+                    </div>
+
+                    <button type="submit" class="button" id="submitBtn">
+                        🔍 Enhance My AI Reputation
+                    </button>
+                </form>
+
+                <div class="features">
+                    <div class="feature">
+                        🛡️<br>Private & Secure
+                    </div>
+                    <div class="feature">
+                        ⚡<br>Instant Results
+                    </div>
+                    <div class="feature">
+                        🤖<br>AI-Powered
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Screen -->
+        <div id="loadingScreen" class="hidden">
+            <div class="loading">
+                <div class="spinner"></div>
+                <h2 style="font-size: 24px; font-weight: bold; margin-bottom: 8px;">Analyzing your AI presence...</h2>
+                <p class="description">Checking ChatGPT, Claude, Gemini, and search engines</p>
+                
+                <div class="progress">
+                    <div class="progress-item" id="step1">
+                        <span class="progress-text">Generating search queries...</span>
+                        <span id="step1-status">⏳</span>
+                    </div>
+                    <div class="progress-item" id="step2">
+                        <span class="progress-text">Analyzing AI responses...</span>
+                        <span id="step2-status">⏳</span>
+                    </div>
+                    <div class="progress-item" id="step3">
+                        <span class="progress-text">Generating recommendations...</span>
+                        <span id="step3-status">⏳</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="resultsScreen" class="hidden">
+            <div class="results">
+                <div class="header">
+                    <h2 style="font-size: 24px; font-weight: bold; margin-bottom: 8px;">AI Reputation Report</h2>
+                    <p class="description" id="reportFor">for John Doe in San Francisco, CA</p>
+                    <button onclick="showScreen('inputScreen')" style="background: none; border: none; color: #3b82f6; font-size: 16px; cursor: pointer; margin-top: 8px;">← New Scan</button>
+                </div>
+
+                <div class="card">
+                    <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 24px;">Your AI Reputation Score</h3>
+                    <div class="scores">
+                        <div class="score-card">
+                            <div class="score-value score-high" id="overallScore">87</div>
+                            <div class="score-label">Overall</div>
+                        </div>
+                        <div class="score-card">
+                            <div class="score-value score-high" id="professionalScore">92</div>
+                            <div class="score-label">Professional</div>
+                        </div>
+                        <div class="score-card">
+                            <div class="score-value score-medium" id="visibilityScore">73</div>
+                            <div class="score-label">Visibility</div>
+                        </div>
+                        <div class="score-card">
+                            <div class="score-value score-high" id="accuracyScore">81</div>
+                            <div class="score-label">Accuracy</div>
+                        </div>
+                    </div>
+
+                    <div class="alert">
+                        <span style="font-size: 20px;">⚠️</span>
+                        <div class="alert-content">
+                            <h3>Enhancement Opportunity</h3>
+                            <p>Your visibility score shows room for growth. AI assistants are finding limited recent information about you.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="recommendations">
+                    <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 16px;">Personalized Enhancement Plan</h3>
+                    
+                    <div class="rec-item">
+                        <div class="rec-title">Optimize LinkedIn Profile</div>
+                        <div class="rec-desc">Update your headline, summary, and recent experiences to improve AI discoverability</div>
+                        <div class="rec-badges">
+                            <span class="badge badge-high">high impact</span>
+                            <span class="badge badge-high">low effort</span>
+                        </div>
+                        <button class="guide-btn" onclick="toggleGuide('guide1')">
+                            Get guide →
+                        </button>
+                        <div class="guide-content" id="guide1">
+                            <h4 style="margin-bottom: 8px;">Step-by-step guide:</h4>
+                            <ol class="guide-steps">
+                                <li>Update your headline to include your target role and key skills</li>
+                                <li>Write a compelling summary with relevant keywords</li>
+                                <li>Add recent projects and achievements</li>
+                                <li>Get recommendations from colleagues or professors</li>
+                                <li>Post regularly about your industry</li>
+                            </ol>
+                            <p style="font-size: 12px; color: #9ca3af; margin-top: 12px;">
+                                <strong>Time needed:</strong> 2-3 hours<br>
+                                <strong>Why it matters:</strong> LinkedIn is the first place AI looks for professional info
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="rec-item">
+                        <div class="rec-title">Create Professional Website</div>
+                        <div class="rec-desc">Build a simple portfolio site with your name in the domain for better search results</div>
+                        <div class="rec-badges">
+                            <span class="badge badge-high">high impact</span>
+                            <span class="badge badge-medium">medium effort</span>
+                        </div>
+                        <button class="guide-btn" onclick="toggleGuide('guide2')">
+                            Get guide →
+                        </button>
+                        <div class="guide-content" id="guide2">
+                            <h4 style="margin-bottom: 8px;">Step-by-step guide:</h4>
+                            <ol class="guide-steps">
+                                <li>Register a domain with your name (yourname.com)</li>
+                                <li>Choose a professional template (Squarespace, Wix, or custom)</li>
+                                <li>Add your bio, portfolio, and contact information</li>
+                                <li>Optimize for search engines with relevant keywords</li>
+                                <li>Set up Google Analytics and Search Console</li>
+                            </ol>
+                            <p style="font-size: 12px; color: #9ca3af; margin-top: 12px;">
+                                <strong>Time needed:</strong> 1-2 days<br>
+                                <strong>Why it matters:</strong> Creates authoritative source about you
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="rec-item">
+                        <div class="rec-title">Update University Profile</div>
+                        <div class="rec-desc">Contact your alumni office to update your directory listing</div>
+                        <div class="rec-badges">
+                            <span class="badge badge-low">low impact</span>
+                            <span class="badge badge-high">low effort</span>
+                        </div>
+                        <button class="guide-btn">
+                            Auto-fix ⚡
+                        </button>
+                    </div>
+                </div>
+
+                <div style="margin-top: 32px; padding: 24px; background: linear-gradient(135deg, #374151, #4b5563); border-radius: 12px; border: 1px solid #6b7280;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 4px;">Ready to enhance your AI reputation?</h3>
+                            <p style="color: #d1d5db;">Get detailed guides and automated tools with RepEnhance Pro</p>
+                        </div>
+                        <button style="background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-left: 16px;">
+                            Upgrade to Pro →
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showScreen(screenId) {
+            document.querySelectorAll('[id$="Screen"]').forEach(screen => {
+                screen.classList.add('hidden');
+            });
+            document.getElementById(screenId).classList.remove('hidden');
+        }
+
+        function toggleGuide(guideId) {
+            const guide = document.getElementById(guideId);
+            guide.classList.toggle('show');
+        }
+
+        function generateRandomScores() {
+            return {
+                overall: Math.floor(Math.random() * 30) + 70,
+                professional: Math.floor(Math.random() * 25) + 75,
+                visibility: Math.floor(Math.random() * 40) + 45,
+                accuracy: Math.floor(Math.random() * 20) + 65
+            };
+        }
+
+        function updateScores(scores) {
+            document.getElementById('overallScore').textContent = scores.overall;
+            document.getElementById('professionalScore').textContent = scores.professional;
+            document.getElementById('visibilityScore').textContent = scores.visibility;
+            document.getElementById('accuracyScore').textContent = scores.accuracy;
+
+            // Update colors based on scores
+            const scoreElements = [
+                { element: document.getElementById('overallScore'), score: scores.overall },
+                { element: document.getElementById('professionalScore'), score: scores.professional },
+                { element: document.getElementById('visibilityScore'), score: scores.visibility },
+                { element: document.getElementById('accuracyScore'), score: scores.accuracy }
+            ];
+
+            scoreElements.forEach(({ element, score }) => {
+                element.className = 'score-value ' + (score >= 80 ? 'score-high' : score >= 60 ? 'score-medium' : 'score-low');
+            });
+        }
+
+        document.getElementById('analysisForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const location = document.getElementById('location').value;
+            const affiliation = document.getElementById('affiliation').value;
+
+            if (!name || !location) {
+                alert('Please enter both your name and location to continue.');
+                return;
+            }
+
+            // Update report header
+            document.getElementById('reportFor').textContent = `for ${name} in ${location}`;
+
+            // Show loading screen
+            showScreen('loadingScreen');
+
+            // Simulate progress
+            let step = 1;
+            const progressSteps = [
+                { id: 'step1', delay: 1000 },
+                { id: 'step2', delay: 2000 },
+                { id: 'step3', delay: 3000 }
+            ];
+
+            progressSteps.forEach((stepInfo, index) => {
+                setTimeout(() => {
+                    document.getElementById(stepInfo.id).classList.add('completed');
+                    document.getElementById(stepInfo.id + '-status').textContent = '✅';
+                    
+                    if (index === progressSteps.length - 1) {
+                        // Show results after last step
+                        setTimeout(() => {
+                            const scores = generateRandomScores();
+                            updateScores(scores);
+                            showScreen('resultsScreen');
+                        }, 500);
+                    }
+                }, stepInfo.delay);
+            });
+        });
+
+        // Initialize with some sample data
+        document.getElementById('name').value = 'John Doe';
+        document.getElementById('location').value = 'San Francisco, CA';
+        document.getElementById('affiliation').value = 'Stanford University';
+    </script>
+</body>
+</html>

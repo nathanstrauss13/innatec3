@@ -1,0 +1,25 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.python-version
+
+# Virtual env
+.venv/
+venv/
+
+# Local environment files
+.env
+.env.*
+config/.env
+
+# Caches
+output/.cache/
+
+# Build artifacts / generated outputs
+output/

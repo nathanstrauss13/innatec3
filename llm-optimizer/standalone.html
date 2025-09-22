@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM Training Optimizer - Standalone Version</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .loading {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen">
+        <!-- Header -->
+        <header class="gradient-bg text-white py-8">
+            <div class="container mx-auto px-4">
+                <h1 class="text-4xl font-bold text-center mb-2">LLM Training Optimizer</h1>
+                <p class="text-xl text-center opacity-90">Analyze URLs for AI training optimization</p>
+                <p class="text-center mt-2 opacity-75">by Innate C3</p>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="container mx-auto px-4 py-8">
+            <div class="max-w-4xl mx-auto">
+                <!-- URL Input Section -->
+                <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+                    <h2 class="text-2xl font-semibold mb-4">Analyze Your Content</h2>
+                    <p class="text-gray-600 mb-6">Enter any URL to receive recommendations for optimizing content for LLM training.</p>
+                    
+                    <form id="analyzeForm" class="space-y-4">
+                        <div>
+                            <label for="url" class="block text-sm font-medium text-gray-700 mb-2">Website URL</label>
+                            <div class="flex">
+                                <input 
+                                    type="url" 
+                                    id="url" 
+                                    name="url" 
+                                    placeholder="https://example.com/your-page"
+                                    class="flex-1 px-4 py-3 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                                    required
+                                />
+                                <button 
+                                    type="submit" 
+                                    id="analyzeBtn"
+                                    class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-r-lg font-medium transition-colors"
+                                >
+                                    Analyze
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Note -->
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-8">
+                    <h3 class="text-lg font-medium text-yellow-800 mb-2">⚠️ CORS Limitation Notice</h3>
+                    <p class="text-yellow-700">This standalone version cannot directly fetch URLs due to browser CORS policies. For full functionality, please use the Flask application version.</p>
+                    <p class="text-yellow-700 mt-2">However, you can manually analyze content by following the recommendations below.</p>
+                </div>
+
+                <!-- Manual Analysis Section -->
+                <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+                    <h2 class="text-2xl font-semibold mb-4">Manual LLM Training Optimization Checklist</h2>
+                    
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="text-lg font-semibold mb-4 text-blue-600">Technical Recommendations</h3>
+                            <ul class="space-y-2 text-sm">
+                                <li class="flex items-start">
+                                    <span class="text-green-500 mr-2">✓</span>
+                                    <span>Use semantic HTML5 elements (article, section, header, nav, footer)</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-green-500 mr-2">✓</span>
+                                    <span>Implement proper heading hierarchy (H1 → H2 → H3)</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-green-500 mr-2">✓</span>
+                                    <span>Add structured data (JSON-LD) for better machine understanding</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-green-500 mr-2">✓</span>
+                                    <span>Include comprehensive meta descriptions and titles</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-green-500 mr-2">✓</span>
+                                    <span>Use descriptive alt text for all images</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-green-500 mr-2">✓</span>
+                                    <span>Ensure proper internal linking with descriptive anchor text</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-semibold mb-4 text-purple-600">Content Quality Recommendations</h3>
+                            <ul class="space-y-2 text-sm">
+                                <li class="flex items-start">
+                                    <span class="text-green-500 mr-2">✓</span>
+                                    <span>Write clear, comprehensive, and factually accurate content</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-green-500 mr-2">✓</span>
+                                    <span>Use precise terminology and avoid ambiguous language</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-green-500 mr-2">✓</span>
+                                    <span>Include relevant context and background information</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-green-500 mr-2">✓</span>
+                                    <span>Provide examples and practical applications</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-green-500 mr-2">✓</span>
+                                    <span>Maintain consistent tone and style throughout</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-green-500 mr-2">✓</span>
+                                    <span>Include citations and references to sources</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Discoverability Section -->
+                <div class="bg-white rounded-lg shadow-lg p-8">
+                    <h2 class="text-2xl font-semibold mb-4">Discoverability & SEO Optimization</h2>
+                    
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <h3 class="font-semibold text-blue-800 mb-2">Technical SEO</h3>
+                            <ul class="text-sm space-y-1">
+                                <li>• XML sitemap</li>
+                                <li>• Robot.txt optimization</li>
+                                <li>• Clean URL structure</li>
+                                <li>• Fast loading times</li>
+                                <li>• Mobile responsiveness</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-green-50 p-4 rounded-lg">
+                            <h3 class="font-semibold text-green-800 mb-2">Content Organization</h3>
+                            <ul class="text-sm space-y-1">
+                                <li>• Clear categories/tags</li>
+                                <li>• Related content links</li>
+                                <li>• Breadcrumb navigation</li>
+                                <li>• Content hierarchy</li>
+                                <li>• Search functionality</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-purple-50 p-4 rounded-lg">
+                            <h3 class="font-semibold text-purple-800 mb-2">Machine Readability</h3>
+                            <ul class="text-sm space-y-1">
+                                <li>• Schema.org markup</li>
+                                <li>• OpenGraph tags</li>
+                                <li>• Twitter Cards</li>
+                                <li>• Canonical URLs</li>
+                                <li>• RSS/Atom feeds</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Demo Analysis -->
+                <div id="demoAnalysis" class="hidden bg-white rounded-lg shadow-lg p-8 mt-8">
+                    <h2 class="text-2xl font-semibold mb-4">Example Analysis</h2>
+                    <div id="analysisResults"></div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-gray-800 text-white py-8 mt-16">
+            <div class="container mx-auto px-4 text-center">
+                <p class="mb-2">LLM Training Optimizer by <strong>Innate C3</strong></p>
+                <p class="text-gray-400 text-sm">Corporate Communications & Content Strategy</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        document.getElementById('analyzeForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const url = document.getElementById('url').value.trim();
+            if (!url) return;
+            
+            // Show demo analysis since we can't actually fetch URLs
+            showDemoAnalysis(url);
+        });
+        
+        function showDemoAnalysis(url) {
+            const demoSection = document.getElementById('demoAnalysis');
+            const resultsDiv = document.getElementById('analysisResults');
+            
+            resultsDiv.innerHTML = `
+                <div class="space-y-6">
+                    <div class="border-l-4 border-blue-500 pl-4">
+                        <h3 class="font-semibold text-blue-700">URL Analyzed</h3>
+                        <p class="text-sm text-gray-600">${url}</p>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-red-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-red-800 mb-2">Common Issues to Check</h4>
+                            <ul class="text-sm space-y-1 text-red-700">
+                                <li>• Missing or poor meta descriptions</li>
+                                <li>• Non-semantic HTML structure</li>
+                                <li>• Missing alt text on images</li>
+                                <li>• Poor heading hierarchy</li>
+                                <li>• No structured data markup</li>
+                                <li>• Thin or duplicate content</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-green-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-green-800 mb-2">Recommended Improvements</h4>
+                            <ul class="text-sm space-y-1 text-green-700">
+                                <li>• Add comprehensive meta descriptions</li>
+                                <li>• Use semantic HTML5 elements</li>
+                                <li>• Implement JSON-LD structured data</li>
+                                <li>• Create clear content hierarchy</li>
+                                <li>• Add internal linking strategy</li>
+                                <li>• Ensure content is comprehensive</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <h4 class="font-semibold text-blue-800 mb-2">Next Steps</h4>
+                        <ol class="text-sm space-y-1 text-blue-700 list-decimal list-inside">
+                            <li>View the page source and check for semantic HTML usage</li>
+                            <li>Validate structured data using Google's Rich Results Test</li>
+                            <li>Analyze content depth and comprehensiveness</li>
+                            <li>Check internal linking and navigation structure</li>
+                            <li>Ensure all images have descriptive alt text</li>
+                            <li>Review meta tags and SEO elements</li>
+                        </ol>
+                    </div>
+                </div>
+            `;
+            
+            demoSection.classList.remove('hidden');
+            demoSection.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>

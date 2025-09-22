@@ -1,0 +1,25 @@
+{
+  "expo": {
+    "name": "RepRead",
+    "slug": "repread-app",
+    "version": "1.0.0",
+    "sdkVersion": "53.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.repread.app"
+    },
+    "android": {
+      "package": "com.repread.app"
+    },
+    "web": {
+    },
+    "plugins": [
+      "expo-font"
+    ]
+  }
+}

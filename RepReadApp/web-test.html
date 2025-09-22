@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RepRead - AI Reputation Management</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background-color: #111827;
+            color: #ffffff;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 24px 16px;
+        }
+        
+        .card {
+            background-color: #1f2937;
+            border-radius: 16px;
+            border: 1px solid #374151;
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+        
+        .title {
+            font-size: 30px;
+            font-weight: bold;
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        
+        .subtitle {
+            font-size: 20px;
+            font-weight: 500;
+            color: #d1d5db;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        
+        .description {
+            font-size: 16px;
+            color: #9ca3af;
+            text-align: center;
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        .label {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 500;
+            color: #e5e7eb;
+            margin-bottom: 8px;
+        }
+        
+        .icon {
+            margin-right: 8px;
+            font-size: 16px;
+        }
+        
+        .input {
+            width: 100%;
+            background-color: #374151;
+            border: 1px solid #4b5563;
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 16px;
+            color: #ffffff;
+            transition: border-color 0.2s;
+        }
+        
+        .input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            border-width: 2px;
+        }
+        
+        .input::placeholder {
+            color: #9ca3af;
+        }
+        
+        .button {
+            width: 100%;
+            background: linear-gradient(to right, #2563eb, #7c3aed);
+            color: #ffffff;
+            font-weight: 600;
+            padding: 16px 24px;
+            border-radius: 12px;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.2s;
+        }
+        
+        .button:hover {
+            opacity: 0.9;
+        }
+        
+        .button:disabled {
+            background: #4b5563;
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .privacy-notice {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 16px;
+            padding: 12px;
+            background-color: #374151;
+            border-radius: 8px;
+        }
+        
+        .privacy-text {
+            font-size: 12px;
+            color: #d1d5db;
+            text-align: center;
+            margin-left: 8px;
+        }
+        
+        .loading-screen {
+            text-align: center;
+            padding: 48px 16px;
+        }
+        
+        .loading-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffffff;
+            margin-bottom: 16px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: #374151;
+            border-radius: 4px;
+            margin: 16px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background-color: #3b82f6;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        
+        .ai-service {
+            background-color: #1f2937;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 1px solid #374151;
+        }
+        
+        .ai-service.active {
+            border-color: #3b82f6;
+        }
+        
+        .service-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .service-icon {
+            font-size: 20px;
+            margin-right: 12px;
+        }
+        
+        .service-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+        
+        .current-query {
+            background-color: #374151;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 8px 0;
+            font-style: italic;
+            color: #60a5fa;
+            font-size: 14px;
+        }
+        
+        .results-screen {
+            padding: 16px;
+        }
+        
+        .score-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .score-card {
+            text-align: center;
+            padding: 16px;
+        }
+        
+        .score-value {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        
+        .score-label {
+            font-size: 12px;
+            color: #9ca3af;
+            text-transform: uppercase;
+        }
+        
+        .score-high { color: #4ade80; }
+        .score-medium { color: #facc15; }
+        .score-low { color: #f87171; }
+        
+        .hidden { display: none; }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #374151;
+            border-top: 2px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        const RepReadApp = () => {
+            const [currentScreen, setCurrentScreen] = useState('input');
+            const [formData, setFormData] = useState({
+                name: '',
+                location: '',
+                company: '',
+                title: ''
+            });
+            const [progress, setProgress] = useState(0);
+            const [currentQuery, setCurrentQuery] = useState('');
+            const [analysisData, setAnalysisData] = useState(null);
+
+            const handleInputChange = (field, value) => {
+                setFormData(prev => ({ ...prev, [field]: value }));
+            };
+
+            const startAnalysis = () => {
+                if (!formData.name.trim() || !formData.location.trim()) {
+                    alert('Please enter both your name and location to continue.');
+                    return;
+                }
+                setCurrentScreen('loading');
+                simulateAnalysis();
+            };
+
+            const simulateAnalysis = async () => {
+                const queries = [
+                    `${formData.name}`,
+                    `Who is ${formData.name}?`,
+                    `${formData.name} professional background`,
+                    `${formData.name} ${formData.location}`,
+                    `${formData.name} ${formData.company || 'career'}`,
+                    `${formData.name} achievements`,
+                    `${formData.name} LinkedIn profile`,
+                    `${formData.name} recent news`
+                ];
+
+                for (let i = 0; i < queries.length; i++) {
+                    setCurrentQuery(queries[i]);
+                    setProgress(((i + 1) / queries.length) * 100);
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+
+                // Generate mock results
+                const results = {
+                    scores: {
+                        overall: Math.floor(Math.random() * 30) + 65,
+                        professional: Math.floor(Math.random() * 25) + 70,
+                        visibility: Math.floor(Math.random() * 40) + 45,
+                        accuracy: Math.floor(Math.random() * 20) + 75
+                    },
+                    queriesExecuted: queries.length,
+                    platformsFound: 4
+                };
+
+                setAnalysisData(results);
+                
+                // DEVELOPER MODE: Skip paywall for testing
+                const DEVELOPER_MODE = true; // Set to false for production
+                
+                if (DEVELOPER_MODE) {
+                    setCurrentScreen('results');
+                } else {
+                    setCurrentScreen('paywall');
+                }
+            };
+
+            const getScoreClass = (score) => {
+                if (score >= 80) return 'score-high';
+                if (score >= 60) return 'score-medium';
+                return 'score-low';
+            };
+
+            const isFormValid = formData.name.trim() && formData.location.trim();
+
+            return (
+                <div className="container">
+                    {/* Input Screen */}
+                    <div className={currentScreen === 'input' ? '' : 'hidden'}>
+                        <div className="card">
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
+                                <span style={{ fontSize: '32px', color: '#60a5fa', marginRight: '8px' }}>🔍</span>
+                                <h1 className="title">RepRead</h1>
+                            </div>
+                            <h2 className="subtitle">See what AI knows about you</h2>
+                            <p className="description">
+                                Discover how ChatGPT, Claude, and Gemini represent you when colleagues 
+                                and clients search your name. Get actionable insights to enhance your 
+                                professional reputation.
+                            </p>
+                        </div>
+
+                        <div className="card">
+                            <h3 style={{ fontSize: '20px', fontWeight: 'bold', textAlign: 'center', marginBottom: '24px' }}>
+                                Check Your Professional Presence
+                            </h3>
+
+                            <div className="form-group">
+                                <label className="label">
+                                    <span className="icon">👤</span>
+                                    Full Name *
+                                </label>
+                                <input
+                                    type="text"
+                                    className="input"
+                                    value={formData.name}
+                                    onChange={(e) => handleInputChange('name', e.target.value)}
+                                    placeholder="Sarah Johnson"
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label className="label">
+                                    <span className="icon">📍</span>
+                                    City, State *
+                                </label>
+                                <input
+                                    type="text"
+                                    className="input"
+                                    value={formData.location}
+                                    onChange={(e) => handleInputChange('location', e.target.value)}
+                                    placeholder="San Francisco, CA"
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label className="label">
+                                    <span className="icon">🏢</span>
+                                    Current Company
+                                </label>
+                                <input
+                                    type="text"
+                                    className="input"
+                                    value={formData.company}
+                                    onChange={(e) => handleInputChange('company', e.target.value)}
+                                    placeholder="Acme Corporation"
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label className="label">
+                                    <span className="icon">💼</span>
+                                    Job Title
+                                </label>
+                                <input
+                                    type="text"
+                                    className="input"
+                                    value={formData.title}
+                                    onChange={(e) => handleInputChange('title', e.target.value)}
+                                    placeholder="Senior Director"
+                                />
+                            </div>
+
+                            <button
+                                className="button"
+                                onClick={startAnalysis}
+                                disabled={!isFormValid}
+                            >
+                                <span style={{ marginRight: '8px' }}>🔍</span>
+                                Analyze My Reputation
+                            </button>
+
+                            <div className="privacy-notice">
+                                <span style={{ color: '#4ade80' }}>🔒</span>
+                                <span className="privacy-text">
+                                    Your data is analyzed securely and never stored permanently
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Loading Screen */}
+                    <div className={currentScreen === 'loading' ? '' : 'hidden'}>
+                        <div className="loading-screen">
+                            <h2 className="loading-title">Analyzing Your AI Presence</h2>
+                            <p style={{ color: '#9ca3af', marginBottom: '16px' }}>
+                                Executing queries across ChatGPT, Claude, Gemini, and Perplexity
+                            </p>
+                            
+                            <div className="progress-bar">
+                                <div className="progress-fill" style={{ width: `${progress}%` }}></div>
+                            </div>
+                            
+                            <p style={{ fontSize: '14px', color: '#9ca3af', marginBottom: '24px' }}>
+                                {Math.round(progress)}% complete
+                            </p>
+
+                            {currentQuery && (
+                                <div className="current-query">
+                                    Currently analyzing: "{currentQuery}"
+                                </div>
+                            )}
+
+                            <div style={{ marginTop: '32px' }}>
+                                <div className="ai-service active">
+                                    <div className="service-header">
+                                        <span className="service-icon">🤖</span>
+                                        <span className="service-name">ChatGPT-4</span>
+                                        <div className="spinner"></div>
+                                    </div>
+                                </div>
+                                
+                                <div className="ai-service">
+                                    <div className="service-header">
+                                        <span className="service-icon">🧠</span>
+                                        <span className="service-name">Claude</span>
+                                    </div>
+                                </div>
+                                
+                                <div className="ai-service">
+                                    <div className="service-header">
+                                        <span className="service-icon">💎</span>
+                                        <span className="service-name">Gemini</span>
+                                    </div>
+                                </div>
+                                
+                                <div className="ai-service">
+                                    <div className="service-header">
+                                        <span className="service-icon">🔍</span>
+                                        <span className="service-name">Perplexity</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Results Screen */}
+                    <div className={currentScreen === 'results' ? '' : 'hidden'}>
+                        <div className="results-screen">
+                            <div className="card">
+                                <h2 style={{ fontSize: '24px', fontWeight: 'bold', textAlign: 'center', marginBottom: '8px' }}>
+                                    AI Reputation Report
+                                </h2>
+                                <p style={{ color: '#9ca3af', textAlign: 'center', marginBottom: '24px' }}>
+                                    for {formData.name}
+                                </p>
+                                
+                                <h3 style={{ fontSize: '20px', fontWeight: 'bold', textAlign: 'center', marginBottom: '24px' }}>
+                                    Your AI Reputation Score
+                                </h3>
+                                
+                                {analysisData && (
+                                    <div className="score-grid">
+                                        <div className="score-card">
+                                            <div className={`score-value ${getScoreClass(analysisData.scores.overall)}`}>
+                                                {analysisData.scores.overall}
+                                            </div>
+                                            <div className="score-label">Overall</div>
+                                        </div>
+                                        <div className="score-card">
+                                            <div className={`score-value ${getScoreClass(analysisData.scores.professional)}`}>
+                                                {analysisData.scores.professional}
+                                            </div>
+                                            <div className="score-label">Professional</div>
+                                        </div>
+                                        <div className="score-card">
+                                            <div className={`score-value ${getScoreClass(analysisData.scores.visibility)}`}>
+                                                {analysisData.scores.visibility}
+                                            </div>
+                                            <div className="score-label">Visibility</div>
+                                        </div>
+                                        <div className="score-card">
+                                            <div className={`score-value ${getScoreClass(analysisData.scores.accuracy)}`}>
+                                                {analysisData.scores.accuracy}
+                                            </div>
+                                            <div className="score-label">Accuracy</div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="card">
+                                <h3 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '16px' }}>
+                                    Analysis Summary
+                                </h3>
+                                {analysisData && (
+                                    <div style={{ display: 'flex', justifyContent: 'space-around', textAlign: 'center' }}>
+                                        <div>
+                                            <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#60a5fa' }}>
+                                                {analysisData.queriesExecuted}
+                                            </div>
+                                            <div style={{ fontSize: '12px', color: '#9ca3af' }}>Queries Executed</div>
+                                        </div>
+                                        <div>
+                                            <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#4ade80' }}>
+                                                {analysisData.platformsFound}
+                                            </div>
+                                            <div style={{ fontSize: '12px', color: '#9ca3af' }}>AI Platforms</div>
+                                        </div>
+                                        <div>
+                                            <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#facc15' }}>
+                                                3
+                                            </div>
+                                            <div style={{ fontSize: '12px', color: '#9ca3af' }}>Found You</div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="card">
+                                <h3 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '16px' }}>
+                                    🎉 RepRead Demo Complete!
+                                </h3>
+                                <p style={{ color: '#d1d5db', marginBottom: '16px' }}>
+                                    This is a working demo of the RepRead app. The full React Native version includes:
+                                </p>
+                                <ul style={{ color: '#9ca3af', marginLeft: '20px', lineHeight: '1.6' }}>
+                                    <li>Real-time AI query visualization</li>
+                                    <li>Freemium paywall with pricing ($4.99 single / $19.99 Pro)</li>
+                                    <li>Word cloud analysis of AI associations</li>
+                                    <li>Discrepancy detection across platforms</li>
+                                    <li>Actionable recommendations with impact ratings</li>
+                                    <li>Social sharing capabilities</li>
+                                    <li>Analytics integration</li>
+                                </ul>
+                                
+                                <button 
+                                    className="button" 
+                                    onClick={() => {
+                                        setCurrentScreen('input');
+                                        setFormData({ name: '', location: '', company: '', title: '' });
+                                        setProgress(0);
+                                        setCurrentQuery('');
+                                        setAnalysisData(null);
+                                    }}
+                                    style={{ marginTop: '16px' }}
+                                >
+                                    ↻ Try Another Analysis
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<RepReadApp />, document.getElementById('root'));
+    </script>
+</body>
+</html>

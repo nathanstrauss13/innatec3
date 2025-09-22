@@ -1,0 +1,557 @@
+{
+  "job_id": "2d97ee37-6",
+  "input": {
+    "brand": {
+      "url": "https://www.americanexpress.com",
+      "name": "Americanexpress"
+    },
+    "competitors": [],
+    "query_budget": 25,
+    "providers": [
+      "llm_browsing"
+    ]
+  },
+  "meta": {
+    "started_at": 1755702690.574854,
+    "finished_at": 1755702708.7927182,
+    "duration_sec": 18.22,
+    "total_prompts": 8,
+    "total_citations": 24
+  },
+  "prompts": [
+    {
+      "id": "5e1341e6",
+      "entity": "Americanexpress",
+      "entity_type": "brand",
+      "kind": "general",
+      "text": "best the category"
+    },
+    {
+      "id": "39a30a62",
+      "entity": "Americanexpress",
+      "entity_type": "brand",
+      "kind": "general",
+      "text": "top the category for beginners"
+    },
+    {
+      "id": "53cdc040",
+      "entity": "Americanexpress",
+      "entity_type": "brand",
+      "kind": "general",
+      "text": "Americanexpress vs top alternatives in the category"
+    },
+    {
+      "id": "8d8b924c",
+      "entity": "Americanexpress",
+      "entity_type": "brand",
+      "kind": "general",
+      "text": "is Americanexpress worth it for the category"
+    },
+    {
+      "id": "d8005107",
+      "entity": "Americanexpress",
+      "entity_type": "brand",
+      "kind": "general",
+      "text": "Americanexpress review in the context of the category"
+    },
+    {
+      "id": "5357240a",
+      "entity": "Americanexpress",
+      "entity_type": "brand",
+      "kind": "media",
+      "text": "who covers Americanexpress in the category, cite sources"
+    },
+    {
+      "id": "f24f4c9c",
+      "entity": "Americanexpress",
+      "entity_type": "brand",
+      "kind": "media",
+      "text": "best articles about Americanexpress for the category, cite sources"
+    },
+    {
+      "id": "201653cd",
+      "entity": "Americanexpress",
+      "entity_type": "brand",
+      "kind": "media",
+      "text": "background and FAQ resources for Americanexpress in the category, cite sources"
+    }
+  ],
+  "providers_used": [
+    "llm_browsing"
+  ],
+  "runs_sample": [
+    {
+      "tool": "llm_browsing",
+      "prompt_id": "5e1341e6",
+      "prompt_text": "best the category",
+      "entity": "Americanexpress",
+      "citations": [
+        {
+          "url": "https://www.nytimes.com/",
+          "title": null,
+          "domain": "nytimes.com"
+        },
+        {
+          "url": "https://www.wsj.com/business/",
+          "title": null,
+          "domain": "wsj.com"
+        },
+        {
+          "url": "https://www.nerdwallet.com/article/",
+          "title": null,
+          "domain": "nerdwallet.com"
+        }
+      ]
+    },
+    {
+      "tool": "llm_browsing",
+      "prompt_id": "39a30a62",
+      "prompt_text": "top the category for beginners",
+      "entity": "Americanexpress",
+      "citations": [
+        {
+          "url": "https://www.nerdwallet.com/best/",
+          "title": null,
+          "domain": "nerdwallet.com"
+        },
+        {
+          "url": "https://www.theverge.com/tech/",
+          "title": null,
+          "domain": "theverge.com"
+        },
+        {
+          "url": "https://www.usnews.com/money/",
+          "title": null,
+          "domain": "usnews.com"
+        }
+      ]
+    },
+    {
+      "tool": "llm_browsing",
+      "prompt_id": "53cdc040",
+      "prompt_text": "Americanexpress vs top alternatives in the category",
+      "entity": "Americanexpress",
+      "citations": [
+        {
+          "url": "https://www.wsj.com/",
+          "title": null,
+          "domain": "wsj.com"
+        },
+        {
+          "url": "https://www.theverge.com/tech/",
+          "title": null,
+          "domain": "theverge.com"
+        }
+      ]
+    },
+    {
+      "tool": "llm_browsing",
+      "prompt_id": "8d8b924c",
+      "prompt_text": "is Americanexpress worth it for the category",
+      "entity": "Americanexpress",
+      "citations": [
+        {
+          "url": "https://www.forbes.com/advisor/",
+          "title": null,
+          "domain": "forbes.com"
+        },
+        {
+          "url": "https://www.usnews.com/insurance/",
+          "title": null,
+          "domain": "usnews.com"
+        },
+        {
+          "url": "https://www.nerdwallet.com/article/",
+          "title": null,
+          "domain": "nerdwallet.com"
+        }
+      ]
+    },
+    {
+      "tool": "llm_browsing",
+      "prompt_id": "d8005107",
+      "prompt_text": "Americanexpress review in the context of the category",
+      "entity": "Americanexpress",
+      "citations": [
+        {
+          "url": "https://www.theverge.com/",
+          "title": null,
+          "domain": "theverge.com"
+        },
+        {
+          "url": "https://www.wsj.com/",
+          "title": null,
+          "domain": "wsj.com"
+        },
+        {
+          "url": "https://www.usnews.com/insurance/",
+          "title": null,
+          "domain": "usnews.com"
+        },
+        {
+          "url": "https://www.nerdwallet.com/article/",
+          "title": null,
+          "domain": "nerdwallet.com"
+        }
+      ]
+    },
+    {
+      "tool": "llm_browsing",
+      "prompt_id": "5357240a",
+      "prompt_text": "who covers Americanexpress in the category, cite sources",
+      "entity": "Americanexpress",
+      "citations": [
+        {
+          "url": "https://www.cnbc.com/select/",
+          "title": null,
+          "domain": "cnbc.com"
+        },
+        {
+          "url": "https://www.nerdwallet.com/best/",
+          "title": null,
+          "domain": "nerdwallet.com"
+        },
+        {
+          "url": "https://www.nytimes.com/business/",
+          "title": null,
+          "domain": "nytimes.com"
+        }
+      ]
+    },
+    {
+      "tool": "llm_browsing",
+      "prompt_id": "f24f4c9c",
+      "prompt_text": "best articles about Americanexpress for the category, cite sources",
+      "entity": "Americanexpress",
+      "citations": [
+        {
+          "url": "https://www.forbes.com/sites/",
+          "title": null,
+          "domain": "forbes.com"
+        },
+        {
+          "url": "https://www.wsj.com/",
+          "title": null,
+          "domain": "wsj.com"
+        },
+        {
+          "url": "https://www.theverge.com/tech/",
+          "title": null,
+          "domain": "theverge.com"
+        },
+        {
+          "url": "https://www.nytimes.com/",
+          "title": null,
+          "domain": "nytimes.com"
+        }
+      ]
+    },
+    {
+      "tool": "llm_browsing",
+      "prompt_id": "201653cd",
+      "prompt_text": "background and FAQ resources for Americanexpress in the category, cite sources",
+      "entity": "Americanexpress",
+      "citations": [
+        {
+          "url": "https://www.wsj.com/",
+          "title": null,
+          "domain": "wsj.com"
+        },
+        {
+          "url": "https://www.theverge.com/tech/",
+          "title": null,
+          "domain": "theverge.com"
+        }
+      ]
+    }
+  ],
+  "top_domains": [
+    {
+      "domain": "wsj.com",
+      "count": 5,
+      "share": 0.2083,
+      "providers": [
+        "llm_browsing"
+      ],
+      "category": "Tier1"
+    },
+    {
+      "domain": "nerdwallet.com",
+      "count": 5,
+      "share": 0.2083,
+      "providers": [
+        "llm_browsing"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "domain": "theverge.com",
+      "count": 5,
+      "share": 0.2083,
+      "providers": [
+        "llm_browsing"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "domain": "nytimes.com",
+      "count": 3,
+      "share": 0.125,
+      "providers": [
+        "llm_browsing"
+      ],
+      "category": "Tier1"
+    },
+    {
+      "domain": "usnews.com",
+      "count": 3,
+      "share": 0.125,
+      "providers": [
+        "llm_browsing"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "domain": "forbes.com",
+      "count": 2,
+      "share": 0.0833,
+      "providers": [
+        "llm_browsing"
+      ],
+      "category": "Tier1"
+    },
+    {
+      "domain": "cnbc.com",
+      "count": 1,
+      "share": 0.0417,
+      "providers": [
+        "llm_browsing"
+      ],
+      "category": "Tier1"
+    }
+  ],
+  "top_pages": [
+    {
+      "url": "https://www.theverge.com/tech/",
+      "domain": "theverge.com",
+      "count": 4,
+      "share": 0.1667,
+      "providers": [
+        "llm_browsing"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "url": "https://www.wsj.com/",
+      "domain": "wsj.com",
+      "count": 4,
+      "share": 0.1667,
+      "providers": [
+        "llm_browsing"
+      ],
+      "category": "Tier1"
+    },
+    {
+      "url": "https://www.nerdwallet.com/article/",
+      "domain": "nerdwallet.com",
+      "count": 3,
+      "share": 0.125,
+      "providers": [
+        "llm_browsing"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "url": "https://www.nytimes.com/",
+      "domain": "nytimes.com",
+      "count": 2,
+      "share": 0.0833,
+      "providers": [
+        "llm_browsing"
+      ],
+      "category": "Tier1"
+    },
+    {
+      "url": "https://www.nerdwallet.com/best/",
+      "domain": "nerdwallet.com",
+      "count": 2,
+      "share": 0.0833,
+      "providers": [
+        "llm_browsing"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "url": "https://www.usnews.com/insurance/",
+      "domain": "usnews.com",
+      "count": 2,
+      "share": 0.0833,
+      "providers": [
+        "llm_browsing"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "url": "https://www.wsj.com/business/",
+      "domain": "wsj.com",
+      "count": 1,
+      "share": 0.0417,
+      "providers": [
+        "llm_browsing"
+      ],
+      "category": "Tier1"
+    },
+    {
+      "url": "https://www.usnews.com/money/",
+      "domain": "usnews.com",
+      "count": 1,
+      "share": 0.0417,
+      "providers": [
+        "llm_browsing"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "url": "https://www.forbes.com/advisor/",
+      "domain": "forbes.com",
+      "count": 1,
+      "share": 0.0417,
+      "providers": [
+        "llm_browsing"
+      ],
+      "category": "Tier1"
+    },
+    {
+      "url": "https://www.theverge.com/",
+      "domain": "theverge.com",
+      "count": 1,
+      "share": 0.0417,
+      "providers": [
+        "llm_browsing"
+      ],
+      "category": "Unknown"
+    },
+    {
+      "url": "https://www.cnbc.com/select/",
+      "domain": "cnbc.com",
+      "count": 1,
+      "share": 0.0417,
+      "providers": [
+        "llm_browsing"
+      ],
+      "category": "Tier1"
+    },
+    {
+      "url": "https://www.nytimes.com/business/",
+      "domain": "nytimes.com",
+      "count": 1,
+      "share": 0.0417,
+      "providers": [
+        "llm_browsing"
+      ],
+      "category": "Tier1"
+    },
+    {
+      "url": "https://www.forbes.com/sites/",
+      "domain": "forbes.com",
+      "count": 1,
+      "share": 0.0417,
+      "providers": [
+        "llm_browsing"
+      ],
+      "category": "Tier1"
+    }
+  ],
+  "by_entity": {
+    "Americanexpress": {
+      "top_domains": [
+        {
+          "key": "wsj.com",
+          "count": 5
+        },
+        {
+          "key": "nerdwallet.com",
+          "count": 5
+        },
+        {
+          "key": "theverge.com",
+          "count": 5
+        },
+        {
+          "key": "nytimes.com",
+          "count": 3
+        },
+        {
+          "key": "usnews.com",
+          "count": 3
+        },
+        {
+          "key": "forbes.com",
+          "count": 2
+        },
+        {
+          "key": "cnbc.com",
+          "count": 1
+        }
+      ],
+      "top_pages": [
+        {
+          "key": "https://www.theverge.com/tech/",
+          "count": 4
+        },
+        {
+          "key": "https://www.wsj.com/",
+          "count": 4
+        },
+        {
+          "key": "https://www.nerdwallet.com/article/",
+          "count": 3
+        },
+        {
+          "key": "https://www.nytimes.com/",
+          "count": 2
+        },
+        {
+          "key": "https://www.nerdwallet.com/best/",
+          "count": 2
+        },
+        {
+          "key": "https://www.usnews.com/insurance/",
+          "count": 2
+        },
+        {
+          "key": "https://www.wsj.com/business/",
+          "count": 1
+        },
+        {
+          "key": "https://www.usnews.com/money/",
+          "count": 1
+        },
+        {
+          "key": "https://www.forbes.com/advisor/",
+          "count": 1
+        },
+        {
+          "key": "https://www.theverge.com/",
+          "count": 1
+        },
+        {
+          "key": "https://www.cnbc.com/select/",
+          "count": 1
+        },
+        {
+          "key": "https://www.nytimes.com/business/",
+          "count": 1
+        },
+        {
+          "key": "https://www.forbes.com/sites/",
+          "count": 1
+        }
+      ],
+      "total_citations": 24
+    }
+  },
+  "gaps": {
+    "domains": []
+  }
+}
